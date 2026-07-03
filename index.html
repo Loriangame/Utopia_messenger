@@ -783,12 +783,23 @@
             border-left: 3px solid #64b5f6;
         }
         .msg.system {
-            background: transparent;
+            background: rgba(100, 181, 246, 0.15);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 12px;
+            padding: 8px 16px;
             text-align: center;
             align-self: center;
             color: #8e9fb1;
-            font-size: 11px;
-            max-width: 90%;
+            font-size: 12px;
+            max-width: 92%;
+            box-shadow: 0 0 20px rgba(100, 181, 246, 0.05);
+        }
+        .msg.system .msg-text {
+            color: #b0c4d9;
+            font-size: 12px;
+        }
+        .msg.system .msg-time {
+            color: #6b7f8f;
         }
         .msg.blocked {
             opacity: 0.5;
@@ -860,26 +871,105 @@
             cursor: pointer;
             font-size: 10px;
         }
-
-        /* ===== СИСТЕМНОЕ СООБЩЕНИЕ (ГОЛУБО-СЕРАЯ РАМОЧКА) ===== */
-        .msg.system {
-            background: rgba(100, 181, 246, 0.15);
-            border: 1px solid rgba(100, 181, 246, 0.3);
-            border-radius: 12px;
-            padding: 8px 16px;
-            text-align: center;
-            align-self: center;
+        .msg .audio-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #0e1621;
+            padding: 4px 8px;
+            border-radius: 14px;
+            border: 1px solid #2b3b4a;
+            min-width: 140px;
+        }
+        .msg .audio-container .play-btn {
+            background: #2b5278;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            color: #fff;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .msg .audio-container .audio-progress {
+            flex: 1;
+            height: 3px;
+            background: #2b3b4a;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+        .msg .audio-container .audio-progress .audio-fill {
+            height: 100%;
+            background: #64b5f6;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .msg .audio-container .audio-time {
+            font-size: 9px;
             color: #8e9fb1;
-            font-size: 12px;
-            max-width: 92%;
-            box-shadow: 0 0 20px rgba(100, 181, 246, 0.05);
+            min-width: 30px;
+            text-align: center;
         }
-        .msg.system .msg-text {
-            color: #b0c4d9;
-            font-size: 12px;
+
+        .msg-actions {
+            display: flex;
+            gap: 3px;
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            opacity: 0;
+            transition: 0.2s;
         }
-        .msg.system .msg-time {
-            color: #6b7f8f;
+        .msg:hover .msg-actions {
+            opacity: 1;
+        }
+        .msg-actions button {
+            background: #2b3b4a;
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 9px;
+            cursor: pointer;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .msg-actions button:hover {
+            transform: scale(1.1);
+        }
+        .msg-actions .pin-btn {
+            background: #2b5278;
+        }
+        .msg-actions .pin-btn.pinned {
+            background: #64b5f6;
+            color: #0e1621;
+        }
+        .msg-actions .delete-btn {
+            background: #f28b82;
+            color: #0e1621;
+        }
+        .msg-actions .delete-btn:hover {
+            background: #ff6b6b;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ===== INPUT ROW ===== */
@@ -945,6 +1035,152 @@
         #inputRow .input-wrapper input:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        /* ===== VOICE RECORD BAR ===== */
+        #voiceRecordBar {
+            display: none;
+            background: #1f2c38;
+            padding: 4px 12px;
+            border-top: 1px solid #2b3b4a;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        #voiceRecordBar.show {
+            display: flex;
+        }
+        #voiceRecordBar .voice-timer {
+            color: #f28b82;
+            font-weight: bold;
+            font-size: 13px;
+            min-width: 40px;
+        }
+        #voiceRecordBar .voice-wave {
+            flex: 1;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        #voiceRecordBar .voice-wave span {
+            display: block;
+            width: 3px;
+            background: #64b5f6;
+            border-radius: 2px;
+            animation: wave 0.5s infinite alternate;
+        }
+        @keyframes wave {
+            0% { height: 4px; }
+            100% { height: 18px; }
+        }
+        #voiceRecordBar .voice-cancel-btn {
+            background: none;
+            border: none;
+            color: #f28b82;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        #voiceRecordBar .voice-send-btn {
+            background: #64b5f6;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            color: #0e1621;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== FILE PREVIEW BAR ===== */
+        #filePreviewBar {
+            display: none;
+            background: #1f2c38;
+            padding: 3px 12px;
+            border-top: 1px solid #2b3b4a;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        #filePreviewBar.show {
+            display: flex;
+        }
+        #filePreviewBar .file-preview-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #filePreviewBar .file-preview-info .file-icon {
+            font-size: 16px;
+        }
+        #filePreviewBar .file-preview-info .file-name {
+            font-size: 11px;
+            color: #e1e9f0;
+        }
+        #filePreviewBar .file-preview-info .file-size {
+            font-size: 9px;
+            color: #8e9fb1;
+        }
+        #filePreviewBar .remove-file-btn {
+            background: none;
+            border: none;
+            color: #f28b82;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        /* ===== CIRCLE RECORDER ===== */
+        #circleRecorder {
+            display: none;
+            padding: 6px;
+            background: #0e1621;
+            border-top: 1px solid #2b3b4a;
+            flex-shrink: 0;
+        }
+        #circleRecorder video {
+            width: 100%;
+            border-radius: 10px;
+            max-height: 160px;
+            background: #000;
+        }
+        #circleRecorder .record-controls {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        #circleRecorder .record-controls button {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #circleRecorder .record-controls .btn-record {
+            background: #f28b82;
+            color: #0e1621;
+        }
+        #circleRecorder .record-controls .btn-stop {
+            background: #64b5f6;
+            color: #0e1621;
+        }
+        #circleRecorder .record-controls .btn-secondary {
+            background: #2b3b4a;
+            color: #fff;
+        }
+        #circleTimer {
+            color: #64b5f6;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 3px;
+            font-size: 13px;
         }
 
         /* ===== MODAL ===== */
@@ -1183,7 +1419,6 @@
 
         /* ===== КОМПЬЮТЕРНЫЙ РЕЖИМ ===== */
         @media (min-width: 769px) {
-            /* Верхняя панель */
             #topHeader {
                 padding: 10px 20px;
                 min-height: 60px;
@@ -1220,7 +1455,6 @@
                 padding: 8px 12px;
             }
 
-            /* Кнопки создания */
             #createBar {
                 padding: 10px 16px;
                 gap: 10px;
@@ -1231,36 +1465,28 @@
                 border-radius: 18px;
             }
 
-            /* Кнопка "Назад" в чате */
             #chatViewHeader .back-btn {
                 font-size: 30px;
                 padding: 8px 14px;
             }
 
-            /* Кнопка отправки */
             #inputRow .btn-send {
                 width: 52px;
                 height: 52px;
                 font-size: 24px;
             }
-
-            /* Кнопки в поле ввода */
             #inputRow .input-wrapper .btn-icon {
                 font-size: 24px;
                 padding: 8px 12px;
             }
-
-            /* ===== УВЕЛИЧЕННОЕ ПОЛЕ "Сообщение" ===== */
             #inputRow .input-wrapper input {
                 font-size: 18px;
                 padding: 8px 6px;
             }
             #inputRow .input-wrapper input::placeholder {
                 font-size: 16px;
-                color: #6b7f8f;
             }
 
-            /* ===== УВЕЛИЧЕННЫЕ ЧАТЫ ===== */
             .chat-item {
                 padding: 12px 16px;
                 gap: 14px;
@@ -1284,7 +1510,6 @@
                 padding: 4px 8px;
             }
 
-            /* ===== УВЕЛИЧЕННЫЕ СООБЩЕНИЯ ===== */
             .msg {
                 max-width: 65%;
                 padding: 12px 18px;
@@ -1305,8 +1530,15 @@
             .msg img {
                 max-height: 400px;
             }
+            .msg.system {
+                padding: 10px 24px;
+                font-size: 14px;
+                max-width: 80%;
+            }
+            .msg.system .msg-text {
+                font-size: 14px;
+            }
 
-            /* Кнопка "Описание" */
             #chatViewHeader .cv-name .desc-btn {
                 font-size: 17px;
                 padding: 6px 12px;
@@ -1316,7 +1548,6 @@
                 padding: 6px 10px;
             }
 
-            /* Модальное окно */
             .modal .btn-primary,
             .modal .btn-danger {
                 font-size: 19px;
@@ -1326,19 +1557,8 @@
                 font-size: 30px;
                 padding: 6px 12px;
             }
-
-            /* Системное сообщение в комп. режиме */
-            .msg.system {
-                padding: 10px 24px;
-                font-size: 14px;
-                max-width: 80%;
-            }
-            .msg.system .msg-text {
-                font-size: 14px;
-            }
         }
 
-        /* ===== АДАПТИВ ===== */
         @media (max-width: 480px) {
             #topHeader {
                 padding: 4px 8px;
@@ -1457,6 +1677,12 @@
             #chatViewHeader .cv-actions button {
                 font-size: 14px;
                 padding: 2px 4px;
+            }
+            #voiceRecordBar .voice-wave span {
+                width: 2px;
+            }
+            #circleRecorder video {
+                max-height: 120px;
             }
         }
         @media (max-width: 360px) {
@@ -1591,8 +1817,37 @@
                     <span class="pinned-arrow">↓</span>
                 </div>
                 <div id="messagesContainer"></div>
+                <div id="filePreviewBar">
+                    <div class="file-preview-info">
+                        <span class="file-icon" id="filePreviewIcon">📄</span>
+                        <div>
+                            <div class="file-name" id="filePreviewName">file.txt</div>
+                            <div class="file-size" id="filePreviewSize">0 KB</div>
+                        </div>
+                    </div>
+                    <button class="remove-file-btn" id="removeFileBtn">✕</button>
+                </div>
+                <div id="voiceRecordBar">
+                    <span class="voice-timer" id="voiceTimer">0:00</span>
+                    <div class="voice-wave" id="voiceWave">
+                        <span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <button class="voice-cancel-btn" id="voiceCancelBtn">✕</button>
+                    <button class="voice-send-btn" id="voiceSendBtn">➤</button>
+                </div>
+                <div id="circleRecorder">
+                    <video id="circlePreview" autoplay muted></video>
+                    <div class="record-controls">
+                        <button id="circleStartBtn" class="btn-record">🔴 Записать</button>
+                        <button id="circleStopBtn" class="btn-stop" disabled>⏹ Стоп</button>
+                        <button id="circleCancelBtn" class="btn-secondary">Отмена</button>
+                    </div>
+                    <div id="circleTimer">0 сек</div>
+                </div>
                 <div id="inputRow">
                     <div class="input-wrapper">
+                        <button class="btn-icon" id="cameraBtn" title="Фото">📷</button>
                         <button class="btn-icon" id="fileBtn" title="Файл">📎</button>
                         <button class="btn-icon" id="videoBtn" title="Видео">🎥</button>
                         <button class="btn-icon" id="circleBtn" title="Кружок">⭕</button>
@@ -1605,6 +1860,7 @@
 
             <input type="file" id="fileInput" class="file-input-hidden" />
             <input type="file" id="videoFileInput" accept="video/*" class="file-input-hidden" />
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="file-input-hidden" />
             <input type="file" id="avatarInput" accept="image/*" class="file-input-hidden" />
         </div>
 
@@ -1646,6 +1902,11 @@
             isRecording: false,
             recordingTimer: null,
             recordingSeconds: 0,
+            circleStream: null,
+            circleRecorder: null,
+            circleChunks: [],
+            circleTimer: null,
+            circleSeconds: 0,
         };
 
         // ======== БОТ ========
@@ -1686,6 +1947,27 @@
         function isChatBlocked(chatId) {
             const chat = getChat(chatId);
             return chat && chat.isBlocked;
+        }
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '📄', 'doc': '📄', 'txt': '📄', 'xls': '📊', 'csv': '📊',
+                'zip': '📦', 'rar': '📦', 'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️',
+                'gif': '🖼️', 'webp': '🖼️', 'mp3': '🎵', 'wav': '🎵', 'mp4': '🎬',
+                'avi': '🎬', 'mkv': '🎬', 'exe': '⚙️', 'apk': '📱', 'json': '📋',
+                'html': '📋', 'css': '📋', 'js': '📋'
+            };
+            return icons[ext] || '📎';
+        }
+        function formatDuration(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return m + ':' + (s < 10 ? '0' : '') + s;
         }
 
         // ======== LOAD/SAVE ========
@@ -1870,9 +2152,32 @@
                 div.className = `msg ${cls}${isBlocked ? ' blocked' : ''}`;
                 if ((chat.pinnedMessages || []).includes(msg.id)) div.classList.add('pinned');
                 let content = msg.text || '';
-                if (msg.video) content += `<video src="${msg.video}" controls></video>`;
-                if (msg.file) content += `<div class="file-container"><span class="file-icon">📄</span><div class="file-info"><div class="file-name">${msg.file.name}</div></div></div>`;
-                if (msg.audio) content += `<div class="file-container"><span class="file-icon">🎵</span><div class="file-info"><div class="file-name">Голосовое</div></div></div>`;
+                if (msg.video) {
+                    const videoClass = msg.isCircle ? 'circle-video' : '';
+                    content += `<video src="${msg.video}" controls class="${videoClass}"></video>`;
+                }
+                if (msg.file && msg.file.data) {
+                    const icon = getFileIcon(msg.file.name);
+                    const isImage = msg.file.type && msg.file.type.startsWith('image/');
+                    if (isImage) {
+                        content += `<img src="${msg.file.data}" alt="${msg.file.name}" />`;
+                    }
+                    content += `<div class="file-container" data-file="${msg.file.data}" data-filename="${msg.file.name}">
+                        <span class="file-icon">${icon}</span>
+                        <div class="file-info">
+                            <div class="file-name">${msg.file.name}</div>
+                            <div class="file-size">${formatFileSize(msg.file.size)}</div>
+                        </div>
+                        <button class="download-btn" data-file="${msg.file.data}" data-filename="${msg.file.name}">⬇</button>
+                    </div>`;
+                }
+                if (msg.audio && msg.audio.data) {
+                    content += `<div class="audio-container" data-audio="${msg.audio.data}">
+                        <button class="play-btn">▶</button>
+                        <div class="audio-progress"><div class="audio-fill"></div></div>
+                        <span class="audio-time">${formatDuration(msg.audio.duration || 0)}</span>
+                    </div>`;
+                }
                 div.innerHTML = `
                     <div class="msg-text">${content}</div>
                     <div class="msg-time">${formatTime(msg.time)}</div>
@@ -1888,6 +2193,67 @@
                 }
                 container.appendChild(div);
             });
+
+            // Audio handlers
+            container.querySelectorAll('.audio-container').forEach(el => {
+                const audioData = el.dataset.audio;
+                const playBtn = el.querySelector('.play-btn');
+                const progressFill = el.querySelector('.audio-fill');
+                const timeEl = el.querySelector('.audio-time');
+                let audio = null;
+                let isPlaying = false;
+                playBtn.addEventListener('click', () => {
+                    if (!audio) {
+                        audio = new Audio(audioData);
+                        audio.addEventListener('timeupdate', () => {
+                            const percent = (audio.currentTime / audio.duration) * 100;
+                            progressFill.style.width = percent + '%';
+                            timeEl.textContent = formatDuration(audio.currentTime);
+                        });
+                        audio.addEventListener('ended', () => {
+                            isPlaying = false;
+                            playBtn.textContent = '▶';
+                            progressFill.style.width = '0%';
+                        });
+                    }
+                    if (isPlaying) {
+                        audio.pause();
+                        playBtn.textContent = '▶';
+                        isPlaying = false;
+                    } else {
+                        audio.play();
+                        playBtn.textContent = '⏸';
+                        isPlaying = true;
+                    }
+                });
+                const progressBar = el.querySelector('.audio-progress');
+                progressBar.addEventListener('click', (e) => {
+                    if (!audio) return;
+                    const rect = progressBar.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    audio.currentTime = percent * audio.duration;
+                });
+            });
+
+            // File download
+            container.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const data = btn.dataset.file;
+                    const name = btn.dataset.filename || 'file';
+                    try {
+                        const link = document.createElement('a');
+                        link.href = data;
+                        link.download = name;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        btn.textContent = '✅';
+                        setTimeout(() => { btn.textContent = '⬇'; }, 1500);
+                    } catch (e) { window.open(data, '_blank'); }
+                });
+            });
+
             container.scrollTop = container.scrollHeight;
         }
 
@@ -1930,9 +2296,9 @@
             const link = window.location.origin + '/?invite=' + chatId;
             openModal('🔗 Ссылка-приглашение', `
                 <p style="color:#8e9fb1;font-size:13px;margin-bottom:8px;">Ссылка для приглашения в "${chat.name}":</p>
-                <div class="link-display">
-                    <span class="link-text" style="font-size:12px;color:#64b5f6;word-break:break-all;">${link}</span>
-                    <button class="copy-link-btn" onclick="navigator.clipboard.writeText('${link}').then(() => alert('✅ Ссылка скопирована!'))">📋</button>
+                <div style="background:#0e1621;padding:10px;border-radius:8px;display:flex;align-items:center;gap:8px;margin:8px 0;border:1px solid #2b3b4a;">
+                    <span style="flex:1;font-size:12px;color:#64b5f6;word-break:break-all;">${link}</span>
+                    <button onclick="navigator.clipboard.writeText('${link}').then(() => alert('✅ Ссылка скопирована!'))" style="background:#2b5278;border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;">📋</button>
                 </div>
                 <button class="btn-primary" onclick="closeModal()">Готово</button>
             `);
@@ -2117,7 +2483,6 @@
             }
             saveState();
             renderChatList();
-            // Добавляем системное сообщение о создании
             if (type === 'channel') {
                 addSystemMessage(chat.id, `📢 Канал "${chat.name}" создан!`);
             } else if (type === 'group') {
@@ -2162,7 +2527,6 @@
                     <button class="btn-secondary" onclick="closeModal()">Закрыть</button>
                 `);
             });
-            // Показываем кнопку "Добавить пользователя" только для групп
             const addBtn = document.getElementById('addUserBtn');
             if (addBtn) {
                 addBtn.style.display = chat.type === 'group' && chat.creator === state.user?.id ? 'inline-block' : 'none';
@@ -2214,6 +2578,204 @@
             }
         }
 
+        // ======== VOICE RECORDING ========
+        function startVoiceRecording() {
+            if (state.isRecording) return;
+            const voiceBar = document.getElementById('voiceRecordBar');
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    state.mediaRecorder = new MediaRecorder(stream);
+                    state.audioChunks = [];
+                    state.isRecording = true;
+                    state.recordingSeconds = 0;
+                    state.mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) state.audioChunks.push(e.data);
+                    };
+                    state.mediaRecorder.onstop = () => {
+                        const blob = new Blob(state.audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            const audioData = {
+                                data: ev.target.result,
+                                duration: state.recordingSeconds,
+                            };
+                            sendMessage(null, null, false, null, audioData);
+                            state.audioChunks = [];
+                            state.isRecording = false;
+                            voiceBar.classList.remove('show');
+                            document.getElementById('voiceTimer').textContent = '0:00';
+                            clearInterval(state.recordingTimer);
+                            stream.getTracks().forEach(t => t.stop());
+                        };
+                        reader.readAsDataURL(blob);
+                    };
+                    state.mediaRecorder.start();
+                    voiceBar.classList.add('show');
+                    clearInterval(state.recordingTimer);
+                    state.recordingTimer = setInterval(() => {
+                        state.recordingSeconds++;
+                        document.getElementById('voiceTimer').textContent = formatDuration(state.recordingSeconds);
+                    }, 1000);
+                })
+                .catch(err => {
+                    alert('❌ Ошибка доступа к микрофону: ' + err.message);
+                });
+        }
+
+        function stopVoiceRecording() {
+            if (state.mediaRecorder && state.isRecording) {
+                state.mediaRecorder.stop();
+            }
+        }
+
+        function cancelVoiceRecording() {
+            if (state.mediaRecorder && state.isRecording) {
+                state.mediaRecorder.stop();
+                state.audioChunks = [];
+                state.isRecording = false;
+                document.getElementById('voiceRecordBar').classList.remove('show');
+                document.getElementById('voiceTimer').textContent = '0:00';
+                clearInterval(state.recordingTimer);
+            }
+        }
+
+        // ======== CIRCLE RECORDING ========
+        function startCircleRecording() {
+            const preview = document.getElementById('circlePreview');
+            const recorderDiv = document.getElementById('circleRecorder');
+            const startBtn = document.getElementById('circleStartBtn');
+            const stopBtn = document.getElementById('circleStopBtn');
+            const timerEl = document.getElementById('circleTimer');
+
+            recorderDiv.style.display = 'block';
+            document.getElementById('inputRow').style.display = 'none';
+
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(stream => {
+                    state.circleStream = stream;
+                    preview.srcObject = stream;
+                    preview.play();
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    timerEl.textContent = '0 сек';
+                    state.circleSeconds = 0;
+                    state.circleChunks = [];
+
+                    startBtn.onclick = () => {
+                        if (!state.circleStream) return;
+                        state.circleChunks = [];
+                        const recorder = new MediaRecorder(state.circleStream, { mimeType: 'video/webm' });
+                        state.circleRecorder = recorder;
+                        recorder.ondataavailable = (e) => {
+                            if (e.data.size > 0) state.circleChunks.push(e.data);
+                        };
+                        recorder.onstop = () => {
+                            const blob = new Blob(state.circleChunks, { type: 'video/webm' });
+                            if (blob.size > 0) {
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                    sendMessage(null, ev.target.result, true, null, null);
+                                    closeCircleRecorder();
+                                };
+                                reader.readAsDataURL(blob);
+                            } else {
+                                alert('Запись не удалась');
+                                closeCircleRecorder();
+                            }
+                            state.circleChunks = [];
+                        };
+                        recorder.start(1000);
+                        startBtn.disabled = true;
+                        stopBtn.disabled = false;
+                        state.circleSeconds = 0;
+                        clearInterval(state.circleTimer);
+                        state.circleTimer = setInterval(() => {
+                            state.circleSeconds++;
+                            timerEl.textContent = state.circleSeconds + ' сек';
+                            if (state.circleSeconds >= 5) stopCircleRecording();
+                        }, 1000);
+                    };
+
+                    stopBtn.onclick = stopCircleRecording;
+                    document.getElementById('circleCancelBtn').onclick = closeCircleRecorder;
+                })
+                .catch(err => {
+                    alert('❌ Ошибка доступа к камере: ' + err.message);
+                    closeCircleRecorder();
+                });
+        }
+
+        function stopCircleRecording() {
+            if (state.circleRecorder && state.circleRecorder.state !== 'inactive') {
+                state.circleRecorder.stop();
+            }
+            clearInterval(state.circleTimer);
+            document.getElementById('circleTimer').textContent = '⏹';
+        }
+
+        function closeCircleRecorder() {
+            clearInterval(state.circleTimer);
+            if (state.circleStream) {
+                state.circleStream.getTracks().forEach(t => t.stop());
+                state.circleStream = null;
+            }
+            if (state.circleRecorder) {
+                try { state.circleRecorder.stop(); } catch (e) {}
+                state.circleRecorder = null;
+            }
+            document.getElementById('circleRecorder').style.display = 'none';
+            document.getElementById('inputRow').style.display = 'flex';
+            document.getElementById('circlePreview').srcObject = null;
+            state.circleChunks = [];
+        }
+
+        // ======== FILE HANDLING ========
+        function handleFileSelect(file) {
+            if (!file) return;
+            if (file.size > 50 * 1024 * 1024) {
+                alert('Файл слишком большой! Максимум 50MB');
+                return;
+            }
+            state.pendingFile = file;
+            const bar = document.getElementById('filePreviewBar');
+            bar.classList.add('show');
+            document.getElementById('filePreviewIcon').textContent = getFileIcon(file.name);
+            document.getElementById('filePreviewName').textContent = file.name;
+            document.getElementById('filePreviewSize').textContent = formatFileSize(file.size);
+        }
+
+        function clearFilePreview() {
+            state.pendingFile = null;
+            document.getElementById('filePreviewBar').classList.remove('show');
+            document.getElementById('fileInput').value = '';
+        }
+
+        function sendFileMessage() {
+            if (!state.pendingFile) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileData = {
+                    name: state.pendingFile.name,
+                    size: state.pendingFile.size,
+                    type: state.pendingFile.type,
+                    data: e.target.result,
+                };
+                const text = document.getElementById('messageInput').value.trim();
+                sendMessage(text, null, false, fileData, null);
+                document.getElementById('messageInput').value = '';
+                clearFilePreview();
+            };
+            reader.readAsDataURL(state.pendingFile);
+        }
+
+        function handleCamera() {
+            document.getElementById('cameraInput').click();
+        }
+
+        function handleVideoUpload() {
+            document.getElementById('videoFileInput').click();
+        }
+
         // ======== AUTH ========
         function loginWithPassword() {
             const name = document.getElementById('loginUsername').value.trim();
@@ -2229,10 +2791,8 @@
                 errorEl.classList.remove('hidden');
                 return;
             }
-            // Проверяем, есть ли пользователь
             let user = state.allUsers.find(u => u.name === name && u.password === password);
             if (!user) {
-                // Создаём нового
                 user = {
                     id: generateId(),
                     name: name,
@@ -2244,7 +2804,6 @@
             state.user = user;
             state.bot = new SimpleBot();
             state.bot.setUserName(name);
-            // Создаём бота
             const botChat = {
                 id: generateId(),
                 type: 'chat',
@@ -2333,7 +2892,6 @@
                 }
                 const oldName = state.user.name;
                 state.user.name = name;
-                // Обновляем имя во всех чатах
                 state.chats.forEach(chat => {
                     if (chat.name === oldName) chat.name = name;
                 });
@@ -2461,10 +3019,116 @@
             });
             document.getElementById('addUserBtn').addEventListener('click', showAddUserModal);
 
+            // ===== FILE HANDLING EVENTS =====
+            document.getElementById('fileBtn').addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+            document.getElementById('removeFileBtn').addEventListener('click', clearFilePreview);
+
+            // Camera
+            document.getElementById('cameraBtn').addEventListener('click', handleCamera);
+            document.getElementById('cameraInput').addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    const file = e.target.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        alert('Выберите изображение');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const fileData = {
+                            name: file.name || 'photo.jpg',
+                            size: file.size,
+                            type: file.type,
+                            data: ev.target.result,
+                        };
+                        sendMessage(null, null, false, fileData, null);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+
+            // Video
+            document.getElementById('videoBtn').addEventListener('click', handleVideoUpload);
+            document.getElementById('videoFileInput').addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    const file = e.target.files[0];
+                    if (!file.type.startsWith('video/')) {
+                        alert('Выберите видео');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        sendMessage(null, ev.target.result, false, null, null);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+
+            // Circle
+            document.getElementById('circleBtn').addEventListener('click', startCircleRecording);
+
+            // Voice
+            let voicePressTimer = null;
+            const voiceBtn = document.getElementById('voiceBtn');
+            voiceBtn.addEventListener('mousedown', () => {
+                voicePressTimer = setTimeout(startVoiceRecording, 300);
+            });
+            voiceBtn.addEventListener('mouseup', () => {
+                clearTimeout(voicePressTimer);
+                if (state.isRecording) stopVoiceRecording();
+            });
+            voiceBtn.addEventListener('mouseleave', () => {
+                clearTimeout(voicePressTimer);
+            });
+            voiceBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                voicePressTimer = setTimeout(startVoiceRecording, 300);
+            });
+            voiceBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                clearTimeout(voicePressTimer);
+                if (state.isRecording) stopVoiceRecording();
+            });
+            document.getElementById('voiceCancelBtn').addEventListener('click', cancelVoiceRecording);
+            document.getElementById('voiceSendBtn').addEventListener('click', stopVoiceRecording);
+
+            // Avatar
+            document.getElementById('userAvatar').addEventListener('click', () => {
+                document.getElementById('avatarInput').click();
+            });
+            document.getElementById('avatarInput').addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    const file = e.target.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        alert('Выберите изображение');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        state.user.avatarImg = ev.target.result;
+                        saveState();
+                        document.getElementById('avatarText').textContent = '';
+                        document.getElementById('userAvatar').innerHTML = '<img src="' + state.user.avatarImg + '" alt="avatar" />';
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+
             // Send message
             function handleSend() {
                 const input = document.getElementById('messageInput');
-                if (input.value.trim()) {
+                if (state.pendingFile) {
+                    sendFileMessage();
+                } else if (input.value.trim()) {
                     sendMessage(input.value.trim());
                     input.value = '';
                 }

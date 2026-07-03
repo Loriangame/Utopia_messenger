@@ -81,7 +81,7 @@ app.post('/api/login', (req, res) => {
 app.get('/api/users', (req, res) => {
     const data = loadData();
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.json(data.users.map(u => ({ id: u.id, name: u.name, avatarColor: u.avatarColor })));
+    res.json(data.users.map(u => ({ id: u.id, name: u.name })));
 });
 
 // ПОЛУЧИТЬ ЧАТЫ ПОЛЬЗОВАТЕЛЯ

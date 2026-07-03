@@ -220,6 +220,11 @@
         .modal .user-select-list .user-item{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:#1f2c38;border-radius:6px;margin:3px 0}
         .modal .user-select-list .user-item .add-user-btn{background:#2ecc71;border:none;color:#0e1621;padding:2px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600}
         .modal .user-select-list .user-item .add-user-btn:hover{background:#27ae60}
+        .modal .chat-avatar-upload{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+        .modal .chat-avatar-upload .avatar-preview{width:48px;height:48px;border-radius:50%;background:#2b5278;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#fff;overflow:hidden;flex-shrink:0;border:2px solid #2b3b4a}
+        .modal .chat-avatar-upload .avatar-preview img{width:100%;height:100%;object-fit:cover}
+        .modal .chat-avatar-upload .avatar-btn{background:#2b5278;border:none;color:#fff;padding:4px 12px;border-radius:8px;cursor:pointer;font-size:12px}
+        .modal .chat-avatar-upload .avatar-btn:hover{background:#3a6b94}
 
         /* ===== DESC POPUP ===== */
         #descPopup{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -284,6 +289,7 @@
 
             .modal .user-select-list .user-item .add-user-btn{font-size:12px;padding:3px 14px}
             .modal .blocked-users-list .blocked-user .unblock-btn{font-size:12px;padding:3px 12px}
+            .modal .chat-avatar-upload .avatar-btn{font-size:12px;padding:4px 12px}
 
             .login-box .btn-primary{font-size:18px;padding:14px}
             .login-box .btn-secondary{font-size:15px;padding:12px}
@@ -347,6 +353,7 @@
 
             .modal .user-select-list .user-item .add-user-btn{font-size:14px;padding:4px 16px}
             .modal .blocked-users-list .blocked-user .unblock-btn{font-size:14px;padding:4px 14px}
+            .modal .chat-avatar-upload .avatar-btn{font-size:14px;padding:4px 14px}
 
             .login-box .btn-primary{font-size:20px;padding:16px}
             .login-box .btn-secondary{font-size:16px;padding:14px}
@@ -449,6 +456,7 @@
                         <button id="chatSettingsBtn" title="Настройки чата">⚙️</button>
                         <button id="chatInviteBtn" title="Ссылка-приглашение">🔗</button>
                         <button id="addUserBtn" title="Добавить пользователя" class="group-only">➕</button>
+                        <button id="chatAvatarBtn" title="Изменить аватар чата">🖼️</button>
                     </div>
                 </div>
                 <div id="pinnedBar"><span class="pinned-icon">📌</span><span class="pinned-text" id="pinnedText">Закреплённые</span><span class="pinned-arrow">↓</span></div>
@@ -489,6 +497,7 @@
             <input type="file" id="videoFileInput" accept="video/*" class="file-input-hidden" />
             <input type="file" id="cameraInput" accept="image/*" capture="environment" class="file-input-hidden" />
             <input type="file" id="avatarInput" accept="image/*" class="file-input-hidden" />
+            <input type="file" id="chatAvatarInput" accept="image/*" class="file-input-hidden" />
         </div>
 
         <!-- DESCRIPTION POPUP -->
@@ -632,6 +641,28 @@
             }
         }
 
+        // ======== ЗАГРУЗКА ЧАТОВ С СЕРВЕРА ========
+        async function loadChatsFromServer() {
+            if (!state.user) return;
+            try {
+                const response = await fetch('/api/chats/' + state.user.id, {
+                    cache: 'no-cache',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                const chats = await response.json();
+                state.chats = chats;
+                // Загружаем сообщения для каждого чата
+                for (let chat of state.chats) {
+                    const msgsResponse = await fetch('/api/messages/' + chat.id);
+                    chat.messages = await msgsResponse.json();
+                }
+                return true;
+            } catch (e) {
+                console.warn('Ошибка загрузки чатов:', e);
+                return false;
+            }
+        }
+
         // ======== WebSocket ========
         let ws = null;
         let wsConnected = false;
@@ -681,6 +712,22 @@
                                     delChat.pinnedMessages = delChat.pinnedMessages.filter(id => id !== data.msgId);
                                 }
                                 if (state.currentChatId === data.chatId) renderMessages();
+                                renderChatList();
+                                saveState();
+                            }
+                            break;
+                        case 'chat_updated':
+                            const updChat = getChat(data.chatId);
+                            if (updChat) {
+                                if (data.chat) {
+                                    updChat.name = data.chat.name || updChat.name;
+                                    updChat.description = data.chat.description || updChat.description;
+                                    updChat.avatar = data.chat.avatar || updChat.avatar;
+                                }
+                                if (state.currentChatId === data.chatId) {
+                                    updateChatHeader();
+                                    renderMessages();
+                                }
                                 renderChatList();
                                 saveState();
                             }
@@ -914,10 +961,14 @@
                     lastTime = formatTime(lastMsg.time);
                     if (lastText.length > 30) lastText = lastText.substring(0, 30) + '...';
                 }
-                const avatarContent = chat.avatar || chat.name.charAt(0).toUpperCase() || '?';
+                let avatarContent = chat.avatar || chat.name.charAt(0).toUpperCase() || '?';
+                // Если аватарка — это картинка (data:image)
+                if (chat.avatar && chat.avatar.startsWith('data:image')) {
+                    avatarContent = `<img src="${chat.avatar}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+                }
                 div.innerHTML = `
                     <div class="chat-avatar" style="background:${chat.avatarColor || '#2b5278'}">
-                        ${avatarContent}
+                        ${typeof avatarContent === 'string' && avatarContent.includes('<img') ? avatarContent : avatarContent}
                         ${chat.isPrivate ? '<span class="private-badge">🔒</span>' : ''}
                         ${chat.isBlocked ? '<span class="blocked-badge">🚫</span>' : ''}
                     </div>
@@ -1176,18 +1227,87 @@
                 ` : ''}
             `);
             if (isCreator) {
-                document.getElementById('saveChatSettingsBtn')?.addEventListener('click', () => {
+                document.getElementById('saveChatSettingsBtn')?.addEventListener('click', async () => {
                     const name = document.getElementById('editChatName').value.trim();
                     const desc = document.getElementById('editChatDesc').value.trim();
-                    if (name) { chat.name = name; chat.description = desc; saveState(); renderChatList(); updateChatHeader(); closeModal(); alert('✅ Сохранено'); }
+                    if (name) {
+                        chat.name = name;
+                        chat.description = desc;
+                        saveState();
+                        renderChatList();
+                        updateChatHeader();
+                        closeModal();
+                        alert('✅ Сохранено');
+                        // Отправляем обновление через WebSocket
+                        if (wsConnected && ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({
+                                type: 'update_chat',
+                                chatId: chat.id,
+                                name: name,
+                                description: desc
+                            }));
+                        }
+                        // Обновляем на сервере
+                        try {
+                            await fetch('/api/chats/' + chat.id, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name, description: desc })
+                            });
+                        } catch (e) { console.warn('Update chat error:', e); }
+                    }
                 });
                 document.getElementById('deleteChatSettingsBtn')?.addEventListener('click', () => { closeModal(); deleteChat(chat.id); });
                 document.getElementById('addUserSettingsBtn')?.addEventListener('click', () => { closeModal(); showAddUserModal(); });
             }
         }
 
+        // ======== ЗАГРУЗКА АВАТАРКИ ДЛЯ ЧАТА ========
+        function handleChatAvatarUpload() {
+            document.getElementById('chatAvatarInput').click();
+        }
+
+        document.getElementById('chatAvatarInput')?.addEventListener('change', async (e) => {
+            if (e.target.files.length) {
+                const file = e.target.files[0];
+                if (!file.type.startsWith('image/')) {
+                    alert('Выберите изображение');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    const chat = getChat(state.currentChatId);
+                    if (chat) {
+                        chat.avatar = ev.target.result;
+                        saveState();
+                        renderChatList();
+                        updateChatHeader();
+                        // Отправляем обновление через WebSocket
+                        if (wsConnected && ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({
+                                type: 'update_chat',
+                                chatId: chat.id,
+                                avatar: chat.avatar
+                            }));
+                        }
+                        // Обновляем на сервере
+                        try {
+                            await fetch('/api/chats/' + chat.id, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ avatar: chat.avatar })
+                            });
+                        } catch (e) { console.warn('Update avatar error:', e); }
+                        alert('✅ Аватарка обновлена!');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+            e.target.value = '';
+        });
+
         // ======== СОЗДАНИЕ ЧАТА (С СОХРАНЕНИЕМ НА СЕРВЕРЕ) ========
-        async function createChat(type, name, participants, creator, isPrivate, description) {
+        async function createChat(type, name, participants, creator, isPrivate, description, avatar) {
             try {
                 const response = await fetch('/api/chats', {
                     method: 'POST',
@@ -1198,7 +1318,8 @@
                         participants: participants || [creator],
                         creator: creator || state.user?.id,
                         isPrivate: isPrivate || false,
-                        description: description || ''
+                        description: description || '',
+                        avatar: avatar || null
                     })
                 });
                 const newChat = await response.json();
@@ -1239,7 +1360,15 @@
         function updateChatHeader() {
             const chat = getChat(state.currentChatId);
             if (!chat) return;
-            document.getElementById('cvAvatar').textContent = chat.avatar || chat.name.charAt(0).toUpperCase() || '?';
+            
+            let avatarContent = chat.avatar || chat.name.charAt(0).toUpperCase() || '?';
+            if (chat.avatar && chat.avatar.startsWith('data:image')) {
+                document.getElementById('cvAvatar').innerHTML = `<img src="${chat.avatar}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+            } else {
+                document.getElementById('cvAvatar').textContent = avatarContent;
+                document.getElementById('cvAvatar').style.background = chat.avatarColor || '#2b5278';
+            }
+            
             document.getElementById('cvName').innerHTML = getChatName(chat) + ` <button class="desc-btn" id="descBtn" title="Описание">ℹ️</button>`;
             document.getElementById('cvStatus').textContent = chat.type === 'channel' ? '📢 Канал' : chat.type === 'group' ? `👥 Группа (${(chat.participants || []).length} уч.)` : 'онлайн';
             document.getElementById('descBtn')?.addEventListener('click', () => {
@@ -1440,15 +1569,7 @@
                 state.bot.setUserName(name);
                 
                 await fetchAllUsers();
-                
-                const chatsResponse = await fetch('/api/chats/' + state.user.id);
-                const chats = await chatsResponse.json();
-                state.chats = chats;
-                
-                for (let chat of state.chats) {
-                    const msgsResponse = await fetch('/api/messages/' + chat.id);
-                    chat.messages = await msgsResponse.json();
-                }
+                await loadChatsFromServer();
 
                 if (!state.chats.length) {
                     const botChat = {
@@ -1494,6 +1615,7 @@
                 errorEl.classList.add('hidden');
                 
                 console.log('✅ Всего пользователей на сервере:', state.allUsers.length);
+                console.log('✅ Всего чатов:', state.chats.length);
                 
             } catch (e) {
                 errorEl.textContent = 'Ошибка подключения к серверу';
@@ -1505,6 +1627,7 @@
         function logout() {
             state.user = null;
             state.currentChatId = null;
+            state.chats = [];
             if (ws) { try { ws.close(); } catch (e) {} }
             closeChat();
             document.getElementById('loginScreen').style.display = 'flex';
@@ -1637,7 +1760,7 @@
         }
 
         // ======== INIT ========
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const loaded = loadState();
             
             if (loaded && state.user) {
@@ -1645,9 +1768,13 @@
                 state.bot.setUserName(state.user.name);
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'flex';
+                
+                // Загружаем данные с сервера
+                await fetchAllUsers();
+                await loadChatsFromServer();
+                
                 renderChatList();
                 connectWebSocket();
-                fetchAllUsers();
             }
 
             // Tabs
@@ -1693,13 +1820,19 @@
             });
 
             // Create buttons
-            document.getElementById('createChannelBtn').addEventListener('click', () => {
+            document.getElementById('createChannelBtn').addEventListener('click', async () => {
                 const name = prompt('Название канала:');
-                if (name) { const chat = createChat('channel', name, [state.user.id], state.user.id, false, 'Канал'); if (chat) openChat(chat.id); }
+                if (name) { 
+                    const chat = await createChat('channel', name, [state.user.id], state.user.id, false, 'Канал'); 
+                    if (chat) openChat(chat.id); 
+                }
             });
-            document.getElementById('createGroupBtn').addEventListener('click', () => {
+            document.getElementById('createGroupBtn').addEventListener('click', async () => {
                 const name = prompt('Название группы:');
-                if (name) { const chat = createChat('group', name, [state.user.id], state.user.id, false, 'Группа'); if (chat) openChat(chat.id); }
+                if (name) { 
+                    const chat = await createChat('group', name, [state.user.id], state.user.id, false, 'Группа'); 
+                    if (chat) openChat(chat.id); 
+                }
             });
             document.getElementById('createFolderBtn').addEventListener('click', () => alert('📂 Папки в разработке'));
             document.getElementById('settingsBtn').addEventListener('click', showSettings);
@@ -1708,6 +1841,7 @@
             document.getElementById('chatSettingsBtn').addEventListener('click', showChatSettings);
             document.getElementById('chatInviteBtn').addEventListener('click', () => { if (state.currentChatId) showChatInvite(state.currentChatId); });
             document.getElementById('addUserBtn').addEventListener('click', showAddUserModal);
+            document.getElementById('chatAvatarBtn').addEventListener('click', handleChatAvatarUpload);
 
             // File handlers
             document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
@@ -1758,11 +1892,20 @@
                     const file = e.target.files[0];
                     if (!file.type.startsWith('image/')) { alert('Выберите изображение'); return; }
                     const reader = new FileReader();
-                    reader.onload = (ev) => {
+                    reader.onload = async (ev) => {
                         state.user.avatarImg = ev.target.result;
+                        state.user.avatar = ev.target.result;
                         saveState();
                         document.getElementById('avatarText').textContent = '';
                         document.getElementById('userAvatar').innerHTML = '<img src="' + state.user.avatarImg + '" alt="avatar" />';
+                        // Обновляем на сервере
+                        try {
+                            await fetch('/api/user/avatar', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: state.user.id, avatar: state.user.avatar })
+                            });
+                        } catch (e) { console.warn('Update avatar error:', e); }
                     };
                     reader.readAsDataURL(file);
                 }

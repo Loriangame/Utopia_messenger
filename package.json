@@ -1,7 +1,7 @@
 {
     "name": "tlim",
     "version": "1.0.0",
-    "description": "Tlim Messenger with WebSocket",
+    "description": "Tlim Messenger",
     "scripts": {
         "start": "node server.js"
     },

@@ -121,6 +121,35 @@ app.post('/api/chats', (req, res) => {
     res.json(chat);
 });
 
+// ОБНОВИТЬ ЧАТ (АВАТАР, НАЗВАНИЕ, ОПИСАНИЕ)
+app.put('/api/chats/:chatId', (req, res) => {
+    const { chatId } = req.params;
+    const { name, description, avatar } = req.body;
+    const data = loadData();
+    const chat = data.chats.find(c => c.id === chatId);
+    if (!chat) {
+        return res.status(404).json({ error: 'Чат не найден' });
+    }
+    if (name) chat.name = name;
+    if (description !== undefined) chat.description = description;
+    if (avatar !== undefined) chat.avatar = avatar;
+    saveData(data);
+    res.json(chat);
+});
+
+// ОБНОВИТЬ АВАТАР ПОЛЬЗОВАТЕЛЯ
+app.post('/api/user/avatar', (req, res) => {
+    const { userId, avatar } = req.body;
+    const data = loadData();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+    user.avatar = avatar;
+    saveData(data);
+    res.json({ success: true });
+});
+
 // ===== WebSocket =====
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
@@ -213,6 +242,27 @@ wss.on('connection', (ws, req) => {
                                     type: 'message_deleted',
                                     chatId: data.chatId,
                                     msgId: data.msgId
+                                }));
+                            }
+                        });
+                    }
+                    break;
+                    
+                case 'update_chat':
+                    const updateData = loadData();
+                    const updateChat = updateData.chats.find(c => c.id === data.chatId);
+                    if (updateChat) {
+                        if (data.name) updateChat.name = data.name;
+                        if (data.description !== undefined) updateChat.description = data.description;
+                        if (data.avatar !== undefined) updateChat.avatar = data.avatar;
+                        saveData(updateData);
+                        updateChat.participants.forEach(participantId => {
+                            const clientWs = clients.get(participantId);
+                            if (clientWs && clientWs.readyState === WebSocket.OPEN) {
+                                clientWs.send(JSON.stringify({
+                                    type: 'chat_updated',
+                                    chatId: data.chatId,
+                                    chat: updateChat
                                 }));
                             }
                         });

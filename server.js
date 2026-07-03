@@ -121,7 +121,7 @@ app.post('/api/chats', (req, res) => {
     res.json(chat);
 });
 
-// ОБНОВИТЬ ЧАТ (АВАТАР, НАЗВАНИЕ, ОПИСАНИЕ)
+// ОБНОВИТЬ ЧАТ
 app.put('/api/chats/:chatId', (req, res) => {
     const { chatId } = req.params;
     const { name, description, avatar } = req.body;

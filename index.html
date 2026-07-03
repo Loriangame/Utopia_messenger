@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tlim</title>
     <style>
+        /* ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
         body{background:#0e1621;color:#e1e9f0;height:100vh;overflow:hidden}
 
@@ -235,7 +236,7 @@
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#2b5278;border-radius:4px}
 
-        /* ===== КОМПЬЮТЕРНЫЙ РЕЖИМ - УМЕНЬШЕННЫЕ КНОПКИ ===== */
+        /* ===== КОМПЬЮТЕРНЫЙ РЕЖИМ ===== */
         @media (min-width: 769px) {
             #topHeader{padding:6px 14px;min-height:48px;gap:10px}
             #topHeader .header-left{gap:10px}
@@ -291,7 +292,6 @@
             .login-box input{font-size:16px;padding:14px 16px}
         }
 
-        /* ===== ТЕЛЕФОННЫЙ РЕЖИМ - УВЕЛИЧЕННЫЕ КНОПКИ ===== */
         @media (max-width: 768px) {
             #topHeader{padding:6px 10px;min-height:48px;gap:8px}
             #topHeader .header-left .app-logo{width:32px;height:32px;font-size:14px}
@@ -308,7 +308,7 @@
             #chatViewHeader .cv-actions button{font-size:20px;padding:6px 10px}
 
             #inputRow .btn-send{width:48px;height:48px;font-size:22px}
-            #inputRow .input-wrapper .btn-icon{font-size:22px;padding:8px 10px;border-radius:50%}
+            #inputRow .input-wrapper .btn-icon{font-size:22px;padding:8px 10px}
             #inputRow .input-wrapper input{font-size:16px;padding:8px 6px}
             #inputRow .input-wrapper input::placeholder{font-size:15px}
             #inputRow .input-wrapper{border-radius:24px;padding:4px 8px}
@@ -594,6 +594,9 @@
                 if (savedBlocked) state.blockedUsers = JSON.parse(savedBlocked);
                 if (savedUser) {
                     state.user = JSON.parse(savedUser);
+                    // Восстанавливаем имя в интерфейсе
+                    document.getElementById('userNameDisplay').textContent = state.user.name;
+                    document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
                     return true;
                 }
                 return false;
@@ -603,11 +606,13 @@
         function saveState() {
             try {
                 if (state.user) {
+                    // Сохраняем ВСЕ данные пользователя
                     localStorage.setItem('tlimUser', JSON.stringify({
                         id: state.user.id,
                         name: state.user.name,
                         email: state.user.email,
-                        password: state.user.password
+                        password: state.user.password,
+                        avatar: state.user.avatar || null
                     }));
                 }
                 localStorage.setItem('tlimBlocked', JSON.stringify(state.blockedUsers));
@@ -1338,25 +1343,61 @@
             const errorEl = document.getElementById('loginError');
             if (!name || !password) { errorEl.textContent = 'Введите имя и пароль'; errorEl.classList.remove('hidden'); return; }
             if (isUserBlocked(name)) { errorEl.textContent = '❌ Пользователь заблокирован'; errorEl.classList.remove('hidden'); return; }
+            
+            // Проверяем, есть ли пользователь
             let user = state.allUsers.find(u => u.name === name && u.password === password);
             if (!user) {
-                user = { id: generateId(), name: name, email: name + '@user.com', password: password };
+                // Создаём нового
+                user = { 
+                    id: generateId(), 
+                    name: name, 
+                    email: name + '@user.com', 
+                    password: password,
+                    avatar: null
+                };
                 state.allUsers.push(user);
             }
+            
             state.user = user;
             state.bot = new SimpleBot();
             state.bot.setUserName(name);
+            
+            // Создаём бота
             const botChat = {
-                id: generateId(), type: 'chat', name: 'Tlim Bot', avatar: '🤖', avatarColor: '#1a5276',
-                participants: [user.id, 'bot'], creator: 'bot', isBot: true,
-                messages: [{ id: 'bot_welcome', sender: 'bot', text: `👋 Привет, ${name}! Я бот Tlim.`, time: Date.now(), isBot: true }],
-                pinnedMessages: [], description: 'Официальный бот Tlim', isPrivate: false, isBlocked: false, created: Date.now()
+                id: generateId(), 
+                type: 'chat', 
+                name: 'Tlim Bot', 
+                avatar: '🤖', 
+                avatarColor: '#1a5276',
+                participants: [user.id, 'bot'], 
+                creator: 'bot', 
+                isBot: true,
+                messages: [{ 
+                    id: 'bot_welcome', 
+                    sender: 'bot', 
+                    text: `👋 Привет, ${name}! Я бот Tlim. Приятно познакомиться!`, 
+                    time: Date.now(), 
+                    isBot: true 
+                }],
+                pinnedMessages: [], 
+                description: 'Официальный бот Tlim', 
+                isPrivate: false, 
+                isBlocked: false, 
+                created: Date.now()
             };
             state.chats = [botChat];
             state.botChatId = botChat.id;
+            
+            // СОХРАНЯЕМ ВСЁ
             saveState();
+            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'flex';
+            
+            // Обновляем интерфейс
+            document.getElementById('userNameDisplay').textContent = state.user.name;
+            document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
+            
             renderChatList();
             connectWebSocket();
             errorEl.classList.add('hidden');
@@ -1403,13 +1444,25 @@
                 const name = document.getElementById('settingsUsername').value.trim();
                 const password = document.getElementById('settingsPassword').value.trim();
                 if (!name) { alert('Введите имя'); return; }
-                if (!password) { alert('Введите пароль'); return; }
+                if (!password) { alert('Введите пароль для подтверждения'); return; }
                 if (state.user && state.user.password !== password) { alert('❌ Неверный пароль'); return; }
+                
+                // Меняем имя
                 const oldName = state.user.name;
                 state.user.name = name;
-                state.chats.forEach(chat => { if (chat.name === oldName) chat.name = name; });
+                
+                // Обновляем имя в чатах
+                state.chats.forEach(chat => { 
+                    if (chat.name === oldName) chat.name = name; 
+                });
+                
+                // СОХРАНЯЕМ
                 saveState();
+                
+                // Обновляем интерфейс
                 document.getElementById('userNameDisplay').textContent = name;
+                document.getElementById('avatarText').textContent = name.charAt(0).toUpperCase();
+                
                 closeModal();
                 alert('✅ Имя изменено!');
                 renderChatList();
@@ -1429,8 +1482,10 @@
 
         // ======== INIT ========
         document.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            if (state.user) {
+            // Загружаем сохранённое состояние
+            const loaded = loadState();
+            
+            if (loaded && state.user) {
                 state.bot = new SimpleBot();
                 state.bot.setUserName(state.user.name);
                 document.getElementById('loginScreen').style.display = 'none';
@@ -1606,6 +1661,7 @@
             console.log('🚀 Tlim с WebSocket загружен!');
             console.log('👥 Всего пользователей:', state.allUsers.length);
             console.log('💬 Всего чатов:', state.chats.length);
+            console.log('👤 Текущий пользователь:', state.user?.name || 'не авторизован');
         });
     </script>
 </body>

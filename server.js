@@ -150,6 +150,15 @@ app.post('/api/user/avatar', (req, res) => {
     res.json({ success: true });
 });
 
+// УДАЛИТЬ ЧАТ
+app.delete('/api/chats/:chatId', (req, res) => {
+    const { chatId } = req.params;
+    const data = loadData();
+    data.chats = data.chats.filter(c => c.id !== chatId);
+    saveData(data);
+    res.json({ success: true });
+});
+
 // ===== WebSocket =====
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);

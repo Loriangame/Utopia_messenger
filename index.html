@@ -226,31 +226,32 @@
         /* ===== TOP HEADER ===== */
         #topHeader {
             background: #17212b;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-bottom: 1px solid #2b3b4a;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 8px;
             flex-shrink: 0;
-            min-height: 52px;
+            min-height: 44px;
         }
         #topHeader .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         #topHeader .header-left .app-logo {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            overflow: hidden;
             background: #64b5f6;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 12px;
             color: #0e1621;
+            flex-shrink: 0;
+            overflow: hidden;
         }
         #topHeader .header-left .app-logo img {
             width: 100%;
@@ -258,15 +259,15 @@
             object-fit: cover;
         }
         #topHeader .header-left .user-avatar {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: #2b5278;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 11px;
             color: #fff;
             cursor: pointer;
             overflow: hidden;
@@ -278,337 +279,171 @@
             object-fit: cover;
         }
         #topHeader .header-left .user-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             color: #e1e9f0;
         }
-        #topHeader .header-center {
+        #topHeader .search-wrap {
             flex: 1;
-            max-width: 400px;
-            margin: 0 12px;
             position: relative;
+            margin: 0 4px;
         }
-        #topHeader .header-center .search-input {
+        #topHeader .search-wrap input {
             width: 100%;
             background: #1f2c38;
             border: none;
-            border-radius: 20px;
-            padding: 6px 14px 6px 36px;
+            border-radius: 18px;
+            padding: 5px 10px 5px 28px;
             color: #fff;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238e9fb1' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' fill='%238e9fb1' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: 10px center;
-            transition: 0.2s;
+            background-position: 7px center;
+            background-size: 13px;
         }
-        #topHeader .header-center .search-input:focus {
+        #topHeader .search-wrap input:focus {
             background-color: #1a2a3a;
             outline: 1px solid #64b5f6;
         }
-        #topHeader .header-center .search-input::placeholder {
+        #topHeader .search-wrap input::placeholder {
             color: #6b7f8f;
+            font-size: 12px;
         }
-        #topHeader .header-center #searchResults {
+        #topHeader .search-wrap #searchResults {
             display: none;
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
             background: #1f2c38;
-            border-radius: 12px;
-            margin-top: 4px;
-            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 3px;
+            max-height: 220px;
             overflow-y: auto;
             z-index: 100;
             border: 1px solid #2b3b4a;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
-        #topHeader .header-center #searchResults.show {
+        #topHeader .search-wrap #searchResults.show {
             display: block;
         }
-        #topHeader .header-center #searchResults .search-result-item {
-            padding: 10px 14px;
+        #topHeader .search-wrap #searchResults .result-item {
+            padding: 7px 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
-            transition: 0.2s;
+            gap: 8px;
             border-bottom: 1px solid #2b3b4a;
+            font-size: 13px;
         }
-        #topHeader .header-center #searchResults .search-result-item:hover {
+        #topHeader .search-wrap #searchResults .result-item:hover {
             background: #2b3b4a;
         }
-        #topHeader .header-center #searchResults .search-result-item .sr-avatar {
-            width: 36px;
-            height: 36px;
+        #topHeader .search-wrap #searchResults .result-item .r-avatar {
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 11px;
             color: #fff;
             flex-shrink: 0;
             background: #2b5278;
             overflow: hidden;
         }
-        #topHeader .header-center #searchResults .search-result-item .sr-avatar img {
+        #topHeader .search-wrap #searchResults .result-item .r-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        #topHeader .header-center #searchResults .search-result-item .sr-info {
+        #topHeader .search-wrap #searchResults .result-item .r-name {
             flex: 1;
-            min-width: 0;
-        }
-        #topHeader .header-center #searchResults .search-result-item .sr-name {
-            font-size: 14px;
-            font-weight: 500;
             color: #e1e9f0;
+            font-size: 13px;
         }
-        #topHeader .header-center #searchResults .search-result-item .sr-desc {
-            font-size: 12px;
+        #topHeader .search-wrap #searchResults .result-item .r-type {
+            font-size: 10px;
             color: #8e9fb1;
+            background: #0e1621;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+        #topHeader .search-wrap #searchResults .result-item .r-desc {
+            font-size: 10px;
+            color: #6b7f8f;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 80px;
         }
-        #topHeader .header-center #searchResults .search-result-item .sr-type {
-            font-size: 11px;
-            color: #8e9fb1;
-            padding: 2px 8px;
-            background: #0e1621;
-            border-radius: 10px;
-            flex-shrink: 0;
-        }
-        #topHeader .header-right .header-btn {
-            background: none;
-            border: none;
-            color: #8e9fb1;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        #topHeader .header-right .header-btn:hover {
-            background: #1f2c38;
-            color: #64b5f6;
-        }
-
-        /* ===== DESKTOP LAYOUT ===== */
-        #desktopLayout {
-            display: none;
-            flex: 1;
-            flex-direction: row;
-            overflow: hidden;
-        }
-        #desktopLayout .desktop-sidebar {
-            width: 280px;
-            min-width: 280px;
-            background: #17212b;
-            border-right: 1px solid #2b3b4a;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        #desktopLayout .desktop-sidebar .sidebar-header {
-            padding: 10px 14px;
-            border-bottom: 1px solid #2b3b4a;
+        #topHeader .header-right {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
+            gap: 4px;
         }
-        #desktopLayout .desktop-sidebar .sidebar-header .sidebar-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            overflow: hidden;
-            background: #64b5f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 14px;
-            color: #0e1621;
-        }
-        #desktopLayout .desktop-sidebar .sidebar-header .sidebar-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        #desktopLayout .desktop-sidebar .sidebar-header .tlim-logo {
-            font-size: 20px;
-            font-weight: 800;
-            color: #64b5f6;
-        }
-        #desktopLayout .desktop-sidebar .sidebar-header .tlim-plus {
-            margin-left: auto;
-            background: #64b5f6;
-            color: #0e1621;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
-        #desktopLayout .desktop-sidebar .sidebar-header .tlim-plus:hover {
-            background: #4da3e0;
-            transform: rotate(90deg);
-        }
-        #desktopLayout .desktop-sidebar .chat-list-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding: 4px 0;
-        }
-        #desktopLayout .desktop-chat {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #0e1621;
-            height: 100%;
-        }
-        #desktopLayout .desktop-chat #chatView {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            animation: none;
-        }
-        #desktopLayout .desktop-chat #chatView .back-btn {
-            display: none !important;
-        }
-
-        /* ===== MOBILE LAYOUT ===== */
-        #mobileLayout {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        #mobileLayout #chatListContainer {
-            flex: 1;
-            overflow-y: auto;
-            padding: 4px 0;
-            background: #17212b;
-        }
-        #mobileLayout #bottomBar {
-            display: flex;
-            background: #17212b;
-            border-top: 1px solid #2b3b4a;
-            padding: 6px 12px 10px;
-            justify-content: space-around;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        #mobileLayout #bottomBar .bottom-btn {
+        #topHeader .header-right button {
             background: none;
             border: none;
             color: #8e9fb1;
             font-size: 16px;
             cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-weight: 500;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: 0.2s;
         }
-        #mobileLayout #bottomBar .bottom-btn.active {
-            color: #64b5f6;
+        #topHeader .header-right button:hover {
             background: #1f2c38;
+            color: #64b5f6;
         }
-        #mobileLayout #bottomBar .bottom-btn .btn-label {
-            font-size: 12px;
-        }
-        #mobileLayout #bottomBar .bottom-btn.add-btn {
-            background: #64b5f6;
-            color: #0e1621;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-weight: 700;
-        }
-        #mobileLayout #chatView {
-            display: none;
-            flex-direction: column;
-            height: 100%;
+
+        /* ===== CREATE BAR (ПОДНЯТА ВВЕРХ) ===== */
+        #createBar {
+            display: flex;
+            gap: 5px;
+            padding: 5px 10px;
             background: #0e1621;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 50;
-            animation: slideUp 0.3s ease;
-        }
-        #mobileLayout #chatView.open {
-            display: flex;
-        }
-        #mobileLayout #chatView .back-btn {
-            display: flex !important;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* ===== FOLDERS ===== */
-        #foldersBar {
-            display: flex;
-            gap: 4px;
-            padding: 4px 10px;
             border-bottom: 1px solid #2b3b4a;
-            flex-wrap: wrap;
-            background: #0e1621;
             flex-shrink: 0;
             overflow-x: auto;
+            flex-wrap: nowrap;
         }
-        #foldersBar .folder-chip {
-            background: #1f2c38;
-            padding: 4px 12px;
-            border-radius: 14px;
-            font-size: 12px;
-            cursor: pointer;
-            color: #8e9fb1;
-            border: 1px solid transparent;
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-        #foldersBar .folder-chip:hover {
-            background: #2b3b4a;
-        }
-        #foldersBar .folder-chip.active {
-            background: #2b5278;
-            color: #fff;
-            border-color: #64b5f6;
-        }
-        #foldersBar .folder-chip .folder-remove {
-            background: none;
+        #createBar .create-btn {
+            padding: 5px 12px;
             border: none;
-            color: #f28b82;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 12px;
-            margin-left: 4px;
-            padding: 0 2px;
+            white-space: nowrap;
+            transition: 0.2s;
+            flex-shrink: 0;
         }
-        #foldersBar .folder-chip .folder-remove:hover {
-            color: #ff6b6b;
+        #createBar .create-btn:active {
+            transform: scale(0.95);
+        }
+        #createBar .btn-channel {
+            background: #f39c12;
+            color: #0e1621;
+        }
+        #createBar .btn-group {
+            background: #2ecc71;
+            color: #0e1621;
+        }
+        #createBar .btn-folder {
+            background: #9b59b6;
+            color: #fff;
         }
 
         /* ===== CHAT LIST ===== */
+        #chatListContainer {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 0;
+            background: #17212b;
+        }
         .chat-item {
             display: flex;
             align-items: center;
@@ -621,15 +456,18 @@
         .chat-item:hover {
             background: #1f2c38;
         }
+        .chat-item:active {
+            background: #1f2c38;
+        }
         .chat-avatar {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             color: #fff;
             flex-shrink: 0;
             background: #2b5278;
@@ -647,9 +485,9 @@
             right: 0;
             background: #f39c12;
             border-radius: 50%;
-            width: 14px;
-            height: 14px;
-            font-size: 7px;
+            width: 13px;
+            height: 13px;
+            font-size: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -661,76 +499,132 @@
         }
         .chat-name {
             font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             gap: 4px;
         }
         .chat-name .private-icon {
-            font-size: 11px;
+            font-size: 10px;
             color: #f39c12;
         }
         .chat-last {
-            font-size: 12px;
+            font-size: 11px;
             color: #8e9fb1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .chat-time {
-            font-size: 10px;
+            font-size: 9px;
             color: #8e9fb1;
             flex-shrink: 0;
         }
         .chat-badge {
             background: #64b5f6;
             color: #0e1621;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             padding: 2px 6px;
-            border-radius: 12px;
+            border-radius: 10px;
         }
         .chat-pinned-badge {
             color: #64b5f6;
-            font-size: 11px;
+            font-size: 10px;
             margin-left: 4px;
+        }
+        .chat-desc {
+            font-size: 10px;
+            color: #6b7f8f;
+        }
+
+        /* ===== BOTTOM BAR ===== */
+        #bottomBar {
+            display: flex;
+            background: #17212b;
+            border-top: 1px solid #2b3b4a;
+            padding: 5px 10px 8px;
+            justify-content: space-around;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        #bottomBar .bottom-btn {
+            background: none;
+            border: none;
+            color: #8e9fb1;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+        }
+        #bottomBar .bottom-btn.active {
+            color: #64b5f6;
+            background: #1f2c38;
+        }
+        #bottomBar .bottom-btn .btn-label {
+            font-size: 11px;
         }
 
         /* ===== CHAT VIEW ===== */
         #chatView {
-            display: flex;
+            display: none;
             flex-direction: column;
             height: 100%;
             background: #0e1621;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 50;
+            animation: slideUp 0.3s ease;
+        }
+        #chatView.open {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         #chatViewHeader {
             background: #17212b;
-            padding: 8px 14px;
+            padding: 6px 12px;
             border-bottom: 1px solid #2b3b4a;
             display: flex;
             align-items: center;
             gap: 10px;
             flex-shrink: 0;
-            min-height: 48px;
+            min-height: 44px;
         }
         #chatViewHeader .back-btn {
             background: none;
             border: none;
             color: #64b5f6;
-            font-size: 22px;
+            font-size: 20px;
             cursor: pointer;
             padding: 4px;
         }
         #chatViewHeader .cv-avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             color: #fff;
             background: #2b5278;
             flex-shrink: 0;
@@ -747,33 +641,48 @@
         }
         #chatViewHeader .cv-name {
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #chatViewHeader .cv-name .desc-btn {
+            font-size: 12px;
+            color: #64b5f6;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        #chatViewHeader .cv-name .desc-btn:hover {
+            background: #1f2c38;
         }
         #chatViewHeader .cv-status {
-            font-size: 11px;
+            font-size: 10px;
             color: #8e9fb1;
         }
 
         #pinnedBar {
             display: none;
             background: #1a2a3a;
-            padding: 4px 14px;
+            padding: 3px 12px;
             border-bottom: 1px solid #2b3b4a;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-shrink: 0;
             cursor: pointer;
+            font-size: 12px;
         }
         #pinnedBar.show {
             display: flex;
         }
         #pinnedBar .pinned-icon {
             color: #64b5f6;
-            font-size: 14px;
+            font-size: 13px;
         }
         #pinnedBar .pinned-text {
             flex: 1;
-            font-size: 13px;
             color: #e1e9f0;
             white-space: nowrap;
             overflow: hidden;
@@ -787,7 +696,7 @@
         #messagesContainer {
             flex: 1;
             overflow-y: auto;
-            padding: 12px 14px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -795,12 +704,12 @@
         }
         .msg {
             max-width: 80%;
-            padding: 8px 12px;
-            border-radius: 14px;
+            padding: 6px 10px;
+            border-radius: 12px;
             word-break: break-word;
             position: relative;
             animation: fadeIn 0.2s ease;
-            font-size: 14px;
+            font-size: 13px;
         }
         .msg.pinned {
             border: 2px solid #64b5f6;
@@ -809,57 +718,61 @@
         .msg.own {
             align-self: flex-end;
             background: #2b5278;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 3px;
         }
         .msg.other {
             align-self: flex-start;
             background: #1f2c38;
-            border-bottom-left-radius: 4px;
+            border-bottom-left-radius: 3px;
+        }
+        .msg.bot {
+            background: #1f3a4a;
+            border-left: 3px solid #64b5f6;
         }
         .msg.system {
             background: transparent;
             text-align: center;
             align-self: center;
             color: #8e9fb1;
-            font-size: 12px;
+            font-size: 11px;
             max-width: 90%;
         }
         .msg .msg-text {
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.4;
         }
         .msg .msg-time {
-            font-size: 10px;
+            font-size: 9px;
             color: #8e9fb1;
-            margin-top: 3px;
+            margin-top: 2px;
             text-align: right;
         }
         .msg video {
             max-width: 100%;
-            border-radius: 10px;
+            border-radius: 8px;
             display: block;
-            margin-top: 4px;
-            max-height: 280px;
+            margin-top: 3px;
+            max-height: 250px;
         }
         .msg .circle-video {
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #64b5f6;
         }
         .msg img {
             max-width: 100%;
-            border-radius: 10px;
+            border-radius: 8px;
             display: block;
-            margin-top: 4px;
-            max-height: 350px;
+            margin-top: 3px;
+            max-height: 300px;
             object-fit: contain;
         }
         .msg .file-container {
             background: #0e1621;
-            border-radius: 10px;
-            padding: 8px;
+            border-radius: 8px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -867,47 +780,47 @@
             cursor: pointer;
         }
         .msg .file-container .file-icon {
-            font-size: 24px;
+            font-size: 20px;
         }
         .msg .file-container .file-info {
             flex: 1;
             min-width: 0;
         }
         .msg .file-container .file-name {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
         }
         .msg .file-container .file-size {
-            font-size: 10px;
+            font-size: 9px;
             color: #8e9fb1;
         }
         .msg .file-container .download-btn {
             background: #2b5278;
             border: none;
             color: #fff;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
         }
         .msg .audio-container {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: #0e1621;
-            padding: 4px 10px;
-            border-radius: 16px;
+            padding: 4px 8px;
+            border-radius: 14px;
             border: 1px solid #2b3b4a;
-            min-width: 160px;
+            min-width: 140px;
         }
         .msg .audio-container .play-btn {
             background: #2b5278;
             border: none;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             color: #fff;
-            font-size: 12px;
+            font-size: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -930,18 +843,18 @@
             transition: width 0.1s;
         }
         .msg .audio-container .audio-time {
-            font-size: 10px;
+            font-size: 9px;
             color: #8e9fb1;
-            min-width: 35px;
+            min-width: 30px;
             text-align: center;
         }
 
         .msg-actions {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: -7px;
+            right: -7px;
             opacity: 0;
             transition: 0.2s;
         }
@@ -952,9 +865,9 @@
             background: #2b3b4a;
             border: none;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            font-size: 9px;
             cursor: pointer;
             color: #fff;
             display: flex;
@@ -983,7 +896,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(8px);
+                transform: translateY(6px);
             }
             to {
                 opacity: 1;
@@ -993,10 +906,10 @@
 
         #inputRow {
             display: flex;
-            padding: 6px 10px 10px;
+            padding: 5px 8px 8px;
             background: #17212b;
             border-top: 1px solid #2b3b4a;
-            gap: 6px;
+            gap: 5px;
             align-items: flex-end;
             flex-shrink: 0;
         }
@@ -1006,16 +919,16 @@
             gap: 4px;
             align-items: flex-end;
             background: #1f2c38;
-            border-radius: 20px;
-            padding: 4px 6px;
+            border-radius: 18px;
+            padding: 3px 5px;
         }
         #inputRow .input-wrapper .btn-icon {
             background: none;
             border: none;
             color: #8e9fb1;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
-            padding: 4px 6px;
+            padding: 4px 5px;
             border-radius: 50%;
             transition: 0.2s;
         }
@@ -1026,23 +939,24 @@
             flex: 1;
             background: transparent;
             border: none;
-            padding: 6px 4px;
+            padding: 5px 3px;
             color: #fff;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
-            min-width: 50px;
+            min-width: 40px;
         }
         #inputRow .input-wrapper input::placeholder {
             color: #6b7f8f;
+            font-size: 12px;
         }
         #inputRow .btn-send {
             background: #64b5f6;
             border: none;
             border-radius: 50%;
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             color: #0e1621;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -1053,10 +967,10 @@
         #voiceRecordBar {
             display: none;
             background: #1f2c38;
-            padding: 6px 14px;
+            padding: 4px 12px;
             border-top: 1px solid #2b3b4a;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
         }
         #voiceRecordBar.show {
@@ -1065,15 +979,15 @@
         #voiceRecordBar .voice-timer {
             color: #f28b82;
             font-weight: bold;
-            font-size: 14px;
-            min-width: 50px;
+            font-size: 13px;
+            min-width: 40px;
         }
         #voiceRecordBar .voice-wave {
             flex: 1;
-            height: 24px;
+            height: 20px;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
         }
         #voiceRecordBar .voice-wave span {
             display: block;
@@ -1087,14 +1001,14 @@
                 height: 4px;
             }
             100% {
-                height: 20px;
+                height: 18px;
             }
         }
         #voiceRecordBar .voice-cancel-btn {
             background: none;
             border: none;
             color: #f28b82;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             padding: 4px;
         }
@@ -1102,10 +1016,10 @@
             background: #64b5f6;
             border: none;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             color: #0e1621;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -1115,10 +1029,10 @@
         #filePreviewBar {
             display: none;
             background: #1f2c38;
-            padding: 4px 14px;
+            padding: 3px 12px;
             border-top: 1px solid #2b3b4a;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
         }
         #filePreviewBar.show {
@@ -1128,53 +1042,54 @@
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         #filePreviewBar .file-preview-info .file-icon {
-            font-size: 18px;
+            font-size: 16px;
         }
         #filePreviewBar .file-preview-info .file-name {
-            font-size: 12px;
+            font-size: 11px;
             color: #e1e9f0;
         }
         #filePreviewBar .file-preview-info .file-size {
-            font-size: 10px;
+            font-size: 9px;
             color: #8e9fb1;
         }
         #filePreviewBar .remove-file-btn {
             background: none;
             border: none;
             color: #f28b82;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
             padding: 0 4px;
         }
 
         #circleRecorder {
             display: none;
-            padding: 8px;
+            padding: 6px;
             background: #0e1621;
             border-top: 1px solid #2b3b4a;
             flex-shrink: 0;
         }
         #circleRecorder video {
             width: 100%;
-            border-radius: 12px;
-            max-height: 180px;
+            border-radius: 10px;
+            max-height: 160px;
             background: #000;
         }
         #circleRecorder .record-controls {
             display: flex;
-            gap: 8px;
-            margin-top: 6px;
+            gap: 6px;
+            margin-top: 4px;
         }
         #circleRecorder .record-controls button {
             flex: 1;
-            padding: 8px;
+            padding: 6px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+            font-size: 12px;
         }
         #circleRecorder .record-controls .btn-record {
             background: #f28b82;
@@ -1192,7 +1107,8 @@
             color: #64b5f6;
             font-weight: bold;
             text-align: center;
-            margin-top: 4px;
+            margin-top: 3px;
+            font-size: 13px;
         }
 
         /* ===== MODAL ===== */
@@ -1214,29 +1130,29 @@
         }
         .modal {
             background: #17212b;
-            padding: 20px;
-            border-radius: 16px;
-            width: 90%;
+            padding: 18px;
+            border-radius: 14px;
+            width: 92%;
             max-width: 400px;
             max-height: 80vh;
             overflow-y: auto;
             color: #e1e9f0;
         }
         .modal h2 {
-            margin-bottom: 14px;
-            font-size: 18px;
+            margin-bottom: 12px;
+            font-size: 17px;
         }
         .modal input,
         .modal textarea,
         .modal select {
             width: 100%;
-            padding: 10px 14px;
-            margin-bottom: 10px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
             background: #1f2c38;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: #fff;
-            font-size: 14px;
+            font-size: 13px;
             outline: 1px solid transparent;
             font-family: inherit;
         }
@@ -1247,7 +1163,7 @@
         }
         .modal textarea {
             resize: vertical;
-            min-height: 50px;
+            min-height: 40px;
         }
         .modal select {
             appearance: none;
@@ -1255,14 +1171,14 @@
         }
         .modal .btn-primary {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: #64b5f6;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
             color: #0e1621;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             transition: 0.2s;
             margin-top: 4px;
         }
@@ -1279,24 +1195,30 @@
             background: none;
             border: none;
             color: #8e9fb1;
-            font-size: 22px;
+            font-size: 20px;
             cursor: pointer;
+        }
+        .modal .modal-label {
+            font-size: 12px;
+            color: #8e9fb1;
+            margin-bottom: 4px;
+            display: block;
         }
         .modal .avatar-upload {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin-bottom: 8px;
         }
         .modal .avatar-upload .avatar-preview {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: #2b5278;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             color: #fff;
             overflow: hidden;
@@ -1312,10 +1234,10 @@
             background: #2b5278;
             border: none;
             color: #fff;
-            padding: 6px 14px;
-            border-radius: 10px;
+            padding: 4px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
         }
         .modal .avatar-upload .avatar-btn:hover {
             background: #3a6b94;
@@ -1323,18 +1245,18 @@
         .modal .create-buttons {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .modal .create-buttons button {
-            padding: 12px;
+            padding: 10px;
             border: none;
-            border-radius: 10px;
-            font-size: 15px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
             text-align: left;
-            padding-left: 16px;
+            padding-left: 14px;
         }
         .modal .create-buttons button:hover {
             transform: scale(1.02);
@@ -1351,15 +1273,37 @@
             background: #9b59b6;
             color: #fff;
         }
-        .modal .user-search-result {
-            padding: 6px 10px;
+
+        .modal .chat-select-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin: 6px 0;
+        }
+        .modal .chat-select-list label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             background: #1f2c38;
-            margin: 4px 0;
+            padding: 5px 10px;
             border-radius: 8px;
+            margin: 3px 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .modal .chat-select-list label:hover {
+            background: #2b3b4a;
+        }
+
+        .modal .user-search-result {
+            padding: 5px 10px;
+            background: #1f2c38;
+            margin: 3px 0;
+            border-radius: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            font-size: 13px;
         }
         .modal .user-search-result:hover {
             background: #2b3b4a;
@@ -1368,22 +1312,22 @@
             background: #2b5278;
             border: none;
             color: #fff;
-            padding: 4px 10px;
-            border-radius: 10px;
+            padding: 3px 10px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
         }
         .modal .selected-users {
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
-            margin: 6px 0;
+            margin: 4px 0;
         }
         .modal .selected-users .user-tag {
             background: #2b5278;
-            padding: 4px 10px;
-            border-radius: 14px;
-            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             gap: 4px;
@@ -1393,15 +1337,72 @@
             border: none;
             color: #f28b82;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             padding: 0 4px;
+        }
+
+        /* ===== DESCRIPTION POPUP ===== */
+        #descPopup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        #descPopup.show {
+            display: flex;
+        }
+        #descPopup .popup-content {
+            background: #17212b;
+            padding: 20px;
+            border-radius: 14px;
+            max-width: 340px;
+            width: 90%;
+        }
+        #descPopup .popup-content h3 {
+            margin-bottom: 8px;
+            font-size: 17px;
+            color: #64b5f6;
+        }
+        #descPopup .popup-content .popup-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #e1e9f0;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        #descPopup .popup-content .popup-info {
+            font-size: 12px;
+            color: #8e9fb1;
+            margin-bottom: 4px;
+        }
+        #descPopup .popup-content .popup-close {
+            width: 100%;
+            padding: 10px;
+            background: #2b5278;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #descPopup .popup-content .popup-close:hover {
+            background: #3a6b94;
         }
 
         .file-input-hidden {
             display: none;
         }
         ::-webkit-scrollbar {
-            width: 4px;
+            width: 3px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
@@ -1412,101 +1413,118 @@
         }
 
         /* ===== АДАПТИВ ===== */
-        @media (min-width: 769px) {
-            #mainApp {
-                flex-direction: column !important;
-            }
-            #mobileLayout {
-                display: none !important;
-            }
-            #desktopLayout {
-                display: flex !important;
-            }
-            #topHeader .header-left .user-name {
-                font-size: 16px;
-            }
-            #topHeader .header-center {
-                max-width: 350px;
-            }
-        }
-        @media (max-width: 768px) {
-            #mainApp {
-                flex-direction: column !important;
-            }
-            #mobileLayout {
-                display: flex !important;
-            }
-            #desktopLayout {
-                display: none !important;
+        @media (max-width: 480px) {
+            #topHeader {
+                padding: 4px 8px;
+                min-height: 38px;
             }
             #topHeader .header-left .user-name {
                 display: none;
             }
-            #topHeader .header-center {
-                max-width: 100%;
-                margin: 0 8px;
+            #topHeader .search-wrap input {
+                padding: 4px 8px 4px 24px;
+                font-size: 12px;
+                background-size: 11px;
+                background-position: 6px center;
             }
-            #topHeader .header-center .search-input {
-                padding: 4px 12px 4px 32px;
-                font-size: 13px;
-                background-size: 14px;
-                background-position: 8px center;
-            }
-            .chat-avatar {
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
-            }
-            .chat-name {
-                font-size: 13px;
-            }
-            .msg {
-                max-width: 85%;
-                padding: 6px 10px;
-            }
-            .msg .msg-text {
-                font-size: 13px;
-            }
-            #chatViewHeader {
-                padding: 6px 10px;
-                min-height: 44px;
-            }
-            #chatViewHeader .cv-name {
-                font-size: 15px;
-            }
-            #inputRow {
-                padding: 4px 8px 8px;
-            }
-            #inputRow .input-wrapper input {
-                font-size: 13px;
-            }
-            #inputRow .btn-send {
-                width: 34px;
-                height: 34px;
-                font-size: 16px;
-            }
-            #bottomBar .bottom-btn {
-                padding: 4px 10px;
-                font-size: 14px;
-            }
-            #bottomBar .bottom-btn .btn-label {
+            #topHeader .search-wrap input::placeholder {
                 font-size: 11px;
             }
-            #foldersBar {
-                padding: 4px 8px;
+            #topHeader .header-left .app-logo {
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
+            }
+            #topHeader .header-left .user-avatar {
+                width: 24px;
+                height: 24px;
+                font-size: 9px;
+            }
+            #topHeader .header-right button {
+                font-size: 14px;
+                padding: 3px 5px;
+            }
+            #createBar {
+                padding: 3px 8px;
                 gap: 4px;
             }
-            #foldersBar .folder-chip {
-                font-size: 11px;
-                padding: 3px 10px;
+            #createBar .create-btn {
+                padding: 4px 10px;
+                font-size: 10px;
+                border-radius: 10px;
+            }
+            #bottomBar {
+                padding: 4px 8px 6px;
+            }
+            #bottomBar .bottom-btn {
+                font-size: 12px;
+                padding: 3px 8px;
+            }
+            #bottomBar .bottom-btn .btn-label {
+                font-size: 10px;
+            }
+            .chat-avatar {
+                width: 34px;
+                height: 34px;
+                font-size: 12px;
+            }
+            .chat-name {
+                font-size: 12px;
+            }
+            .chat-last {
+                font-size: 10px;
+            }
+            .msg {
+                max-width: 88%;
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            .msg .msg-text {
+                font-size: 12px;
+            }
+            #chatViewHeader {
+                padding: 4px 10px;
+                min-height: 38px;
+            }
+            #chatViewHeader .cv-name {
+                font-size: 13px;
+            }
+            #inputRow {
+                padding: 4px 6px 6px;
+            }
+            #inputRow .input-wrapper input {
+                font-size: 12px;
+                padding: 4px 3px;
+            }
+            #inputRow .btn-send {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+            .modal {
+                padding: 14px;
+                max-width: 95%;
+            }
+            #topHeader .search-wrap #searchResults .result-item {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            #topHeader .search-wrap #searchResults .result-item .r-avatar {
+                width: 22px;
+                height: 22px;
+                font-size: 9px;
             }
         }
-        @media (max-width: 400px) {
+        @media (max-width: 360px) {
+            #createBar .create-btn {
+                font-size: 9px;
+                padding: 3px 8px;
+            }
             #bottomBar .bottom-btn .btn-label {
                 display: none;
             }
             #bottomBar .bottom-btn {
-                padding: 6px 12px;
+                padding: 4px 8px;
             }
         }
     </style>
@@ -1564,7 +1582,7 @@
 
         <!-- MAIN APP -->
         <div id="mainApp">
-            <!-- Верхняя шапка -->
+            <!-- TOP HEADER -->
             <div id="topHeader">
                 <div class="header-left">
                     <div class="app-logo">
@@ -1575,156 +1593,92 @@
                     </div>
                     <span class="user-name" id="userNameDisplay">Пользователь</span>
                 </div>
-                <div class="header-center">
-                    <input type="text" class="search-input" id="globalSearchInput" placeholder="Поиск пользователей, каналов, групп..." />
+                <div class="search-wrap">
+                    <input type="text" id="globalSearchInput" placeholder="Поиск пользователей, каналов, групп..." />
                     <div id="searchResults"></div>
                 </div>
                 <div class="header-right">
-                    <button class="header-btn" id="logoutBtn" title="Выйти">⏻</button>
+                    <button id="logoutBtn" title="Выйти">⏻</button>
                 </div>
             </div>
 
-            <!-- ДЕСКТОПНАЯ ВЁРСТКА -->
-            <div id="desktopLayout">
-                <div class="desktop-sidebar">
-                    <div class="sidebar-header">
-                        <div class="sidebar-logo">
-                            <img src="logo.png" alt="Tlim" onerror="this.style.display='none';this.parentElement.textContent='T'">
-                        </div>
-                        <span class="tlim-logo">Tlim</span>
-                        <button class="tlim-plus" id="desktopAddBtn">➕</button>
-                    </div>
-                    <div id="foldersBar"></div>
-                    <div class="chat-list-scroll" id="chatListScroll">
-                        <div id="chatList"></div>
-                    </div>
-                </div>
-                <div class="desktop-chat">
-                    <div id="chatView">
-                        <div id="chatViewHeader">
-                            <button class="back-btn" id="backBtn">←</button>
-                            <div class="cv-avatar" id="cvAvatar">C</div>
-                            <div class="cv-info">
-                                <div class="cv-name" id="cvName">Чат</div>
-                                <div class="cv-status" id="cvStatus">онлайн</div>
-                            </div>
-                        </div>
-                        <div id="pinnedBar">
-                            <span class="pinned-icon">📌</span>
-                            <span class="pinned-text" id="pinnedText">Закреплённые сообщения</span>
-                            <span class="pinned-arrow">↓</span>
-                        </div>
-                        <div id="messagesContainer"></div>
-                        <div id="filePreviewBar">
-                            <div class="file-preview-info">
-                                <span class="file-icon" id="filePreviewIcon">📄</span>
-                                <div>
-                                    <div class="file-name" id="filePreviewName">file.txt</div>
-                                    <div class="file-size" id="filePreviewSize">0 KB</div>
-                                </div>
-                            </div>
-                            <button class="remove-file-btn" id="removeFileBtn">✕</button>
-                        </div>
-                        <div id="voiceRecordBar">
-                            <span class="voice-timer" id="voiceTimer">0:00</span>
-                            <div class="voice-wave" id="voiceWave">
-                                <span></span><span></span><span></span><span></span><span></span>
-                                <span></span><span></span><span></span><span></span><span></span>
-                            </div>
-                            <button class="voice-cancel-btn" id="voiceCancelBtn">✕</button>
-                            <button class="voice-send-btn" id="voiceSendBtn">➤</button>
-                        </div>
-                        <div id="circleRecorder">
-                            <video id="circlePreview" autoplay muted></video>
-                            <div class="record-controls">
-                                <button id="circleStartBtn" class="btn-record">🔴 Записать</button>
-                                <button id="circleStopBtn" class="btn-stop" disabled>⏹ Стоп</button>
-                                <button id="circleCancelBtn" class="btn-secondary">Отмена</button>
-                            </div>
-                            <div id="circleTimer">0 сек</div>
-                        </div>
-                        <div id="inputRow">
-                            <div class="input-wrapper">
-                                <button class="btn-icon" id="cameraBtn" title="Фото">📷</button>
-                                <button class="btn-icon" id="fileBtn" title="Файл">📎</button>
-                                <button class="btn-icon" id="videoBtn" title="Видео">🎥</button>
-                                <button class="btn-icon" id="circleBtn" title="Кружок">⭕</button>
-                                <button class="btn-icon" id="voiceBtn" title="Голосовое">🎤</button>
-                                <input type="text" id="messageInput" placeholder="Сообщение..." />
-                            </div>
-                            <button class="btn-send" id="sendBtn">➤</button>
-                        </div>
-                    </div>
-                </div>
+            <!-- CREATE BAR (ПОДНЯТА ВВЕРХ) -->
+            <div id="createBar">
+                <button class="create-btn btn-channel" id="createChannelBtn">📢 Канал</button>
+                <button class="create-btn btn-group" id="createGroupBtn">👥 Группа</button>
+                <button class="create-btn btn-folder" id="createFolderBtn">📂 Папка</button>
             </div>
 
-            <!-- МОБИЛЬНАЯ ВЁРСТКА -->
-            <div id="mobileLayout">
-                <div id="foldersBar"></div>
-                <div id="chatListContainer">
-                    <div id="chatList"></div>
+            <!-- CHAT LIST -->
+            <div id="chatListContainer">
+                <div id="chatList"></div>
+            </div>
+
+            <!-- BOTTOM BAR -->
+            <div id="bottomBar">
+                <button class="bottom-btn active" id="chatsBtn">
+                    <span>💬</span>
+                    <span class="btn-label">Чаты</span>
+                </button>
+            </div>
+
+            <!-- CHAT VIEW -->
+            <div id="chatView">
+                <div id="chatViewHeader">
+                    <button class="back-btn" id="backBtn">←</button>
+                    <div class="cv-avatar" id="cvAvatar">C</div>
+                    <div class="cv-info">
+                        <div class="cv-name" id="cvName">
+                            Чат
+                            <button class="desc-btn" id="descBtn" title="Описание">ℹ️</button>
+                        </div>
+                        <div class="cv-status" id="cvStatus">онлайн</div>
+                    </div>
                 </div>
-                <div id="bottomBar">
-                    <button class="bottom-btn active" id="chatsBtn">
-                        <span class="btn-icon">💬</span>
-                        <span class="btn-label">Чаты</span>
-                    </button>
-                    <button class="bottom-btn add-btn" id="addBtn">➕</button>
+                <div id="pinnedBar">
+                    <span class="pinned-icon">📌</span>
+                    <span class="pinned-text" id="pinnedText">Закреплённые сообщения</span>
+                    <span class="pinned-arrow">↓</span>
                 </div>
-                <div id="chatView">
-                    <div id="chatViewHeader">
-                        <button class="back-btn" id="backBtnMobile">←</button>
-                        <div class="cv-avatar" id="cvAvatarMobile">C</div>
-                        <div class="cv-info">
-                            <div class="cv-name" id="cvNameMobile">Чат</div>
-                            <div class="cv-status" id="cvStatusMobile">онлайн</div>
+                <div id="messagesContainer"></div>
+                <div id="filePreviewBar">
+                    <div class="file-preview-info">
+                        <span class="file-icon" id="filePreviewIcon">📄</span>
+                        <div>
+                            <div class="file-name" id="filePreviewName">file.txt</div>
+                            <div class="file-size" id="filePreviewSize">0 KB</div>
                         </div>
                     </div>
-                    <div id="pinnedBarMobile">
-                        <span class="pinned-icon">📌</span>
-                        <span class="pinned-text" id="pinnedTextMobile">Закреплённые сообщения</span>
-                        <span class="pinned-arrow">↓</span>
+                    <button class="remove-file-btn" id="removeFileBtn">✕</button>
+                </div>
+                <div id="voiceRecordBar">
+                    <span class="voice-timer" id="voiceTimer">0:00</span>
+                    <div class="voice-wave" id="voiceWave">
+                        <span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
                     </div>
-                    <div id="messagesContainerMobile"></div>
-                    <div id="filePreviewBarMobile" class="file-preview-bar">
-                        <div class="file-preview-info">
-                            <span class="file-icon" id="filePreviewIconMobile">📄</span>
-                            <div>
-                                <div class="file-name" id="filePreviewNameMobile">file.txt</div>
-                                <div class="file-size" id="filePreviewSizeMobile">0 KB</div>
-                            </div>
-                        </div>
-                        <button class="remove-file-btn" id="removeFileBtnMobile">✕</button>
+                    <button class="voice-cancel-btn" id="voiceCancelBtn">✕</button>
+                    <button class="voice-send-btn" id="voiceSendBtn">➤</button>
+                </div>
+                <div id="circleRecorder">
+                    <video id="circlePreview" autoplay muted></video>
+                    <div class="record-controls">
+                        <button id="circleStartBtn" class="btn-record">🔴 Записать</button>
+                        <button id="circleStopBtn" class="btn-stop" disabled>⏹ Стоп</button>
+                        <button id="circleCancelBtn" class="btn-secondary">Отмена</button>
                     </div>
-                    <div id="voiceRecordBarMobile" class="voice-record-bar">
-                        <span class="voice-timer" id="voiceTimerMobile">0:00</span>
-                        <div class="voice-wave" id="voiceWaveMobile">
-                            <span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span>
-                        </div>
-                        <button class="voice-cancel-btn" id="voiceCancelBtnMobile">✕</button>
-                        <button class="voice-send-btn" id="voiceSendBtnMobile">➤</button>
+                    <div id="circleTimer">0 сек</div>
+                </div>
+                <div id="inputRow">
+                    <div class="input-wrapper">
+                        <button class="btn-icon" id="cameraBtn" title="Фото">📷</button>
+                        <button class="btn-icon" id="fileBtn" title="Файл">📎</button>
+                        <button class="btn-icon" id="videoBtn" title="Видео">🎥</button>
+                        <button class="btn-icon" id="circleBtn" title="Кружок">⭕</button>
+                        <button class="btn-icon" id="voiceBtn" title="Голосовое">🎤</button>
+                        <input type="text" id="messageInput" placeholder="Сообщение..." />
                     </div>
-                    <div id="circleRecorderMobile" class="circle-recorder">
-                        <video id="circlePreviewMobile" autoplay muted></video>
-                        <div class="record-controls">
-                            <button id="circleStartBtnMobile" class="btn-record">🔴 Записать</button>
-                            <button id="circleStopBtnMobile" class="btn-stop" disabled>⏹ Стоп</button>
-                            <button id="circleCancelBtnMobile" class="btn-secondary">Отмена</button>
-                        </div>
-                        <div id="circleTimerMobile">0 сек</div>
-                    </div>
-                    <div id="inputRowMobile">
-                        <div class="input-wrapper">
-                            <button class="btn-icon" id="cameraBtnMobile" title="Фото">📷</button>
-                            <button class="btn-icon" id="fileBtnMobile" title="Файл">📎</button>
-                            <button class="btn-icon" id="videoBtnMobile" title="Видео">🎥</button>
-                            <button class="btn-icon" id="circleBtnMobile" title="Кружок">⭕</button>
-                            <button class="btn-icon" id="voiceBtnMobile" title="Голосовое">🎤</button>
-                            <input type="text" id="messageInputMobile" placeholder="Сообщение..." />
-                        </div>
-                        <button class="btn-send" id="sendBtnMobile">➤</button>
-                    </div>
+                    <button class="btn-send" id="sendBtn">➤</button>
                 </div>
             </div>
 
@@ -1732,6 +1686,16 @@
             <input type="file" id="videoFileInput" accept="video/*" class="file-input-hidden" />
             <input type="file" id="cameraInput" accept="image/*" capture="environment" class="file-input-hidden" />
             <input type="file" id="avatarInput" accept="image/*" class="file-input-hidden" />
+        </div>
+
+        <!-- DESCRIPTION POPUP -->
+        <div id="descPopup">
+            <div class="popup-content">
+                <h3 id="popupTitle">Описание</h3>
+                <div class="popup-desc" id="popupDesc">Нет описания</div>
+                <div class="popup-info" id="popupInfo"></div>
+                <button class="popup-close" id="popupClose">Закрыть</button>
+            </div>
         </div>
 
         <div class="modal-overlay" id="modalOverlay">
@@ -1747,7 +1711,6 @@
         // ======== СЕРВЕРНЫЕ API ========
         const API_URL = window.location.origin + '/api';
 
-        // Регистрация
         async function registerUserOnServer(name, email, password) {
             const response = await fetch(API_URL + '/register', {
                 method: 'POST',
@@ -1757,7 +1720,6 @@
             return await response.json();
         }
 
-        // Вход
         async function loginUserOnServer(name, password) {
             const response = await fetch(API_URL + '/login', {
                 method: 'POST',
@@ -1767,29 +1729,25 @@
             return await response.json();
         }
 
-        // Получить всех пользователей для поиска
         async function getAllUsers() {
             const response = await fetch(API_URL + '/users');
             return await response.json();
         }
 
-        // Получить чаты пользователя
         async function getUserChats(userId) {
             const response = await fetch(API_URL + '/chats/' + userId);
             return await response.json();
         }
 
-        // Создать чат
-        async function createChatOnServer(name, type, participants, creator, isPrivate) {
+        async function createChatOnServer(name, type, participants, creator, isPrivate, description) {
             const response = await fetch(API_URL + '/chats', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, type, participants, creator, isPrivate })
+                body: JSON.stringify({ name, type, participants, creator, isPrivate, description })
             });
             return await response.json();
         }
 
-        // Отправить сообщение
         async function sendMessageToServer(chatId, sender, text, video, file, audio) {
             const response = await fetch(API_URL + '/messages', {
                 method: 'POST',
@@ -1799,13 +1757,12 @@
             return await response.json();
         }
 
-        // Получить сообщения чата
         async function getChatMessages(chatId) {
             const response = await fetch(API_URL + '/messages/' + chatId);
             return await response.json();
         }
 
-        // ======== ПРОСТОЙ БОТ ========
+        // ======== БОТ ========
         class SimpleBot {
             constructor() {
                 this.hasGreeted = {};
@@ -1814,9 +1771,7 @@
                 this.userName = name;
             }
             getResponse(message, chatId) {
-                if (this.hasGreeted[chatId]) {
-                    return null;
-                }
+                if (this.hasGreeted[chatId]) return null;
                 this.hasGreeted[chatId] = true;
                 const name = this.userName || 'Пользователь';
                 return `Привет, ${name}! 👋 Я бот Tlim. Приятно познакомиться!`;
@@ -1855,24 +1810,15 @@
                 if (savedUser) {
                     const user = JSON.parse(savedUser);
                     state.user = user;
-
-                    // Загружаем всех пользователей с сервера
                     const users = await getAllUsers();
                     state.allUsers = users;
-
-                    // Загружаем чаты пользователя
                     const chats = await getUserChats(user.id);
                     state.chats = chats;
-
-                    // Загружаем сообщения для каждого чата
                     for (let chat of state.chats) {
                         const messages = await getChatMessages(chat.id);
                         chat.messages = messages;
                     }
-
-                    if (state.bot) {
-                        state.bot.setUserName(user.name);
-                    }
+                    if (state.bot) state.bot.setUserName(user.name);
                     return true;
                 }
                 return false;
@@ -2036,7 +1982,7 @@
                             type: 'user',
                             avatar: user.avatarImg || user.name.charAt(0).toUpperCase(),
                             avatarColor: user.avatarColor || '#2b5278',
-                            description: 'Пользователь',
+                            description: '👤 Пользователь',
                             isPrivate: false,
                             isChat: false,
                             data: user
@@ -2056,7 +2002,7 @@
                             type: 'channel',
                             avatar: chat.avatarImg || '📢',
                             avatarColor: chat.avatarColor || '#f39c12',
-                            description: chat.description || 'Канал',
+                            description: chat.description || '📢 Канал',
                             isPrivate: chat.isPrivate || false,
                             isChat: true,
                             data: chat
@@ -2076,7 +2022,7 @@
                             type: 'group',
                             avatar: chat.avatarImg || '👥',
                             avatarColor: chat.avatarColor || '#2ecc71',
-                            description: chat.description || 'Группа',
+                            description: chat.description || '👥 Группа',
                             isPrivate: chat.isPrivate || false,
                             isChat: true,
                             data: chat
@@ -2096,7 +2042,7 @@
                             type: 'chat',
                             avatar: chat.avatarImg || chat.name.charAt(0).toUpperCase(),
                             avatarColor: chat.avatarColor || '#2b5278',
-                            description: 'Личный чат',
+                            description: '💬 Личный чат',
                             isPrivate: false,
                             isChat: true,
                             data: chat
@@ -2108,11 +2054,11 @@
             resultsContainer.innerHTML = '';
 
             if (results.length === 0) {
-                resultsContainer.innerHTML = '<div style="padding:10px 14px;color:#8e9fb1;">Ничего не найдено</div>';
+                resultsContainer.innerHTML = '<div style="padding:6px 10px;color:#8e9fb1;font-size:12px;">❌ Ничего не найдено</div>';
             } else {
-                results.slice(0, 12).forEach(item => {
+                results.slice(0, 10).forEach(item => {
                     const div = document.createElement('div');
-                    div.className = 'search-result-item';
+                    div.className = 'result-item';
 
                     let avatarContent = item.avatar;
                     if (typeof item.avatar === 'string' && item.avatar.startsWith('data:image')) {
@@ -2126,13 +2072,10 @@
                         '👥' : '💬';
 
                     div.innerHTML = `
-                            <div class="sr-avatar" style="background:${item.avatarColor}">${avatarContent}</div>
-                            <div class="sr-info">
-                                <div class="sr-name">${item.name}${privateBadge}</div>
-                                <div class="sr-desc">${item.description}</div>
-                            </div>
-                            <span class="sr-type">${typeLabel}</span>
-                        `;
+                        <div class="r-avatar" style="background:${item.avatarColor}">${avatarContent}</div>
+                        <span class="r-name">${item.name}${privateBadge}</span>
+                        <span class="r-type">${typeLabel}</span>
+                    `;
 
                     div.addEventListener('click', () => {
                         if (item.type === 'user') {
@@ -2147,14 +2090,15 @@
                                 if (existing) {
                                     openChat(existing.id);
                                 } else {
-                                    // Создаём чат на сервере
-                                    createChat('chat', user.name, [state.user.id, user.id], state.user.id, false)
-                                        .then(newChat => {
+                                    createChat('chat', user.name, [state.user.id, user.id], state.user.id, false,
+                                        'Личный чат').then(newChat => {
+                                        if (newChat) {
                                             state.chats.push(newChat);
                                             openChat(newChat.id);
                                             saveState();
                                             renderAll();
-                                        });
+                                        }
+                                    });
                                 }
                             }
                         } else if (item.isChat) {
@@ -2174,6 +2118,7 @@
         // ======== RENDER FOLDERS ========
         function renderFolders() {
             const bar = document.getElementById('foldersBar');
+            if (!bar) return;
             let html = `<span class="folder-chip ${!state.currentFolderId ? 'active' : ''}" data-folder="all">📁 Все</span>`;
             state.folders.forEach(f => {
                 const isActive = state.currentFolderId === f.id;
@@ -2232,7 +2177,8 @@
             if (!list.length) {
                 const folder = state.currentFolderId ? getFolder(state.currentFolderId) : null;
                 const msg = folder ? 'В этой папке нет чатов' : 'Нет чатов<br>Нажмите + чтобы создать';
-                container.innerHTML = '<div style="color:#8e9fb1;text-align:center;padding:40px 20px;">' + msg + '</div>';
+                container.innerHTML = '<div style="color:#8e9fb1;text-align:center;padding:30px 15px;font-size:13px;">' +
+                    msg + '</div>';
                 return;
             }
             list.forEach(chat => {
@@ -2253,8 +2199,9 @@
                     if (lastText.length > 30) lastText = lastText.substring(0, 30) + '...';
                 }
                 let avatarContent = chat.avatarImg ? '<img src="' + chat.avatarImg + '" alt="avatar" />' :
-                getChatAvatar(chat);
+                    getChatAvatar(chat);
                 const pinnedCount = (chat.pinnedMessages || []).length;
+                const desc = chat.description ? ' · ' + chat.description : '';
                 div.innerHTML = `
                         <div class="chat-avatar" style="background:${chat.avatarColor || '#2b5278'}">
                             ${avatarContent}
@@ -2262,7 +2209,7 @@
                         </div>
                         <div class="chat-info">
                             <div class="chat-name">${getChatName(chat)} ${pinnedCount > 0 ? '<span class="chat-pinned-badge">📌' + pinnedCount + '</span>' : ''}</div>
-                            <div class="chat-last">${lastText}</div>
+                            <div class="chat-last">${lastText}${desc}</div>
                         </div>
                         ${lastTime ? `<div class="chat-time">${lastTime}</div>` : ''}
                         ${chat.unread ? `<span class="chat-badge">${chat.unread}</span>` : ''}
@@ -2325,7 +2272,7 @@
                             <span class="audio-time">${formatDuration(msg.audio.duration || 0)}</span>
                         </div>
                     `;
-                if (msg.text) content += `<div class="msg-text" style="margin-top:4px;">${msg.text}</div>`;
+                if (msg.text) content += `<div class="msg-text" style="margin-top:3px;">${msg.text}</div>`;
             } else if (msg.file && msg.file.data) {
                 const icon = getFileIcon(msg.file.name);
                 const isImage = msg.file.type && msg.file.type.startsWith('image/');
@@ -2342,14 +2289,14 @@
                             <button class="download-btn" data-file="${msg.file.data}" data-filename="${msg.file.name}">⬇</button>
                         </div>
                     `;
-                if (msg.text) content += `<div class="msg-text" style="margin-top:4px;">${msg.text}</div>`;
+                if (msg.text) content += `<div class="msg-text" style="margin-top:3px;">${msg.text}</div>`;
             } else if (msg.video) {
                 if (msg.isCircle) {
                     content += `<video class="circle-video" src="${msg.video}" controls loop></video>`;
                 } else {
                     content += `<video src="${msg.video}" controls></video>`;
                 }
-                if (msg.text) content += `<div class="msg-text" style="margin-top:4px;">${msg.text}</div>`;
+                if (msg.text) content += `<div class="msg-text" style="margin-top:3px;">${msg.text}</div>`;
             } else {
                 content = `<div class="msg-text">${msg.text || ''}</div>`;
             }
@@ -2470,7 +2417,7 @@
             bar.classList.add('show');
             const count = pinnedMessages.length;
             document.getElementById('pinnedText').innerHTML =
-                `📌 Закреплённых сообщений: ${count} <span style="color:#8e9fb1;font-size:11px;margin-left:6px;">(нажмите чтобы перейти)</span>`;
+                `📌 Закреплённых сообщений: ${count} <span style="color:#8e9fb1;font-size:10px;margin-left:4px;">(нажмите чтобы перейти)</span>`;
 
             bar.onclick = () => {
                 const firstPinnedId = pinnedMessages[0];
@@ -2543,12 +2490,36 @@
             let statusText = chat.isBot ? '🤖 Бот' :
                 (chat.type === 'channel' ? '📢 Канал' : chat.type === 'group' ? '👥 Группа' : 'онлайн');
             if (chat.isPrivate) statusText += ' 🔒 Приватный';
-            document.getElementById('cvName').textContent = getChatName(chat);
+            document.getElementById('cvName').innerHTML = getChatName(chat) +
+                ` <button class="desc-btn" id="descBtn" title="Описание">ℹ️</button>`;
             document.getElementById('cvStatus').textContent = statusText;
+
+            // Описание
+            document.getElementById('descBtn').addEventListener('click', () => {
+                showDescription(chat);
+            });
         }
 
+        function showDescription(chat) {
+            const popup = document.getElementById('descPopup');
+            document.getElementById('popupTitle').textContent = chat.name;
+            document.getElementById('popupDesc').textContent = chat.description || 'Нет описания';
+            const typeText = chat.type === 'channel' ? '📢 Канал' : chat.type === 'group' ? '👥 Группа' : '💬 Чат';
+            const privateText = chat.isPrivate ? '🔒 Приватный' : '🌍 Публичный';
+            document.getElementById('popupInfo').textContent = `${typeText} · ${privateText} · Создан: ${new Date(chat.created).toLocaleDateString()}`;
+            popup.classList.add('show');
+        }
+
+        document.getElementById('popupClose').addEventListener('click', () => {
+            document.getElementById('descPopup').classList.remove('show');
+        });
+        document.getElementById('descPopup').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('descPopup').classList.remove('show');
+            }
+        });
+
         function renderAll() {
-            renderFolders();
             renderChatList();
             if (state.currentChatId) {
                 renderMessages();
@@ -2594,7 +2565,6 @@
             if (!chat) return;
             if (!text && !videoData && !fileData && !audioData) return;
 
-            // Отправляем сообщение на сервер
             const msg = await sendMessageToServer(
                 chat.id,
                 state.user.id,
@@ -2604,17 +2574,13 @@
                 audioData || null
             );
 
-            // Добавляем дополнительные поля для отображения
             msg.isCircle = isCircle || false;
             msg.isBot = false;
             msg.isSystem = false;
-
-            // Обновляем локальный чат
             chat.messages.push(msg);
             renderMessages();
             renderChatList();
 
-            // Бот
             if (isBotChat(chat) && text) {
                 processBotResponse(chat, text);
             }
@@ -2639,25 +2605,24 @@
         }
 
         // ======== CREATE CHAT ========
-        async function createChat(type, name, participants, creator, isPrivate) {
+        async function createChat(type, name, participants, creator, isPrivate, description) {
             try {
-                // Создаём чат на сервере
                 const newChat = await createChatOnServer(
                     name,
                     type,
                     participants,
                     creator,
-                    isPrivate || false
+                    isPrivate || false,
+                    description || ''
                 );
 
                 state.chats.push(newChat);
                 state.currentChatId = newChat.id;
 
-                // Добавляем системное сообщение
                 if (type === 'group' || type === 'channel') {
                     const text = type === 'group' ?
-                        `👥 Группа "${name}" создана!` :
-                        `📢 Канал "${name}" создан!`;
+                        `👥 Группа "${name}" создана!${isPrivate ? ' 🔒 Приватная' : ''}` :
+                        `📢 Канал "${name}" создан!${isPrivate ? ' 🔒 Приватный' : ''}`;
                     await sendMessageToServer(newChat.id, 'system', text, null, null, null);
                 }
 
@@ -2844,29 +2809,24 @@
             state.bot.setUserName(user.name);
             initBot();
 
-            // Загружаем чаты с сервера
             const chats = await getUserChats(user.id);
             state.chats = chats;
 
-            // Если чатов нет, создаём приветственный
             if (!state.chats.length) {
-                const welcomeChat = await createChat('chat', 'Tlim Bot', [state.user.id], state.user.id, false);
+                const welcomeChat = await createChat('chat', 'Tlim Bot', [state.user.id], state.user.id, false,
+                    'Официальный бот Tlim');
                 if (welcomeChat) {
-                    // Добавляем приветственное сообщение
                     await sendMessageToServer(
                         welcomeChat.id,
                         'bot',
                         '👋 Привет! Я бот Tlim. Приятно познакомиться!',
-                        null,
-                        null,
-                        null
+                        null, null, null
                     );
                     state.chats = [welcomeChat];
                     state.currentChatId = welcomeChat.id;
                 }
             }
 
-            // Сохраняем пользователя в localStorage для быстрого входа
             localStorage.setItem('tlimUser', JSON.stringify({
                 id: state.user.id,
                 name: state.user.name,
@@ -3075,16 +3035,16 @@
         function showCreateMenu() {
             openModal('Создать', `
                     <div class="create-buttons">
-                        <button class="btn-channel" id="createChannelBtn">📢 Создать канал</button>
-                        <button class="btn-group" id="createGroupBtn">👥 Создать группу</button>
-                        <button class="btn-folder" id="createFolderBtn">📂 Создать папку</button>
+                        <button class="btn-channel" id="createChannelModalBtn">📢 Создать канал</button>
+                        <button class="btn-group" id="createGroupModalBtn">👥 Создать группу</button>
+                        <button class="btn-folder" id="createFolderModalBtn">📂 Создать папку</button>
                     </div>
                 `);
-            document.getElementById('createChannelBtn').addEventListener('click', () => { closeModal();
+            document.getElementById('createChannelModalBtn').addEventListener('click', () => { closeModal();
                 showCreateChannel(); });
-            document.getElementById('createGroupBtn').addEventListener('click', () => { closeModal();
+            document.getElementById('createGroupModalBtn').addEventListener('click', () => { closeModal();
                 showCreateGroup(); });
-            document.getElementById('createFolderBtn').addEventListener('click', () => { closeModal();
+            document.getElementById('createFolderModalBtn').addEventListener('click', () => { closeModal();
                 showCreateFolder(); });
         }
 
@@ -3129,9 +3089,9 @@
                 const description = document.getElementById('channelDescription').value.trim();
                 const isPrivate = document.getElementById('channelPrivacy').value === 'true';
                 if (!name) { alert('Введите название канала'); return; }
-                const newChat = await createChat('channel', name, [state.user.id], state.user.id, isPrivate);
+                const newChat = await createChat('channel', name, [state.user.id], state.user.id, isPrivate,
+                    description);
                 if (newChat) {
-                    if (description) newChat.description = description;
                     if (avatarData) newChat.avatarImg = avatarData;
                     closeModal();
                 }
@@ -3141,6 +3101,7 @@
         function showCreateGroup() {
             let selectedUsers = [];
             let avatarData = null;
+            let selectedChats = [];
 
             function renderGroupModal() {
                 const allUsersHtml = state.allUsers
@@ -3159,6 +3120,16 @@
                             </span>
                         `).join('');
 
+                // Список чатов для добавления в группу
+                const chatListHtml = state.chats
+                    .filter(c => c.type === 'channel' || c.type === 'chat')
+                    .map(c => `
+                            <label>
+                                <input type="checkbox" value="${c.id}" class="chat-select-checkbox" ${selectedChats.includes(c.id) ? 'checked' : ''} />
+                                ${getChatName(c)}
+                            </label>
+                        `).join('');
+
                 const body = document.getElementById('modalBody');
                 body.innerHTML = `
                             <div class="avatar-upload">
@@ -3171,12 +3142,27 @@
                                 <option value="false">🌍 Публичная</option>
                                 <option value="true">🔒 Приватная (только по приглашению)</option>
                             </select>
-                            <div style="color:#8e9fb1;font-size:13px;margin:8px 0;">👥 Выберите участников:</div>
-                            <input type="text" id="searchUsersInput" placeholder="Поиск..." />
-                            <div id="searchResults" style="max-height:120px;overflow-y:auto;margin:6px 0;"></div>
+                            <div style="color:#8e9fb1;font-size:12px;margin:6px 0;">👥 Выберите участников:</div>
+                            <input type="text" id="searchUsersInput" placeholder="Поиск пользователей..." />
+                            <div id="searchUserResults" style="max-height:100px;overflow-y:auto;margin:4px 0;"></div>
                             <div class="selected-users" id="selectedUsers">${selectedHtml}</div>
+                            <div style="color:#8e9fb1;font-size:12px;margin:6px 0;">📂 Выберите чаты для добавления в группу:</div>
+                            <div class="chat-select-list" id="chatSelectList">
+                                ${chatListHtml || '<div style="color:#6b7f8f;font-size:12px;">Нет доступных чатов</div>'}
+                            </div>
                             <button class="btn-primary" id="confirmGroupBtn">Создать (${selectedUsers.length} уч.)</button>
                         `;
+
+                // Обработчик для выбора чатов
+                document.querySelectorAll('.chat-select-checkbox').forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        if (cb.checked) {
+                            if (!selectedChats.includes(cb.value)) selectedChats.push(cb.value);
+                        } else {
+                            selectedChats = selectedChats.filter(id => id !== cb.value);
+                        }
+                    });
+                });
 
                 document.getElementById('groupAvatarBtn').addEventListener('click', () => {
                     const input = document.createElement('input');
@@ -3197,7 +3183,7 @@
                     input.click();
                 });
 
-                const resultsDiv = document.getElementById('searchResults');
+                const resultsDiv = document.getElementById('searchUserResults');
                 const searchInput = document.getElementById('searchUsersInput');
 
                 function updateSearch() {
@@ -3207,7 +3193,7 @@
                     results = results.filter(u => !selectedUsers.find(s => s.id === u.id));
 
                     if (!results.length) {
-                        resultsDiv.innerHTML = '<div style="color:#8e9fb1;padding:6px;">Никого не найдено</div>';
+                        resultsDiv.innerHTML = '<div style="color:#8e9fb1;padding:4px;font-size:12px;">Никого не найдено</div>';
                     } else {
                         resultsDiv.innerHTML = results.map(u => `
                                 <div class="user-search-result" data-id="${u.id}">
@@ -3245,10 +3231,20 @@
                     if (selectedUsers.length === 0) { alert('Выберите участников'); return; }
                     const participants = selectedUsers.map(u => u.id);
                     participants.push(state.user.id);
-                    const newChat = await createChat('group', name, participants, state.user.id, isPrivate);
+
+                    const newChat = await createChat('group', name, participants, state.user.id, isPrivate,
+                        description);
                     if (newChat) {
-                        if (description) newChat.description = description;
                         if (avatarData) newChat.avatarImg = avatarData;
+                        // Добавляем выбранные чаты в группу (как ссылки)
+                        if (selectedChats.length > 0) {
+                            const chatNames = selectedChats.map(id => {
+                                const c = getChat(id);
+                                return c ? c.name : '';
+                            }).filter(Boolean).join(', ');
+                            await sendMessageToServer(newChat.id, 'system',
+                                `📂 В группу добавлены чаты: ${chatNames}`, null, null, null);
+                        }
                         closeModal();
                     }
                 });
@@ -3260,10 +3256,10 @@
         function showCreateFolder() {
             openModal('Создать папку', `
                     <input type="text" id="folderName" placeholder="Название папки" />
-                    <div style="margin:10px 0;color:#8e9fb1;">Выберите чаты для папки:</div>
-                    <div style="display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow-y:auto;" id="folderChatsList">
+                    <div style="margin:8px 0;color:#8e9fb1;font-size:12px;">Выберите чаты для папки:</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;max-height:150px;overflow-y:auto;" id="folderChatsList">
                         ${state.chats.map(c => `
-                            <label style="display:flex;align-items:center;gap:6px;background:#1f2c38;padding:6px 12px;border-radius:16px;font-size:13px;cursor:pointer;">
+                            <label style="display:flex;align-items:center;gap:4px;background:#1f2c38;padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">
                                 <input type="checkbox" value="${c.id}" /> ${getChatName(c)}
                             </label>
                         `).join('')}
@@ -3379,7 +3375,6 @@
 
             // Chat controls
             document.getElementById('backBtn').addEventListener('click', closeChat);
-            document.getElementById('backBtnMobile').addEventListener('click', closeChat);
 
             // ===== ПОИСК =====
             const searchInput = document.getElementById('globalSearchInput');
@@ -3401,10 +3396,18 @@
             });
 
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.header-center')) {
+                if (!e.target.closest('.search-wrap')) {
                     document.getElementById('searchResults').classList.remove('show');
                 }
             });
+
+            // ===== CREATE BUTTONS (подняты вверх) =====
+            document.getElementById('createChannelBtn').addEventListener('click', () => { closeModal();
+                showCreateChannel(); });
+            document.getElementById('createGroupBtn').addEventListener('click', () => { closeModal();
+                showCreateGroup(); });
+            document.getElementById('createFolderBtn').addEventListener('click', () => { closeModal();
+                showCreateFolder(); });
 
             // Avatar upload
             document.getElementById('userAvatar').addEventListener('click', handleAvatarUpload);
@@ -3425,12 +3428,6 @@
                 }
                 e.target.value = '';
             });
-
-            // Desktop add
-            document.getElementById('desktopAddBtn').addEventListener('click', showCreateMenu);
-
-            // Mobile add
-            document.getElementById('addBtn').addEventListener('click', showCreateMenu);
 
             // Send message
             function handleSend() {
@@ -3554,10 +3551,17 @@
                 if (e.key === 'Escape') {
                     closeModal();
                     document.getElementById('searchResults').classList.remove('show');
+                    document.getElementById('descPopup').classList.remove('show');
                     if (document.getElementById('chatView').classList.contains('open')) {
                         closeChat();
                     }
                 }
+            });
+
+            // Bottom chats button
+            document.getElementById('chatsBtn').addEventListener('click', () => {
+                document.getElementById('chatsBtn').classList.add('active');
+                closeChat();
             });
         });
     </script>

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tlim</title>
     <style>
-        /* ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
         body{background:#0e1621;color:#e1e9f0;height:100vh;overflow:hidden}
 
@@ -594,7 +593,6 @@
                 if (savedBlocked) state.blockedUsers = JSON.parse(savedBlocked);
                 if (savedUser) {
                     state.user = JSON.parse(savedUser);
-                    // Восстанавливаем имя в интерфейсе
                     document.getElementById('userNameDisplay').textContent = state.user.name;
                     document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
                     return true;
@@ -606,7 +604,6 @@
         function saveState() {
             try {
                 if (state.user) {
-                    // Сохраняем ВСЕ данные пользователя
                     localStorage.setItem('tlimUser', JSON.stringify({
                         id: state.user.id,
                         name: state.user.name,
@@ -617,6 +614,22 @@
                 }
                 localStorage.setItem('tlimBlocked', JSON.stringify(state.blockedUsers));
             } catch (e) { console.warn('Save error', e); }
+        }
+
+        // ======== ПОЛУЧИТЬ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ С СЕРВЕРА ========
+        async function fetchAllUsers() {
+            try {
+                const response = await fetch('/api/users', {
+                    cache: 'no-cache',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                const users = await response.json();
+                state.allUsers = users;
+                return users;
+            } catch (e) {
+                console.warn('Ошибка загрузки пользователей:', e);
+                return state.allUsers || [];
+            }
         }
 
         // ======== WebSocket ========
@@ -766,53 +779,108 @@
             }
         }
 
-        // ======== ПОИСК ПОЛЬЗОВАТЕЛЕЙ ========
-        function performGlobalSearch(query) {
+        // ======== ПОИСК ПОЛЬЗОВАТЕЛЕЙ (С СЕРВЕРА) ========
+        async function performGlobalSearch(query) {
             const container = document.getElementById('searchResults');
             if (!query || query.length < 1) {
                 container.classList.remove('show');
                 container.innerHTML = '';
                 return;
             }
+
+            const allUsers = await fetchAllUsers();
+            console.log('👥 Все пользователи с сервера:', allUsers);
+
             const q = query.toLowerCase();
             const results = [];
-            state.allUsers.forEach(user => {
+            const seen = new Set();
+
+            allUsers.forEach(user => {
                 if (user.id !== state.user?.id && user.name.toLowerCase().includes(q)) {
-                    results.push({ id: user.id, name: user.name, type: 'user' });
+                    if (!seen.has(user.id)) {
+                        seen.add(user.id);
+                        results.push({
+                            id: user.id,
+                            name: user.name,
+                            type: 'user',
+                            avatar: user.avatar || user.name.charAt(0).toUpperCase(),
+                            avatarColor: '#2b5278'
+                        });
+                    }
                 }
             });
+
             state.chats.forEach(chat => {
                 if (chat.name.toLowerCase().includes(q) && !chat.isBlocked) {
-                    results.push({ id: chat.id, name: chat.name, type: chat.type || 'chat' });
+                    if (!seen.has(chat.id)) {
+                        seen.add(chat.id);
+                        results.push({
+                            id: chat.id,
+                            name: chat.name,
+                            type: chat.type || 'chat',
+                            avatar: chat.avatar || chat.name.charAt(0).toUpperCase(),
+                            avatarColor: chat.avatarColor || '#2b5278'
+                        });
+                    }
                 }
             });
-            container.innerHTML = results.length ? results.slice(0, 10).map(r => `
-                <div class="result-item" data-id="${r.id}" data-type="${r.type}">
-                    <span class="r-avatar">${r.type === 'user' ? '👤' : '💬'}</span>
-                    <span class="r-name">${r.name}</span>
-                    <span class="r-type">${r.type === 'user' ? '👤 Пользователь' : r.type === 'channel' ? '📢 Канал' : r.type === 'group' ? '👥 Группа' : '💬 Чат'}</span>
-                </div>
-            `).join('') : '<div style="padding:8px 12px;color:#8e9fb1;font-size:12px;">❌ Ничего не найдено</div>';
-            container.querySelectorAll('.result-item').forEach(el => {
-                el.addEventListener('click', () => {
-                    const id = el.dataset.id;
-                    const type = el.dataset.type;
-                    if (type === 'user') {
-                        const existing = state.chats.find(c => c.participants && c.participants.includes(id) && c.participants.includes(state.user.id));
-                        if (existing) {
-                            openChat(existing.id);
-                        } else {
-                            const chat = createChat('chat', el.querySelector('.r-name').textContent, [state.user.id, id], state.user.id, false, 'Личный чат');
-                            if (chat) openChat(chat.id);
+
+            container.innerHTML = '';
+
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div style="padding:8px 12px;color:#8e9fb1;font-size:12px;">
+                        ❌ Ничего не найдено. Всего пользователей: ${allUsers.length}
+                    </div>
+                `;
+            } else {
+                results.slice(0, 10).forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'result-item';
+                    const avatarContent = item.avatar || item.name.charAt(0).toUpperCase();
+                    const typeLabel = item.type === 'user' ? '👤 Пользователь' : 
+                                     item.type === 'channel' ? '📢 Канал' : 
+                                     item.type === 'group' ? '👥 Группа' : '💬 Чат';
+
+                    div.innerHTML = `
+                        <div class="r-avatar" style="background:${item.avatarColor || '#2b5278'}">${avatarContent}</div>
+                        <span class="r-name">${item.name}</span>
+                        <span class="r-type">${typeLabel}</span>
+                    `;
+
+                    div.addEventListener('click', async () => {
+                        if (item.type === 'user') {
+                            const user = allUsers.find(u => u.id === item.id);
+                            if (user) {
+                                const existing = state.chats.find(c =>
+                                    c.type === 'chat' &&
+                                    c.participants &&
+                                    c.participants.includes(user.id) &&
+                                    c.participants.includes(state.user.id)
+                                );
+                                if (existing) {
+                                    openChat(existing.id);
+                                } else {
+                                    const newChat = await createChat('chat', user.name, [state.user.id, user.id], state.user.id, false, 'Личный чат');
+                                    if (newChat) {
+                                        state.chats.push(newChat);
+                                        openChat(newChat.id);
+                                        saveState();
+                                        renderAll();
+                                    }
+                                }
+                            }
+                        } else if (item.type === 'chat' || item.type === 'channel' || item.type === 'group') {
+                            openChat(item.id);
                         }
-                    } else {
-                        openChat(id);
-                    }
-                    container.classList.remove('show');
-                    container.innerHTML = '';
-                    document.getElementById('globalSearchInput').value = '';
+                        container.classList.remove('show');
+                        container.innerHTML = '';
+                        document.getElementById('globalSearchInput').value = '';
+                    });
+                    container.appendChild(div);
                 });
-            });
+            }
+
             container.classList.add('show');
         }
 
@@ -929,7 +997,6 @@
                 }
                 container.appendChild(div);
             });
-            // Audio handlers
             container.querySelectorAll('.audio-container').forEach(el => {
                 const audioData = el.dataset.audio;
                 const playBtn = el.querySelector('.play-btn');
@@ -1119,34 +1186,36 @@
             }
         }
 
-        // ======== CREATE CHAT ========
-        function createChat(type, name, participants, creator, isPrivate, description) {
-            const chat = {
-                id: generateId(),
-                name: name || 'Чат',
-                type: type || 'chat',
-                participants: participants || [creator],
-                creator: creator || state.user?.id,
-                isPrivate: isPrivate || false,
-                description: description || '',
-                messages: [],
-                pinnedMessages: [],
-                created: Date.now(),
-                isBlocked: false,
-                avatar: null,
-                avatarColor: type === 'channel' ? '#f39c12' : type === 'group' ? '#2ecc71' : '#2b5278'
-            };
-            state.chats.push(chat);
-            if (type === 'chat' && participants.length === 2) {
-                const otherId = participants.find(id => id !== creator);
-                const other = state.allUsers.find(u => u.id === otherId);
-                if (other) chat.name = other.name;
+        // ======== СОЗДАНИЕ ЧАТА (С СОХРАНЕНИЕМ НА СЕРВЕРЕ) ========
+        async function createChat(type, name, participants, creator, isPrivate, description) {
+            try {
+                const response = await fetch('/api/chats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name || 'Чат',
+                        type: type || 'chat',
+                        participants: participants || [creator],
+                        creator: creator || state.user?.id,
+                        isPrivate: isPrivate || false,
+                        description: description || ''
+                    })
+                });
+                const newChat = await response.json();
+                
+                state.chats.push(newChat);
+                if (type === 'channel') {
+                    addSystemMessage(newChat.id, `📢 Канал "${newChat.name}" создан!`);
+                } else if (type === 'group') {
+                    addSystemMessage(newChat.id, `👥 Группа "${newChat.name}" создана!`);
+                }
+                renderChatList();
+                saveState();
+                return newChat;
+            } catch (e) {
+                console.error('Create chat error:', e);
+                return null;
             }
-            saveState();
-            renderChatList();
-            if (type === 'channel') addSystemMessage(chat.id, `📢 Канал "${chat.name}" создан!`);
-            else if (type === 'group') addSystemMessage(chat.id, `👥 Группа "${chat.name}" создана! (${participants.length} уч.)`);
-            return chat;
         }
 
         // ======== OPEN/CLOSE CHAT ========
@@ -1336,71 +1405,101 @@
         function handleCamera() { document.getElementById('cameraInput').click(); }
         function handleVideoUpload() { document.getElementById('videoFileInput').click(); }
 
-        // ======== AUTH ========
-        function loginWithPassword() {
+        // ======== ВХОД (С ПРОВЕРКОЙ НА СЕРВЕРЕ) ========
+        async function loginWithPassword() {
             const name = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             const errorEl = document.getElementById('loginError');
-            if (!name || !password) { errorEl.textContent = 'Введите имя и пароль'; errorEl.classList.remove('hidden'); return; }
-            if (isUserBlocked(name)) { errorEl.textContent = '❌ Пользователь заблокирован'; errorEl.classList.remove('hidden'); return; }
-            
-            // Проверяем, есть ли пользователь
-            let user = state.allUsers.find(u => u.name === name && u.password === password);
-            if (!user) {
-                // Создаём нового
-                user = { 
-                    id: generateId(), 
-                    name: name, 
-                    email: name + '@user.com', 
-                    password: password,
-                    avatar: null
-                };
-                state.allUsers.push(user);
+            if (!name || !password) {
+                errorEl.textContent = 'Введите имя и пароль';
+                errorEl.classList.remove('hidden');
+                return;
             }
-            
-            state.user = user;
-            state.bot = new SimpleBot();
-            state.bot.setUserName(name);
-            
-            // Создаём бота
-            const botChat = {
-                id: generateId(), 
-                type: 'chat', 
-                name: 'Tlim Bot', 
-                avatar: '🤖', 
-                avatarColor: '#1a5276',
-                participants: [user.id, 'bot'], 
-                creator: 'bot', 
-                isBot: true,
-                messages: [{ 
-                    id: 'bot_welcome', 
-                    sender: 'bot', 
-                    text: `👋 Привет, ${name}! Я бот Tlim. Приятно познакомиться!`, 
-                    time: Date.now(), 
-                    isBot: true 
-                }],
-                pinnedMessages: [], 
-                description: 'Официальный бот Tlim', 
-                isPrivate: false, 
-                isBlocked: false, 
-                created: Date.now()
-            };
-            state.chats = [botChat];
-            state.botChatId = botChat.id;
-            
-            // СОХРАНЯЕМ ВСЁ
-            saveState();
-            
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'flex';
-            
-            // Обновляем интерфейс
-            document.getElementById('userNameDisplay').textContent = state.user.name;
-            document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
-            
-            renderChatList();
-            connectWebSocket();
-            errorEl.classList.add('hidden');
+            if (isUserBlocked(name)) {
+                errorEl.textContent = '❌ Пользователь заблокирован';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, password })
+                });
+                const result = await response.json();
+                
+                if (result.error) {
+                    errorEl.textContent = result.error;
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                state.user = result.user;
+                state.bot = new SimpleBot();
+                state.bot.setUserName(name);
+                
+                await fetchAllUsers();
+                
+                const chatsResponse = await fetch('/api/chats/' + state.user.id);
+                const chats = await chatsResponse.json();
+                state.chats = chats;
+                
+                for (let chat of state.chats) {
+                    const msgsResponse = await fetch('/api/messages/' + chat.id);
+                    chat.messages = await msgsResponse.json();
+                }
+
+                if (!state.chats.length) {
+                    const botChat = {
+                        id: generateId(),
+                        type: 'chat',
+                        name: 'Tlim Bot',
+                        avatar: '🤖',
+                        avatarColor: '#1a5276',
+                        participants: [state.user.id, 'bot'],
+                        creator: 'bot',
+                        isBot: true,
+                        messages: [{
+                            id: 'bot_welcome',
+                            sender: 'bot',
+                            text: `👋 Привет, ${name}! Я бот Tlim. Приятно познакомиться!`,
+                            time: Date.now(),
+                            isBot: true
+                        }],
+                        pinnedMessages: [],
+                        description: 'Официальный бот Tlim',
+                        isPrivate: false,
+                        isBlocked: false,
+                        created: Date.now()
+                    };
+                    state.chats = [botChat];
+                    await fetch('/api/chats', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(botChat)
+                    });
+                }
+
+                saveState();
+                
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                
+                document.getElementById('userNameDisplay').textContent = state.user.name;
+                document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
+                
+                renderChatList();
+                connectWebSocket();
+                errorEl.classList.add('hidden');
+                
+                console.log('✅ Всего пользователей на сервере:', state.allUsers.length);
+                
+            } catch (e) {
+                errorEl.textContent = 'Ошибка подключения к серверу';
+                errorEl.classList.remove('hidden');
+                console.error('Login error:', e);
+            }
         }
 
         function logout() {
@@ -1412,6 +1511,59 @@
             document.getElementById('mainApp').style.display = 'none';
             localStorage.removeItem('tlimUser');
             saveState();
+        }
+
+        // ======== РЕГИСТРАЦИЯ (С СОХРАНЕНИЕМ НА СЕРВЕРЕ) ========
+        async function registerUser() {
+            const name = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const errorEl = document.getElementById('codeError');
+            const successEl = document.getElementById('codeSuccess');
+
+            if (!name || !email || !password) {
+                errorEl.textContent = 'Заполните все поля';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (name.length < 3) {
+                errorEl.textContent = 'Имя минимум 3 символа';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (password.length < 4) {
+                errorEl.textContent = 'Пароль минимум 4 символа';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const result = await response.json();
+                
+                if (result.error) {
+                    errorEl.textContent = result.error;
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                errorEl.classList.add('hidden');
+                successEl.textContent = '✅ Регистрация успешна! Войдите в аккаунт.';
+                successEl.classList.remove('hidden');
+                
+                document.getElementById('tabPassword').click();
+                document.getElementById('loginUsername').value = name;
+                document.getElementById('loginPassword').value = password;
+                
+            } catch (e) {
+                errorEl.textContent = 'Ошибка подключения к серверу';
+                errorEl.classList.remove('hidden');
+                console.error('Register error:', e);
+            }
         }
 
         // ======== MODAL ========
@@ -1447,19 +1599,13 @@
                 if (!password) { alert('Введите пароль для подтверждения'); return; }
                 if (state.user && state.user.password !== password) { alert('❌ Неверный пароль'); return; }
                 
-                // Меняем имя
                 const oldName = state.user.name;
                 state.user.name = name;
-                
-                // Обновляем имя в чатах
                 state.chats.forEach(chat => { 
                     if (chat.name === oldName) chat.name = name; 
                 });
                 
-                // СОХРАНЯЕМ
                 saveState();
-                
-                // Обновляем интерфейс
                 document.getElementById('userNameDisplay').textContent = name;
                 document.getElementById('avatarText').textContent = name.charAt(0).toUpperCase();
                 
@@ -1480,9 +1626,18 @@
             });
         }
 
+        // ======== RENDER ALL ========
+        function renderAll() {
+            renderChatList();
+            if (state.currentChatId) {
+                renderMessages();
+                updateChatHeader();
+            }
+            saveState();
+        }
+
         // ======== INIT ========
         document.addEventListener('DOMContentLoaded', () => {
-            // Загружаем сохранённое состояние
             const loaded = loadState();
             
             if (loaded && state.user) {
@@ -1492,6 +1647,7 @@
                 document.getElementById('mainApp').style.display = 'flex';
                 renderChatList();
                 connectWebSocket();
+                fetchAllUsers();
             }
 
             // Tabs
@@ -1517,20 +1673,7 @@
             });
 
             // Register
-            document.getElementById('registerBtn').addEventListener('click', () => {
-                const name = document.getElementById('regUsername').value.trim();
-                const email = document.getElementById('regEmail').value.trim();
-                const password = document.getElementById('regPassword').value.trim();
-                const err = document.getElementById('codeError');
-                if (!name || !email || !password) { err.textContent = 'Заполните все поля'; err.classList.remove('hidden'); return; }
-                if (state.allUsers.find(u => u.name === name)) { err.textContent = 'Имя занято'; err.classList.remove('hidden'); return; }
-                err.classList.add('hidden');
-                document.getElementById('codeSuccess').textContent = '✅ Регистрация успешна! Войдите.';
-                document.getElementById('codeSuccess').classList.remove('hidden');
-                document.getElementById('tabPassword').click();
-                document.getElementById('loginUsername').value = name;
-                document.getElementById('loginPassword').value = password;
-            });
+            document.getElementById('registerBtn').addEventListener('click', registerUser);
 
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -1649,7 +1792,7 @@
                 }
             });
 
-            // Auto-refresh (резерв)
+            // Auto-refresh
             setInterval(() => {
                 if (state.currentChatId) {
                     const chat = getChat(state.currentChatId);
@@ -1659,7 +1802,7 @@
             }, 10000);
 
             console.log('🚀 Tlim с WebSocket загружен!');
-            console.log('👥 Всего пользователей:', state.allUsers.length);
+            console.log('👥 Всего пользователей на сервере:', state.allUsers.length);
             console.log('💬 Всего чатов:', state.chats.length);
             console.log('👤 Текущий пользователь:', state.user?.name || 'не авторизован');
         });

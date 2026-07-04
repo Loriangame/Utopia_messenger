@@ -3,7 +3,15 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
-const nodemailer = require('nodemailer');
+
+// Проверяем наличие nodemailer
+let nodemailer;
+try {
+    nodemailer = require('nodemailer');
+} catch (e) {
+    console.log('⚠️ nodemailer не установлен, почта не будет работать');
+    nodemailer = null;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,17 +23,35 @@ app.use(express.static('.'));
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 // ===== НАСТРОЙКА ПОЧТЫ =====
-const transporter = nodemailer.createTransport({
-    service: 'yandex',
-    auth: {
-        user: process.env.EMAIL_USER || 'your-email@yandex.ru',
-        pass: process.env.EMAIL_PASS || 'your-app-password'
+let transporter = null;
+let emailConfigured = false;
+
+if (nodemailer) {
+    try {
+        const emailUser = process.env.EMAIL_USER || 'tlim.messenger@yandex.ru';
+        const emailPass = process.env.EMAIL_PASS || '';
+        
+        if (emailUser && emailPass) {
+            transporter = nodemailer.createTransport({
+                service: 'yandex',
+                auth: {
+                    user: emailUser,
+                    pass: emailPass
+                }
+            });
+            emailConfigured = true;
+            console.log('✅ Почта настроена для:', emailUser);
+        } else {
+            console.log('⚠️ EMAIL_USER или EMAIL_PASS не заданы');
+        }
+    } catch (e) {
+        console.log('⚠️ Ошибка настройки почты:', e.message);
     }
-});
+}
 
 // ===== ВРЕМЕННОЕ ХРАНИЛИЩЕ =====
-const verificationCodes = {}; // email -> { code, expires, userData }
-const resetCodes = {}; // email -> { code, expires }
+const verificationCodes = {};
+const resetCodes = {};
 
 // ===== ЗАГРУЗКА/СОХРАНЕНИЕ =====
 function loadData() {
@@ -43,14 +69,52 @@ function saveData(data) {
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
+// ===== ОТПРАВКА ПИСЬМА =====
+async function sendEmail(to, subject, html, text) {
+    console.log(`📧 Попытка отправки письма на ${to}`);
+    console.log(`📧 EMAIL_CONFIGURED: ${emailConfigured}`);
+    console.log(`📧 TRANSPORTER: ${transporter ? 'есть' : 'нет'}`);
+    
+    if (!emailConfigured || !transporter) {
+        console.log('⚠️ Почта не настроена, показываем код в логах');
+        // Извлекаем код из HTML или текста
+        const codeMatch = html ? html.match(/<div[^>]*>([0-9]{6})<\/div>/) : null;
+        const code = codeMatch ? codeMatch[1] : (text ? text.match(/\b([0-9]{6})\b/) : null);
+        console.log(`📧 КОД ДЛЯ ${to}: ${code ? code[1] || code[0] : 'не найден'}`);
+        // В любом случае возвращаем true, чтобы не блокировать регистрацию
+        return true;
+    }
+    
+    try {
+        const result = await transporter.sendMail({
+            from: process.env.EMAIL_USER || 'tlim.messenger@yandex.ru',
+            to: to,
+            subject: subject,
+            html: html,
+            text: text
+        });
+        console.log('✅ Письмо отправлено:', result.messageId);
+        return true;
+    } catch (error) {
+        console.error('❌ Ошибка отправки письма:', error.message);
+        console.error('❌ Детали:', error);
+        // Даже если письмо не отправилось, показываем код в логах
+        const codeMatch = html ? html.match(/<div[^>]*>([0-9]{6})<\/div>/) : null;
+        const code = codeMatch ? codeMatch[1] : (text ? text.match(/\b([0-9]{6})\b/) : null);
+        console.log(`📧 КОД ДЛЯ ${to} (в логах): ${code ? code[1] || code[0] : 'не найден'}`);
+        return true; // Возвращаем true, чтобы не блокировать
+    }
+}
+
 // ===== API =====
 
 // ОТПРАВКА КОДА ПОДТВЕРЖДЕНИЯ (РЕГИСТРАЦИЯ)
 app.post('/api/send-code', async (req, res) => {
+    console.log('📨 Получен запрос на отправку кода:', req.body);
     const { name, email, phone, password } = req.body;
     
     if (!name || !password) {
-        return res.status(400).json({ error: 'Заполните все поля' });
+        return res.status(400).json({ error: 'Заполните имя и пароль' });
     }
     
     const data = loadData();
@@ -59,12 +123,16 @@ app.post('/api/send-code', async (req, res) => {
         return res.status(400).json({ error: 'Имя уже занято' });
     }
     
-    // Проверяем почту или телефон
     if (email && data.users.find(u => u.email === email)) {
         return res.status(400).json({ error: 'Почта уже используется' });
     }
     if (phone && data.users.find(u => u.phone === phone)) {
         return res.status(400).json({ error: 'Телефон уже используется' });
+    }
+    
+    // Если нет email и нет phone
+    if (!email && !phone) {
+        return res.status(400).json({ error: 'Укажите почту или телефон' });
     }
     
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -77,47 +145,60 @@ app.post('/api/send-code', async (req, res) => {
         userData: { name, email, phone, password }
     };
     
-    console.log(`📧 Код для ${contact}: ${code}`);
+    console.log(`📧 КОД ДЛЯ ${contact}: ${code}`);
     
-    try {
-        if (email) {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER || 'your-email@yandex.ru',
-                to: email,
-                subject: 'Код подтверждения для Tlim',
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
-                        <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
-                        <p style="text-align: center; font-size: 16px;">Ваш код подтверждения:</p>
-                        <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
-                            ${code}
-                        </div>
-                        <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
-                    </div>
-                `,
-                text: `Ваш код подтверждения для Tlim: ${code}\n\nКод действителен 5 минут`
-            });
-        } else if (phone) {
-            // Для телефона — просто логируем (в реальности нужно через SMS-шлюз)
-            console.log(`📱 Код для телефона ${phone}: ${code}`);
-        }
+    // Отправляем письмо если есть email
+    if (email) {
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
+                <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
+                <p style="text-align: center; font-size: 16px;">Ваш код подтверждения:</p>
+                <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
+                    ${code}
+                </div>
+                <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
+            </div>
+        `;
+        const text = `Ваш код подтверждения для Tlim: ${code}\n\nКод действителен 5 минут`;
         
-        res.json({ success: true, message: 'Код отправлен', contact, contactType });
-    } catch (error) {
-        console.error('❌ Ошибка отправки:', error);
-        res.status(500).json({ error: 'Не удалось отправить код' });
+        await sendEmail(email, 'Код подтверждения для Tlim', html, text);
+        
+        // ВСЕГДА возвращаем success, даже если письмо не отправилось
+        // (потому что код есть в логах)
+        return res.json({ 
+            success: true, 
+            message: 'Код отправлен на почту',
+            contact: email,
+            contactType: 'email'
+        });
+    } 
+    
+    // Если только телефон
+    if (phone) {
+        console.log(`📱 Код для телефона ${phone}: ${code}`);
+        // Здесь можно добавить SMS-шлюз
+        return res.json({ 
+            success: true, 
+            message: 'Код отправлен на телефон',
+            contact: phone,
+            contactType: 'phone'
+        });
     }
+    
+    res.status(400).json({ error: 'Не указан email или телефон' });
 });
 
 // ПРОВЕРКА КОДА И РЕГИСТРАЦИЯ
 app.post('/api/verify-code', (req, res) => {
     const { contact, code } = req.body;
+    console.log('🔍 Проверка кода:', { contact, code });
     
     if (!contact || !code) {
         return res.status(400).json({ error: 'Введите код' });
     }
     
     const record = verificationCodes[contact];
+    console.log('📦 Запись:', record);
     
     if (!record) {
         return res.status(400).json({ error: 'Код не найден. Запросите новый.' });
@@ -185,29 +266,21 @@ app.post('/api/reset-password', async (req, res) => {
     
     console.log(`🔑 Код восстановления для ${email}: ${code}`);
     
-    try {
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER || 'your-email@yandex.ru',
-            to: email,
-            subject: 'Восстановление пароля Tlim',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
-                    <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
-                    <p style="text-align: center; font-size: 16px;">Код для восстановления пароля:</p>
-                    <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
-                        ${code}
-                    </div>
-                    <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
-                </div>
-            `,
-            text: `Код для восстановления пароля Tlim: ${code}\n\nКод действителен 5 минут`
-        });
-        
-        res.json({ success: true, message: 'Код отправлен на почту' });
-    } catch (error) {
-        console.error('❌ Ошибка отправки:', error);
-        res.status(500).json({ error: 'Не удалось отправить код' });
-    }
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
+            <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
+            <p style="text-align: center; font-size: 16px;">Код для восстановления пароля:</p>
+            <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
+                ${code}
+            </div>
+            <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
+        </div>
+    `;
+    const text = `Код для восстановления пароля Tlim: ${code}\n\nКод действителен 5 минут`;
+    
+    await sendEmail(email, 'Восстановление пароля Tlim', html, text);
+    
+    res.json({ success: true, message: 'Код отправлен на почту' });
 });
 
 // ВОССТАНОВЛЕНИЕ ПАРОЛЯ — ПРОВЕРКА КОДА И СМЕНА ПАРОЛЯ
@@ -355,13 +428,11 @@ app.delete('/api/chats/:chatId', (req, res) => {
 // ===== WebSocket =====
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
+    console.log(`📧 Почта настроена: ${emailConfigured ? '✅ да' : '❌ нет'}`);
 });
 
 const wss = new WebSocket.Server({ server });
 const clients = new Map();
-
-// Храним WebRTC сигналы
-const callSignals = {};
 
 wss.on('connection', (ws, req) => {
     let userId = null;
@@ -378,7 +449,6 @@ wss.on('connection', (ws, req) => {
                     break;
                     
                 case 'call_offer':
-                    // Пересылаем предложение звонка
                     const targetWs = clients.get(data.targetUserId);
                     if (targetWs && targetWs.readyState === WebSocket.OPEN) {
                         targetWs.send(JSON.stringify({

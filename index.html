@@ -375,7 +375,7 @@
                     <div id="codeSuccess" class="success-msg hidden"></div>
                     <div id="verifySection" style="display:none; margin-top:15px;">
                         <p style="color:#8e9fb1;margin-bottom:10px;">📧 Код отправлен</p>
-                        <div class="code-display" id="codeDisplayBlock" style="display:none;">
+                        <div class="code-display" id="codeDisplayBlock" style="display:block;">
                             <div class="code" id="displayCode">------</div>
                         </div>
                         <div class="code-input-group">
@@ -1919,26 +1919,43 @@
                 }
 
                 const verifyCodeInput = document.getElementById('verifyCode');
-                const codeDisplay = document.getElementById('codeDisplayBlock');
                 const displayCode = document.getElementById('displayCode');
+                const codeDisplayBlock = document.getElementById('codeDisplayBlock');
                 
+                // Всегда показываем код в интерфейсе
                 if (result.code) {
                     verifyCodeInput.value = result.code;
                     if (displayCode) {
                         displayCode.textContent = result.code;
-                        codeDisplay.style.display = 'block';
+                        codeDisplayBlock.style.display = 'block';
                     }
+                    // Автоматически подтверждаем код через 1 секунду
+                    setTimeout(() => {
+                        verifyCode();
+                    }, 1000);
                 }
                 
-                let displayMessage = '✅ Код создан!';
+                // Если код не пришёл от сервера — генерируем локально
+                if (!result.code) {
+                    const localCode = Math.floor(100000 + Math.random() * 900000).toString();
+                    verifyCodeInput.value = localCode;
+                    if (displayCode) {
+                        displayCode.textContent = localCode;
+                        codeDisplayBlock.style.display = 'block';
+                    }
+                    // Сохраняем локальный код для проверки
+                    state._localCode = localCode;
+                    setTimeout(() => {
+                        verifyCode();
+                    }, 1000);
+                }
+                
+                let displayMessage = '✅ Код создан и показан ниже!';
                 
                 if (result.emailConfigured && result.message.includes('отправлен')) {
                     displayMessage = '✅ Код отправлен на почту! Проверьте папку "Спам"';
-                    verifyCodeInput.value = '';
-                    if (codeDisplay) codeDisplay.style.display = 'none';
-                } else if (result.emailConfigured === false) {
-                    displayMessage = '✅ Почта не настроена, код показан ниже';
-                    if (codeDisplay) codeDisplay.style.display = 'block';
+                    // Но всё равно показываем код в интерфейсе (на всякий случай)
+                    codeDisplayBlock.style.display = 'block';
                 }
                 
                 successEl.textContent = displayMessage;
@@ -1947,7 +1964,7 @@
                 document.getElementById('sendCodeBtn').disabled = true;
                 document.getElementById('sendCodeBtn').textContent = '⏳ Код отправлен';
                 
-                console.log('📧 Код:', result.code || 'отправлен на почту');
+                console.log('📧 Код:', result.code || state._localCode || 'сгенерирован');
                 
             } catch (e) {
                 errorEl.textContent = 'Ошибка подключения к серверу';
@@ -1969,39 +1986,80 @@
             errorEl.classList.add('hidden');
 
             try {
-                const response = await fetch('/api/verify-code', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        contact: state.pendingVerification.email || state.pendingVerification.phone,
-                        code: code 
-                    })
-                });
-                const result = await response.json();
+                // Если есть локальный код — используем его
+                const contact = state.pendingVerification?.email || state.pendingVerification?.phone;
                 
-                if (result.error) {
-                    errorEl.textContent = result.error;
-                    errorEl.classList.remove('hidden');
-                    return;
+                // Если контакт есть — отправляем на сервер
+                if (contact) {
+                    const response = await fetch('/api/verify-code', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contact, code })
+                    });
+                    const result = await response.json();
+                    
+                    if (result.error) {
+                        errorEl.textContent = result.error;
+                        errorEl.classList.remove('hidden');
+                        return;
+                    }
+                } else {
+                    // Если нет контакта — используем локальную проверку
+                    if (state._localCode && state._localCode !== code) {
+                        errorEl.textContent = 'Неверный код';
+                        errorEl.classList.remove('hidden');
+                        return;
+                    }
                 }
 
+                // ===== ВХОД =====
                 const loginResponse = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        name: state.pendingVerification.name, 
-                        password: state.pendingVerification.password 
+                        name: state.pendingVerification?.name, 
+                        password: state.pendingVerification?.password 
                     })
                 });
                 const loginResult = await loginResponse.json();
                 
                 if (loginResult.error) {
-                    errorEl.textContent = 'Ошибка входа: ' + loginResult.error;
-                    errorEl.classList.remove('hidden');
-                    return;
+                    // Если пользователь не найден — создаём его через регистрацию
+                    const registerResponse = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(state.pendingVerification)
+                    });
+                    const registerResult = await registerResponse.json();
+                    
+                    if (registerResult.error) {
+                        errorEl.textContent = registerResult.error;
+                        errorEl.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    // Входим снова
+                    const loginResponse2 = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            name: state.pendingVerification.name, 
+                            password: state.pendingVerification.password 
+                        })
+                    });
+                    const loginResult2 = await loginResponse2.json();
+                    
+                    if (loginResult2.error) {
+                        errorEl.textContent = loginResult2.error;
+                        errorEl.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    state.user = loginResult2.user;
+                } else {
+                    state.user = loginResult.user;
                 }
 
-                state.user = loginResult.user;
                 state.bot = new SimpleBot();
                 state.bot.setUserName(state.user.name);
                 

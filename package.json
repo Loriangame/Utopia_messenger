@@ -1,13 +1,14 @@
 {
     "name": "tlim",
     "version": "1.0.0",
-    "description": "Tlim Messenger",
+    "description": "Tlim Messenger with WebSocket, Email, Calls",
     "scripts": {
         "start": "node server.js"
     },
     "dependencies": {
         "express": "^4.18.2",
         "cors": "^2.8.5",
-        "ws": "^8.14.2"
+        "ws": "^8.14.2",
+        "nodemailer": "^6.9.7"
     }
 }

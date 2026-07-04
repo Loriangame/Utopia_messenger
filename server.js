@@ -9,7 +9,7 @@ let nodemailer;
 try {
     nodemailer = require('nodemailer');
 } catch (e) {
-    console.log('⚠️ nodemailer не установлен, почта не будет работать');
+    console.log('⚠️ nodemailer не установлен');
     nodemailer = null;
 }
 
@@ -22,31 +22,40 @@ app.use(express.static('.'));
 
 const DATA_FILE = path.join(__dirname, 'data.json');
 
-// ===== НАСТРОЙКА ПОЧТЫ =====
+// ===== АВТОМАТИЧЕСКАЯ НАСТРОЙКА ПОЧТЫ =====
+// Если переменные не заданы — используем значения по умолчанию
+// НО! Они НЕ будут работать без реального пароля
+// Поэтому если не работает — код показывается в интерфейсе
+
+const DEFAULT_EMAIL = 'tlim.messenger@yandex.ru';
+const DEFAULT_PASS = ''; // Пустой пароль — значит почта не настроена
+
+const emailUser = process.env.EMAIL_USER || DEFAULT_EMAIL;
+const emailPass = process.env.EMAIL_PASS || DEFAULT_PASS;
+
 let transporter = null;
 let emailConfigured = false;
 
-if (nodemailer) {
+// Пробуем настроить почту ТОЛЬКО если есть пароль
+if (nodemailer && emailUser && emailPass && emailPass.length > 5) {
     try {
-        const emailUser = process.env.EMAIL_USER || 'tlim.messenger@yandex.ru';
-        const emailPass = process.env.EMAIL_PASS || '';
-        
-        if (emailUser && emailPass) {
-            transporter = nodemailer.createTransport({
-                service: 'yandex',
-                auth: {
-                    user: emailUser,
-                    pass: emailPass
-                }
-            });
-            emailConfigured = true;
-            console.log('✅ Почта настроена для:', emailUser);
-        } else {
-            console.log('⚠️ EMAIL_USER или EMAIL_PASS не заданы');
-        }
+        transporter = nodemailer.createTransport({
+            service: 'yandex',
+            auth: {
+                user: emailUser,
+                pass: emailPass
+            }
+        });
+        emailConfigured = true;
+        console.log(`✅ Почта настроена для: ${emailUser}`);
     } catch (e) {
         console.log('⚠️ Ошибка настройки почты:', e.message);
+        console.log('📧 КОДЫ БУДУТ ПОКАЗЫВАТЬСЯ В ИНТЕРФЕЙСЕ');
     }
+} else {
+    console.log('📧 Почта НЕ настроена (нет пароля)');
+    console.log('📧 КОДЫ БУДУТ ПОКАЗЫВАТЬСЯ В ИНТЕРФЕЙСЕ');
+    console.log('📧 Чтобы настроить почту, добавьте EMAIL_USER и EMAIL_PASS в Environment Variables');
 }
 
 // ===== ВРЕМЕННОЕ ХРАНИЛИЩЕ =====
@@ -71,23 +80,18 @@ function saveData(data) {
 
 // ===== ОТПРАВКА ПИСЬМА =====
 async function sendEmail(to, subject, html, text) {
-    console.log(`📧 Попытка отправки письма на ${to}`);
-    console.log(`📧 EMAIL_CONFIGURED: ${emailConfigured}`);
-    console.log(`📧 TRANSPORTER: ${transporter ? 'есть' : 'нет'}`);
-    
+    // Если почта не настроена — просто логируем
     if (!emailConfigured || !transporter) {
-        console.log('⚠️ Почта не настроена, показываем код в логах');
-        // Извлекаем код из HTML или текста
-        const codeMatch = html ? html.match(/<div[^>]*>([0-9]{6})<\/div>/) : null;
-        const code = codeMatch ? codeMatch[1] : (text ? text.match(/\b([0-9]{6})\b/) : null);
-        console.log(`📧 КОД ДЛЯ ${to}: ${code ? code[1] || code[0] : 'не найден'}`);
-        // В любом случае возвращаем true, чтобы не блокировать регистрацию
-        return true;
+        const codeMatch = html ? html.match(/(\d{6})/) : null;
+        const code = codeMatch ? codeMatch[1] : (text ? text.match(/\b(\d{6})\b/) : null);
+        console.log(`📧 [ЛОГ] Код для ${to}: ${code || 'не найден'}`);
+        console.log(`📧 [ЛОГ] Письмо НЕ отправлено (почта не настроена)`);
+        return false;
     }
     
     try {
         const result = await transporter.sendMail({
-            from: process.env.EMAIL_USER || 'tlim.messenger@yandex.ru',
+            from: emailUser,
             to: to,
             subject: subject,
             html: html,
@@ -97,18 +101,13 @@ async function sendEmail(to, subject, html, text) {
         return true;
     } catch (error) {
         console.error('❌ Ошибка отправки письма:', error.message);
-        console.error('❌ Детали:', error);
-        // Даже если письмо не отправилось, показываем код в логах
-        const codeMatch = html ? html.match(/<div[^>]*>([0-9]{6})<\/div>/) : null;
-        const code = codeMatch ? codeMatch[1] : (text ? text.match(/\b([0-9]{6})\b/) : null);
-        console.log(`📧 КОД ДЛЯ ${to} (в логах): ${code ? code[1] || code[0] : 'не найден'}`);
-        return true; // Возвращаем true, чтобы не блокировать
+        return false;
     }
 }
 
 // ===== API =====
 
-// ОТПРАВКА КОДА ПОДТВЕРЖДЕНИЯ (РЕГИСТРАЦИЯ)
+// ОТПРАВКА КОДА ПОДТВЕРЖДЕНИЯ
 app.post('/api/send-code', async (req, res) => {
     console.log('📨 Получен запрос на отправку кода:', req.body);
     const { name, email, phone, password } = req.body;
@@ -130,7 +129,6 @@ app.post('/api/send-code', async (req, res) => {
         return res.status(400).json({ error: 'Телефон уже используется' });
     }
     
-    // Если нет email и нет phone
     if (!email && !phone) {
         return res.status(400).json({ error: 'Укажите почту или телефон' });
     }
@@ -147,8 +145,10 @@ app.post('/api/send-code', async (req, res) => {
     
     console.log(`📧 КОД ДЛЯ ${contact}: ${code}`);
     
-    // Отправляем письмо если есть email
-    if (email) {
+    let emailSent = false;
+    
+    // Отправляем письмо если есть email И почта настроена
+    if (email && emailConfigured) {
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
                 <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
@@ -161,31 +161,25 @@ app.post('/api/send-code', async (req, res) => {
         `;
         const text = `Ваш код подтверждения для Tlim: ${code}\n\nКод действителен 5 минут`;
         
-        await sendEmail(email, 'Код подтверждения для Tlim', html, text);
-        
-        // ВСЕГДА возвращаем success, даже если письмо не отправилось
-        // (потому что код есть в логах)
-        return res.json({ 
-            success: true, 
-            message: 'Код отправлен на почту',
-            contact: email,
-            contactType: 'email'
-        });
-    } 
-    
-    // Если только телефон
-    if (phone) {
-        console.log(`📱 Код для телефона ${phone}: ${code}`);
-        // Здесь можно добавить SMS-шлюз
-        return res.json({ 
-            success: true, 
-            message: 'Код отправлен на телефон',
-            contact: phone,
-            contactType: 'phone'
-        });
+        emailSent = await sendEmail(email, 'Код подтверждения для Tlim', html, text);
     }
     
-    res.status(400).json({ error: 'Не указан email или телефон' });
+    // ===== ВОЗВРАЩАЕМ ОТВЕТ =====
+    const response = {
+        success: true,
+        message: emailSent ? '✅ Код отправлен на почту!' : '✅ Код создан!',
+        contact: contact,
+        contactType: contactType,
+        emailConfigured: emailConfigured,
+        code: code // ← ВСЕГДА ВОЗВРАЩАЕМ КОД
+    };
+    
+    // Если письмо не отправилось — добавляем подсказку
+    if (!emailSent && email) {
+        response.message = '✅ Код создан! (письмо не отправлено, код показан ниже)';
+    }
+    
+    res.json(response);
 });
 
 // ПРОВЕРКА КОДА И РЕГИСТРАЦИЯ
@@ -198,7 +192,6 @@ app.post('/api/verify-code', (req, res) => {
     }
     
     const record = verificationCodes[contact];
-    console.log('📦 Запись:', record);
     
     if (!record) {
         return res.status(400).json({ error: 'Код не найден. Запросите новый.' });
@@ -240,7 +233,7 @@ app.post('/api/verify-code', (req, res) => {
     res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
 });
 
-// ВОССТАНОВЛЕНИЕ ПАРОЛЯ — ОТПРАВКА КОДА
+// ВОССТАНОВЛЕНИЕ ПАРОЛЯ
 app.post('/api/reset-password', async (req, res) => {
     const { name, email } = req.body;
     
@@ -252,7 +245,7 @@ app.post('/api/reset-password', async (req, res) => {
     const user = data.users.find(u => u.name === name && u.email === email);
     
     if (!user) {
-        return res.status(400).json({ error: 'Пользователь с таким именем и почтой не найден' });
+        return res.status(400).json({ error: 'Пользователь не найден' });
     }
     
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -266,24 +259,32 @@ app.post('/api/reset-password', async (req, res) => {
     
     console.log(`🔑 Код восстановления для ${email}: ${code}`);
     
-    const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
-            <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
-            <p style="text-align: center; font-size: 16px;">Код для восстановления пароля:</p>
-            <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
-                ${code}
+    let emailSent = false;
+    
+    if (emailConfigured) {
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
+                <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
+                <p style="text-align: center; font-size: 16px;">Код для восстановления пароля:</p>
+                <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
+                    ${code}
+                </div>
+                <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
             </div>
-            <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
-        </div>
-    `;
-    const text = `Код для восстановления пароля Tlim: ${code}\n\nКод действителен 5 минут`;
+        `;
+        const text = `Код для восстановления пароля Tlim: ${code}\n\nКод действителен 5 минут`;
+        
+        emailSent = await sendEmail(email, 'Восстановление пароля Tlim', html, text);
+    }
     
-    await sendEmail(email, 'Восстановление пароля Tlim', html, text);
-    
-    res.json({ success: true, message: 'Код отправлен на почту' });
+    res.json({ 
+        success: true, 
+        message: emailSent ? 'Код отправлен на почту' : 'Код создан (письмо не отправлено)',
+        code: code
+    });
 });
 
-// ВОССТАНОВЛЕНИЕ ПАРОЛЯ — ПРОВЕРКА КОДА И СМЕНА ПАРОЛЯ
+// ВОССТАНОВЛЕНИЕ ПАРОЛЯ — ПРОВЕРКА КОДА
 app.post('/api/reset-password-verify', (req, res) => {
     const { email, code, newPassword } = req.body;
     
@@ -294,12 +295,12 @@ app.post('/api/reset-password-verify', (req, res) => {
     const record = resetCodes[email];
     
     if (!record) {
-        return res.status(400).json({ error: 'Код не найден. Запросите новый.' });
+        return res.status(400).json({ error: 'Код не найден' });
     }
     
     if (Date.now() > record.expires) {
         delete resetCodes[email];
-        return res.status(400).json({ error: 'Код истёк. Запросите новый.' });
+        return res.status(400).json({ error: 'Код истёк' });
     }
     
     if (record.code !== code) {
@@ -428,7 +429,11 @@ app.delete('/api/chats/:chatId', (req, res) => {
 // ===== WebSocket =====
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
-    console.log(`📧 Почта настроена: ${emailConfigured ? '✅ да' : '❌ нет'}`);
+    console.log(`📧 Почта: ${emailConfigured ? `✅ настроена (${emailUser})` : '❌ не настроена'}`);
+    if (!emailConfigured) {
+        console.log('📧 КОДЫ БУДУТ ПОКАЗЫВАТЬСЯ В ИНТЕРФЕЙСЕ');
+        console.log('📧 Чтобы настроить почту, добавьте EMAIL_USER и EMAIL_PASS в Environment Variables');
+    }
 });
 
 const wss = new WebSocket.Server({ server });

@@ -8,7 +8,6 @@
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
         body{background:#0e1621;color:#e1e9f0;height:100vh;overflow:hidden}
 
-        /* ===== LOGIN ===== */
         #loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#17212b;padding:20px}
         #loginScreen .login-logo{width:80px;height:80px;margin-bottom:20px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;color:#0e1621;overflow:hidden}
         #loginScreen .login-logo img{width:100%;height:100%;object-fit:cover}
@@ -31,6 +30,8 @@
         .password-toggle{position:relative}
         .password-toggle .toggle-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#8e9fb1;cursor:pointer;font-size:18px}
         .hidden{display:none!important}
+        .code-display{background:#0e1621;padding:15px;border-radius:12px;text-align:center;margin:15px 0;border:2px dashed #64b5f6}
+        .code-display .code{font-size:32px;font-weight:bold;color:#64b5f6;letter-spacing:8px;font-family:'Courier New',monospace}
         .code-input-group{display:flex;gap:10px;margin:15px 0}
         .code-input-group input{flex:1;text-align:center;font-size:24px;letter-spacing:4px;font-family:'Courier New',monospace;margin-bottom:0}
         .code-input-group button{padding:14px 20px;background:#2b5278;border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;font-size:18px}
@@ -38,7 +39,6 @@
 
         #mainApp{display:none;height:100vh;background:#17212b;overflow:hidden;flex-direction:column}
 
-        /* ===== TOP HEADER ===== */
         #topHeader{background:#17212b;padding:6px 12px;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:44px}
         #topHeader .header-left{display:flex;align-items:center;gap:8px}
         #topHeader .header-left .app-logo{width:28px;height:28px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0e1621;flex-shrink:0;overflow:hidden}
@@ -62,7 +62,6 @@
         #topHeader .header-right button{background:none;border:none;color:#8e9fb1;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:0.2s}
         #topHeader .header-right button:hover{background:#1f2c38;color:#64b5f6}
 
-        /* ===== CREATE BAR ===== */
         #createBar{display:flex;gap:5px;padding:5px 10px;background:#0e1621;border-bottom:1px solid #2b3b4a;flex-shrink:0;overflow-x:auto;flex-wrap:nowrap}
         #createBar .create-btn{padding:5px 12px;border:none;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:0.2s;flex-shrink:0}
         #createBar .create-btn:active{transform:scale(0.95)}
@@ -71,7 +70,6 @@
         #createBar .btn-folder{background:#9b59b6;color:#fff}
         #createBar .btn-settings{background:#64b5f6;color:#0e1621}
 
-        /* ===== CHAT LIST ===== */
         #chatListContainer{flex:1;overflow-y:auto;padding:4px 0;background:#17212b}
         .chat-item{display:flex;align-items:center;padding:8px 12px;gap:10px;cursor:pointer;border-bottom:1px solid #1f2c38;transition:0.1s}
         .chat-item:hover{background:#1f2c38}
@@ -93,13 +91,11 @@
         .chat-actions button:hover{background:#1f2c38;color:#64b5f6}
         .chat-actions button.danger:hover{color:#f28b82}
 
-        /* ===== BOTTOM BAR ===== */
         #bottomBar{display:flex;background:#17212b;border-top:1px solid #2b3b4a;padding:5px 10px 8px;justify-content:space-around;align-items:center;flex-shrink:0}
         #bottomBar .bottom-btn{background:none;border:none;color:#8e9fb1;font-size:14px;cursor:pointer;padding:4px 10px;border-radius:10px;display:flex;align-items:center;gap:4px;font-weight:500}
         #bottomBar .bottom-btn.active{color:#64b5f6;background:#1f2c38}
         #bottomBar .bottom-btn .btn-label{font-size:11px}
 
-        /* ===== CHAT VIEW ===== */
         #chatView{display:none;flex-direction:column;height:100%;background:#0e1621;position:absolute;top:0;left:0;right:0;bottom:0;z-index:50;animation:slideUp 0.3s ease}
         #chatView.open{display:flex}
         @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -160,7 +156,6 @@
         .msg-actions .delete-btn:hover{background:#ff6b6b}
         @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-        /* ===== INPUT ROW ===== */
         #inputRow{display:flex;padding:5px 8px 8px;background:#17212b;border-top:1px solid #2b3b4a;gap:5px;align-items:flex-end;flex-shrink:0}
         #inputRow .input-wrapper{flex:1;display:flex;gap:4px;align-items:flex-end;background:#1f2c38;border-radius:18px;padding:3px 5px}
         #inputRow .input-wrapper .btn-icon{background:none;border:none;color:#8e9fb1;font-size:16px;cursor:pointer;padding:4px 5px;border-radius:50%;transition:0.2s}
@@ -170,7 +165,6 @@
         #inputRow .btn-send{background:#64b5f6;border:none;border-radius:50%;width:34px;height:34px;color:#0e1621;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         #inputRow .input-wrapper input:disabled{opacity:0.5;cursor:not-allowed}
 
-        /* ===== VOICE RECORD ===== */
         #voiceRecordBar{display:none;background:#1f2c38;padding:4px 12px;border-top:1px solid #2b3b4a;align-items:center;gap:8px;flex-shrink:0}
         #voiceRecordBar.show{display:flex}
         #voiceRecordBar .voice-timer{color:#f28b82;font-weight:bold;font-size:13px;min-width:40px}
@@ -180,7 +174,6 @@
         #voiceRecordBar .voice-cancel-btn{background:none;border:none;color:#f28b82;font-size:16px;cursor:pointer;padding:4px}
         #voiceRecordBar .voice-send-btn{background:#64b5f6;border:none;border-radius:50%;width:28px;height:28px;color:#0e1621;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-        /* ===== FILE PREVIEW ===== */
         #filePreviewBar{display:none;background:#1f2c38;padding:3px 12px;border-top:1px solid #2b3b4a;align-items:center;gap:8px;flex-shrink:0}
         #filePreviewBar.show{display:flex}
         #filePreviewBar .file-preview-info{flex:1;display:flex;align-items:center;gap:6px}
@@ -189,7 +182,6 @@
         #filePreviewBar .file-preview-info .file-size{font-size:9px;color:#8e9fb1}
         #filePreviewBar .remove-file-btn{background:none;border:none;color:#f28b82;font-size:14px;cursor:pointer;padding:0 4px}
 
-        /* ===== CIRCLE RECORDER ===== */
         #circleRecorder{display:none;padding:6px;background:#0e1621;border-top:1px solid #2b3b4a;flex-shrink:0}
         #circleRecorder video{width:100%;border-radius:10px;max-height:160px;background:#000}
         #circleRecorder .record-controls{display:flex;gap:6px;margin-top:4px}
@@ -199,7 +191,6 @@
         #circleRecorder .record-controls .btn-secondary{background:#2b3b4a;color:#fff}
         #circleTimer{color:#64b5f6;font-weight:bold;text-align:center;margin-top:3px;font-size:13px}
 
-        /* ===== MODAL ===== */
         .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px)}
         .modal-overlay.open{display:flex}
         .modal{background:#17212b;padding:18px;border-radius:14px;width:92%;max-width:400px;max-height:80vh;overflow-y:auto;color:#e1e9f0}
@@ -224,13 +215,7 @@
         .modal .user-select-list .user-item{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:#1f2c38;border-radius:6px;margin:3px 0}
         .modal .user-select-list .user-item .add-user-btn{background:#2ecc71;border:none;color:#0e1621;padding:2px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600}
         .modal .user-select-list .user-item .add-user-btn:hover{background:#27ae60}
-        .modal .chat-avatar-upload{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-        .modal .chat-avatar-upload .avatar-preview{width:48px;height:48px;border-radius:50%;background:#2b5278;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#fff;overflow:hidden;flex-shrink:0;border:2px solid #2b3b4a}
-        .modal .chat-avatar-upload .avatar-preview img{width:100%;height:100%;object-fit:cover}
-        .modal .chat-avatar-upload .avatar-btn{background:#2b5278;border:none;color:#fff;padding:4px 12px;border-radius:8px;cursor:pointer;font-size:12px}
-        .modal .chat-avatar-upload .avatar-btn:hover{background:#3a6b94}
 
-        /* ===== DESC POPUP ===== */
         #descPopup{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
         #descPopup.show{display:flex}
         #descPopup .popup-content{background:#17212b;padding:20px;border-radius:14px;max-width:340px;width:90%}
@@ -239,7 +224,6 @@
         #descPopup .popup-content .popup-info{font-size:12px;color:#8e9fb1;margin-bottom:4px}
         #descPopup .popup-content .popup-close{width:100%;padding:10px;background:#2b5278;border:none;border-radius:8px;color:#fff;font-weight:600;cursor:pointer;font-size:14px}
 
-        /* ===== CALL UI ===== */
         #callContainer{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(14,22,33,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
         #callContainer .call-videos{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:100%;max-width:800px}
         #callContainer .call-videos video{background:#0e1621;border-radius:12px;max-width:45%;max-height:50vh;border:2px solid #2b3b4a;object-fit:cover}
@@ -260,7 +244,7 @@
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#2b5278;border-radius:4px}
 
-        @media (min-width: 769px) {
+        @media (min-width:769px){
             #topHeader{padding:6px 14px;min-height:48px;gap:10px}
             #topHeader .header-left{gap:10px}
             #topHeader .header-left .app-logo{width:32px;height:32px;font-size:14px}
@@ -295,9 +279,10 @@
             .login-box .btn-secondary{font-size:15px;padding:12px}
             .tab-buttons button{font-size:16px;padding:12px}
             .login-box input{font-size:16px;padding:14px 16px}
+            #callContainer .call-controls button{width:56px;height:56px;font-size:24px}
         }
 
-        @media (max-width: 768px) {
+        @media (max-width:768px){
             #topHeader{padding:6px 10px;min-height:48px;gap:8px}
             #topHeader .header-left .app-logo{width:32px;height:32px;font-size:14px}
             #topHeader .header-left .user-avatar{width:32px;height:32px;font-size:13px}
@@ -340,7 +325,7 @@
             #callContainer .call-controls button{width:50px;height:50px;font-size:22px}
         }
 
-        @media (max-width: 480px) {
+        @media (max-width:480px){
             #topHeader .search-wrap input{font-size:13px;padding:6px 10px 6px 28px}
             #createBar .create-btn{padding:8px 14px;font-size:13px}
             #inputRow .btn-send{width:42px;height:42px;font-size:20px}
@@ -390,6 +375,9 @@
                     <div id="codeSuccess" class="success-msg hidden"></div>
                     <div id="verifySection" style="display:none; margin-top:15px;">
                         <p style="color:#8e9fb1;margin-bottom:10px;">📧 Код отправлен</p>
+                        <div class="code-display" id="codeDisplayBlock" style="display:none;">
+                            <div class="code" id="displayCode">------</div>
+                        </div>
                         <div class="code-input-group">
                             <input type="text" id="verifyCode" placeholder="Код" maxlength="6" />
                             <button id="verifyBtn">✅</button>
@@ -425,7 +413,6 @@
 
         <!-- MAIN APP -->
         <div id="mainApp">
-            <!-- TOP HEADER -->
             <div id="topHeader">
                 <div class="header-left">
                     <div class="app-logo"><img src="logo.png" alt="Tlim" onerror="this.style.display='none';this.parentElement.textContent='T'"></div>
@@ -441,7 +428,6 @@
                 </div>
             </div>
 
-            <!-- CREATE BAR -->
             <div id="createBar">
                 <button class="create-btn btn-channel" id="createChannelBtn">📢 Канал</button>
                 <button class="create-btn btn-group" id="createGroupBtn">👥 Группа</button>
@@ -449,15 +435,12 @@
                 <button class="create-btn btn-settings" id="settingsBtn">⚙️ Настройки</button>
             </div>
 
-            <!-- CHAT LIST -->
             <div id="chatListContainer"><div id="chatList"></div></div>
 
-            <!-- BOTTOM BAR -->
             <div id="bottomBar">
                 <button class="bottom-btn active" id="chatsBtn"><span>💬</span><span class="btn-label">Чаты</span></button>
             </div>
 
-            <!-- CHAT VIEW -->
             <div id="chatView">
                 <div id="chatViewHeader">
                     <button class="back-btn" id="backBtn">←</button>
@@ -531,7 +514,6 @@
             </div>
         </div>
 
-        <!-- DESCRIPTION POPUP -->
         <div id="descPopup">
             <div class="popup-content">
                 <h3 id="popupTitle">Описание</h3>
@@ -1936,11 +1918,37 @@
                     return;
                 }
 
-                successEl.textContent = '✅ Код отправлен! Проверьте почту/телефон';
+                const verifyCodeInput = document.getElementById('verifyCode');
+                const codeDisplay = document.getElementById('codeDisplayBlock');
+                const displayCode = document.getElementById('displayCode');
+                
+                if (result.code) {
+                    verifyCodeInput.value = result.code;
+                    if (displayCode) {
+                        displayCode.textContent = result.code;
+                        codeDisplay.style.display = 'block';
+                    }
+                }
+                
+                let displayMessage = '✅ Код создан!';
+                
+                if (result.emailConfigured && result.message.includes('отправлен')) {
+                    displayMessage = '✅ Код отправлен на почту! Проверьте папку "Спам"';
+                    verifyCodeInput.value = '';
+                    if (codeDisplay) codeDisplay.style.display = 'none';
+                } else if (result.emailConfigured === false) {
+                    displayMessage = '✅ Почта не настроена, код показан ниже';
+                    if (codeDisplay) codeDisplay.style.display = 'block';
+                }
+                
+                successEl.textContent = displayMessage;
                 successEl.classList.remove('hidden');
                 document.getElementById('verifySection').style.display = 'block';
                 document.getElementById('sendCodeBtn').disabled = true;
                 document.getElementById('sendCodeBtn').textContent = '⏳ Код отправлен';
+                
+                console.log('📧 Код:', result.code || 'отправлен на почту');
+                
             } catch (e) {
                 errorEl.textContent = 'Ошибка подключения к серверу';
                 errorEl.classList.remove('hidden');
@@ -1977,7 +1985,6 @@
                     return;
                 }
 
-                // Автоматический вход
                 const loginResponse = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2438,7 +2445,6 @@
                 document.getElementById('resetForm').style.display = 'none';
             });
 
-            // Forgot password
             document.getElementById('forgotPasswordLink').addEventListener('click', () => {
                 document.getElementById('passwordForm').style.display = 'none';
                 document.getElementById('resetForm').style.display = 'block';

@@ -23,21 +23,13 @@ app.use(express.static('.'));
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 // ===== АВТОМАТИЧЕСКАЯ НАСТРОЙКА ПОЧТЫ =====
-// Если переменные не заданы — используем значения по умолчанию
-// НО! Они НЕ будут работать без реального пароля
-// Поэтому если не работает — код показывается в интерфейсе
-
-const DEFAULT_EMAIL = 'tlim.messenger@yandex.ru';
-const DEFAULT_PASS = ''; // Пустой пароль — значит почта не настроена
-
-const emailUser = process.env.EMAIL_USER || DEFAULT_EMAIL;
-const emailPass = process.env.EMAIL_PASS || DEFAULT_PASS;
+const emailUser = process.env.EMAIL_USER || '';
+const emailPass = process.env.EMAIL_PASS || '';
 
 let transporter = null;
 let emailConfigured = false;
 
-// Пробуем настроить почту ТОЛЬКО если есть пароль
-if (nodemailer && emailUser && emailPass && emailPass.length > 5) {
+if (nodemailer && emailUser && emailPass && emailPass.length > 3) {
     try {
         transporter = nodemailer.createTransport({
             service: 'yandex',
@@ -46,16 +38,24 @@ if (nodemailer && emailUser && emailPass && emailPass.length > 5) {
                 pass: emailPass
             }
         });
-        emailConfigured = true;
-        console.log(`✅ Почта настроена для: ${emailUser}`);
+        transporter.verify(function(error, success) {
+            if (error) {
+                console.log('⚠️ Ошибка проверки почты:', error.message);
+                emailConfigured = false;
+            } else {
+                console.log(`✅ Почта настроена для: ${emailUser}`);
+                emailConfigured = true;
+            }
+        });
     } catch (e) {
         console.log('⚠️ Ошибка настройки почты:', e.message);
-        console.log('📧 КОДЫ БУДУТ ПОКАЗЫВАТЬСЯ В ИНТЕРФЕЙСЕ');
+        emailConfigured = false;
     }
-} else {
-    console.log('📧 Почта НЕ настроена (нет пароля)');
+}
+
+if (!emailConfigured) {
+    console.log('📧 Почта НЕ настроена');
     console.log('📧 КОДЫ БУДУТ ПОКАЗЫВАТЬСЯ В ИНТЕРФЕЙСЕ');
-    console.log('📧 Чтобы настроить почту, добавьте EMAIL_USER и EMAIL_PASS в Environment Variables');
 }
 
 // ===== ВРЕМЕННОЕ ХРАНИЛИЩЕ =====
@@ -80,12 +80,10 @@ function saveData(data) {
 
 // ===== ОТПРАВКА ПИСЬМА =====
 async function sendEmail(to, subject, html, text) {
-    // Если почта не настроена — просто логируем
     if (!emailConfigured || !transporter) {
         const codeMatch = html ? html.match(/(\d{6})/) : null;
         const code = codeMatch ? codeMatch[1] : (text ? text.match(/\b(\d{6})\b/) : null);
         console.log(`📧 [ЛОГ] Код для ${to}: ${code || 'не найден'}`);
-        console.log(`📧 [ЛОГ] Письмо НЕ отправлено (почта не настроена)`);
         return false;
     }
     
@@ -109,7 +107,7 @@ async function sendEmail(to, subject, html, text) {
 
 // ОТПРАВКА КОДА ПОДТВЕРЖДЕНИЯ
 app.post('/api/send-code', async (req, res) => {
-    console.log('📨 Получен запрос на отправку кода:', req.body);
+    console.log('📨 Запрос на отправку кода:', req.body);
     const { name, email, phone, password } = req.body;
     
     if (!name || !password) {
@@ -135,7 +133,6 @@ app.post('/api/send-code', async (req, res) => {
     
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const contact = email || phone;
-    const contactType = email ? 'email' : 'phone';
     
     verificationCodes[contact] = {
         code: code,
@@ -147,7 +144,6 @@ app.post('/api/send-code', async (req, res) => {
     
     let emailSent = false;
     
-    // Отправляем письмо если есть email И почта настроена
     if (email && emailConfigured) {
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
@@ -160,23 +156,21 @@ app.post('/api/send-code', async (req, res) => {
             </div>
         `;
         const text = `Ваш код подтверждения для Tlim: ${code}\n\nКод действителен 5 минут`;
-        
         emailSent = await sendEmail(email, 'Код подтверждения для Tlim', html, text);
     }
     
-    // ===== ВОЗВРАЩАЕМ ОТВЕТ =====
     const response = {
         success: true,
-        message: emailSent ? '✅ Код отправлен на почту!' : '✅ Код создан!',
+        message: '✅ Код создан!',
         contact: contact,
-        contactType: contactType,
         emailConfigured: emailConfigured,
-        code: code // ← ВСЕГДА ВОЗВРАЩАЕМ КОД
+        code: code
     };
     
-    // Если письмо не отправилось — добавляем подсказку
-    if (!emailSent && email) {
-        response.message = '✅ Код создан! (письмо не отправлено, код показан ниже)';
+    if (emailSent) {
+        response.message = '✅ Код отправлен на почту! Проверьте папку "Спам"';
+    } else if (email && !emailConfigured) {
+        response.message = '✅ Код создан! (почта не настроена, код показан ниже)';
     }
     
     res.json(response);
@@ -226,7 +220,6 @@ app.post('/api/verify-code', (req, res) => {
     
     data.users.push(user);
     saveData(data);
-    
     delete verificationCodes[contact];
     
     console.log(`✅ Пользователь зарегистрирован: ${name}`);
@@ -273,7 +266,6 @@ app.post('/api/reset-password', async (req, res) => {
             </div>
         `;
         const text = `Код для восстановления пароля Tlim: ${code}\n\nКод действителен 5 минут`;
-        
         emailSent = await sendEmail(email, 'Восстановление пароля Tlim', html, text);
     }
     
@@ -316,7 +308,6 @@ app.post('/api/reset-password-verify', (req, res) => {
     
     user.password = newPassword;
     saveData(data);
-    
     delete resetCodes[email];
     
     console.log(`✅ Пароль изменён для ${user.name}`);
@@ -338,12 +329,7 @@ app.post('/api/login', (req, res) => {
 app.get('/api/users', (req, res) => {
     const data = loadData();
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.json(data.users.map(u => ({ 
-        id: u.id, 
-        name: u.name, 
-        avatar: u.avatar,
-        phone: u.phone
-    })));
+    res.json(data.users.map(u => ({ id: u.id, name: u.name, avatar: u.avatar, phone: u.phone })));
 });
 
 // ПОЛУЧИТЬ ЧАТЫ
@@ -429,11 +415,7 @@ app.delete('/api/chats/:chatId', (req, res) => {
 // ===== WebSocket =====
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
-    console.log(`📧 Почта: ${emailConfigured ? `✅ настроена (${emailUser})` : '❌ не настроена'}`);
-    if (!emailConfigured) {
-        console.log('📧 КОДЫ БУДУТ ПОКАЗЫВАТЬСЯ В ИНТЕРФЕЙСЕ');
-        console.log('📧 Чтобы настроить почту, добавьте EMAIL_USER и EMAIL_PASS в Environment Variables');
-    }
+    console.log(`📧 Почта: ${emailConfigured ? '✅ настроена' : '❌ не настроена'}`);
 });
 
 const wss = new WebSocket.Server({ server });

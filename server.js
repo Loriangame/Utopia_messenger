@@ -61,6 +61,7 @@ if (!emailConfigured) {
 // ===== ВРЕМЕННОЕ ХРАНИЛИЩЕ =====
 const verificationCodes = {};
 const resetCodes = {};
+const inviteCodes = {};
 
 // ===== ЗАГРУЗКА/СОХРАНЕНИЕ =====
 function loadData() {
@@ -147,7 +148,7 @@ app.post('/api/send-code', async (req, res) => {
     if (email && emailConfigured) {
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
-                <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
+                <h2 style="color: #64b5f6; text-align: center;">Utopia</h2>
                 <p style="text-align: center; font-size: 16px;">Ваш код подтверждения:</p>
                 <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
                     ${code}
@@ -155,8 +156,8 @@ app.post('/api/send-code', async (req, res) => {
                 <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
             </div>
         `;
-        const text = `Ваш код подтверждения для Tlim: ${code}\n\nКод действителен 5 минут`;
-        emailSent = await sendEmail(email, 'Код подтверждения для Tlim', html, text);
+        const text = `Ваш код подтверждения для Utopia: ${code}\n\nКод действителен 5 минут`;
+        emailSent = await sendEmail(email, 'Код подтверждения для Utopia', html, text);
     }
     
     const response = {
@@ -226,6 +227,43 @@ app.post('/api/verify-code', (req, res) => {
     res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
 });
 
+// РЕГИСТРАЦИЯ (ПРЯМАЯ)
+app.post('/api/register', (req, res) => {
+    const { name, email, phone, password } = req.body;
+    
+    if (!name || !password) {
+        return res.status(400).json({ error: 'Заполните имя и пароль' });
+    }
+    
+    const data = loadData();
+    
+    if (data.users.find(u => u.name === name)) {
+        return res.status(400).json({ error: 'Имя уже занято' });
+    }
+    if (email && data.users.find(u => u.email === email)) {
+        return res.status(400).json({ error: 'Почта уже используется' });
+    }
+    if (phone && data.users.find(u => u.phone === phone)) {
+        return res.status(400).json({ error: 'Телефон уже используется' });
+    }
+    
+    const user = {
+        id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+        name: name,
+        email: email || null,
+        phone: phone || null,
+        password: password,
+        created: Date.now(),
+        avatar: null
+    };
+    
+    data.users.push(user);
+    saveData(data);
+    
+    console.log(`✅ Пользователь зарегистрирован: ${name}`);
+    res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
+});
+
 // ВОССТАНОВЛЕНИЕ ПАРОЛЯ
 app.post('/api/reset-password', async (req, res) => {
     const { name, email } = req.body;
@@ -257,7 +295,7 @@ app.post('/api/reset-password', async (req, res) => {
     if (emailConfigured) {
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #17212b; border-radius: 12px; color: #e1e9f0;">
-                <h2 style="color: #64b5f6; text-align: center;">Tlim</h2>
+                <h2 style="color: #64b5f6; text-align: center;">Utopia</h2>
                 <p style="text-align: center; font-size: 16px;">Код для восстановления пароля:</p>
                 <div style="text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 10px; background: #0e1621; padding: 15px; border-radius: 10px; border: 2px dashed #64b5f6; color: #64b5f6; margin: 15px 0;">
                     ${code}
@@ -265,8 +303,8 @@ app.post('/api/reset-password', async (req, res) => {
                 <p style="text-align: center; color: #8e9fb1; font-size: 12px;">Код действителен 5 минут</p>
             </div>
         `;
-        const text = `Код для восстановления пароля Tlim: ${code}\n\nКод действителен 5 минут`;
-        emailSent = await sendEmail(email, 'Восстановление пароля Tlim', html, text);
+        const text = `Код для восстановления пароля Utopia: ${code}\n\nКод действителен 5 минут`;
+        emailSent = await sendEmail(email, 'Восстановление пароля Utopia', html, text);
     }
     
     res.json({ 
@@ -341,6 +379,16 @@ app.get('/api/chats/:userId', (req, res) => {
     res.json(userChats);
 });
 
+// ПОЛУЧИТЬ ЧАТ ПО ID
+app.get('/api/chat/:chatId', (req, res) => {
+    const data = loadData();
+    const chat = data.chats.find(c => c.id === req.params.chatId);
+    if (!chat) {
+        return res.status(404).json({ error: 'Чат не найден' });
+    }
+    res.json(chat);
+});
+
 // ПОЛУЧИТЬ СООБЩЕНИЯ ЧАТА
 app.get('/api/messages/:chatId', (req, res) => {
     const data = loadData();
@@ -367,7 +415,8 @@ app.post('/api/chats', (req, res) => {
         description: description || '',
         avatar: avatar || null,
         messages: [],
-        pinnedMessages: []
+        pinnedMessages: [],
+        inviteCode: null
     };
     data.chats.push(chat);
     saveData(data);
@@ -377,7 +426,7 @@ app.post('/api/chats', (req, res) => {
 // ОБНОВИТЬ ЧАТ
 app.put('/api/chats/:chatId', (req, res) => {
     const { chatId } = req.params;
-    const { name, description, avatar } = req.body;
+    const { name, description, avatar, inviteCode } = req.body;
     const data = loadData();
     const chat = data.chats.find(c => c.id === chatId);
     if (!chat) {
@@ -386,8 +435,37 @@ app.put('/api/chats/:chatId', (req, res) => {
     if (name) chat.name = name;
     if (description !== undefined) chat.description = description;
     if (avatar !== undefined) chat.avatar = avatar;
+    if (inviteCode !== undefined) chat.inviteCode = inviteCode;
     saveData(data);
     res.json(chat);
+});
+
+// ПРИСОЕДИНИТЬСЯ К ЧАТУ ПО КОДУ
+app.post('/api/join-chat', (req, res) => {
+    const { inviteCode, userId } = req.body;
+    
+    if (!inviteCode || !userId) {
+        return res.status(400).json({ error: 'Не указан код или пользователь' });
+    }
+    
+    const data = loadData();
+    const chat = data.chats.find(c => c.inviteCode === inviteCode);
+    
+    if (!chat) {
+        return res.status(404).json({ error: 'Неверный код приглашения' });
+    }
+    
+    if (!chat.participants) chat.participants = [];
+    
+    if (chat.participants.includes(userId)) {
+        return res.status(400).json({ error: 'Вы уже в этом чате' });
+    }
+    
+    chat.participants.push(userId);
+    saveData(data);
+    
+    console.log(`✅ Пользователь ${userId} присоединился к чату ${chat.id}`);
+    res.json({ success: true, chat: chat });
 });
 
 // ОБНОВИТЬ АВАТАР

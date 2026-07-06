@@ -61,7 +61,6 @@ if (!emailConfigured) {
 // ===== ВРЕМЕННОЕ ХРАНИЛИЩЕ =====
 const verificationCodes = {};
 const resetCodes = {};
-const inviteCodes = {};
 
 // ===== ЗАГРУЗКА/СОХРАНЕНИЕ =====
 function loadData() {
@@ -379,16 +378,6 @@ app.get('/api/chats/:userId', (req, res) => {
     res.json(userChats);
 });
 
-// ПОЛУЧИТЬ ЧАТ ПО ID
-app.get('/api/chat/:chatId', (req, res) => {
-    const data = loadData();
-    const chat = data.chats.find(c => c.id === req.params.chatId);
-    if (!chat) {
-        return res.status(404).json({ error: 'Чат не найден' });
-    }
-    res.json(chat);
-});
-
 // ПОЛУЧИТЬ СООБЩЕНИЯ ЧАТА
 app.get('/api/messages/:chatId', (req, res) => {
     const data = loadData();
@@ -501,19 +490,23 @@ const clients = new Map();
 
 wss.on('connection', (ws, req) => {
     let userId = null;
+    console.log('🔗 Новое WebSocket подключение');
 
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
+            console.log('📨 WebSocket получено:', data.type);
             
             switch (data.type) {
                 case 'auth':
                     userId = data.userId;
                     clients.set(userId, ws);
+                    console.log(`✅ Пользователь ${userId} авторизован в WebSocket`);
                     ws.send(JSON.stringify({ type: 'auth_success', userId }));
                     break;
                     
                 case 'call_offer':
+                    console.log(`📞 Звонок от ${userId} к ${data.targetUserId}, видео: ${data.isVideo}`);
                     const targetWs = clients.get(data.targetUserId);
                     if (targetWs && targetWs.readyState === WebSocket.OPEN) {
                         targetWs.send(JSON.stringify({
@@ -522,10 +515,18 @@ wss.on('connection', (ws, req) => {
                             offer: data.offer,
                             isVideo: data.isVideo || false
                         }));
+                        console.log(`📞 Оффер отправлен ${data.targetUserId}`);
+                    } else {
+                        console.log(`❌ Пользователь ${data.targetUserId} не в сети`);
+                        ws.send(JSON.stringify({
+                            type: 'call_error',
+                            message: 'Пользователь не в сети'
+                        }));
                     }
                     break;
                     
                 case 'call_answer':
+                    console.log(`📞 Ответ на звонок от ${userId} к ${data.targetUserId}`);
                     const answerTarget = clients.get(data.targetUserId);
                     if (answerTarget && answerTarget.readyState === WebSocket.OPEN) {
                         answerTarget.send(JSON.stringify({
@@ -533,10 +534,12 @@ wss.on('connection', (ws, req) => {
                             from: userId,
                             answer: data.answer
                         }));
+                        console.log(`📞 Ответ отправлен ${data.targetUserId}`);
                     }
                     break;
                     
                 case 'ice_candidate':
+                    console.log(`🧊 ICE кандидат от ${userId} к ${data.targetUserId}`);
                     const iceTarget = clients.get(data.targetUserId);
                     if (iceTarget && iceTarget.readyState === WebSocket.OPEN) {
                         iceTarget.send(JSON.stringify({
@@ -548,6 +551,7 @@ wss.on('connection', (ws, req) => {
                     break;
                     
                 case 'call_end':
+                    console.log(`📞 Звонок завершён от ${userId} к ${data.targetUserId}`);
                     const endTarget = clients.get(data.targetUserId);
                     if (endTarget && endTarget.readyState === WebSocket.OPEN) {
                         endTarget.send(JSON.stringify({
@@ -613,6 +617,11 @@ wss.on('connection', (ws, req) => {
     });
 
     ws.on('close', () => {
+        console.log(`🔌 WebSocket отключен (${userId || 'неизвестный'})`);
         if (userId) clients.delete(userId);
+    });
+
+    ws.on('error', (error) => {
+        console.error('WebSocket ошибка:', error);
     });
 });

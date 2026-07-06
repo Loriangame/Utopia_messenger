@@ -776,20 +776,33 @@
         }
     }
 
-    // ======== WebSocket ========
-    let ws = null;
-    let wsConnected = false;
+// ======== WebSocket ========
+let ws = null;
+let wsConnected = false;
+let wsReconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 3;
 
-    function connectWebSocket() {
-        if (!state.user) return;
+function connectWebSocket() {
+    if (!state.user) return;
+    if (wsReconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+        console.log('❌ Превышено количество попыток подключения WebSocket');
+        return;
+    }
+    
+    try {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = protocol + '//' + window.location.host;
+        const wsUrl = protocol + '//' + window.location.host + '/ws';
+        console.log('🔗 Подключение к WebSocket:', wsUrl);
+        
         ws = new WebSocket(wsUrl);
+        
         ws.onopen = () => {
             console.log('✅ WebSocket подключен');
             wsConnected = true;
+            wsReconnectAttempts = 0;
             ws.send(JSON.stringify({ type: 'auth', userId: state.user.id }));
         };
+        
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
@@ -880,14 +893,22 @@
                 }
             } catch (e) { console.error('WebSocket parse error:', e); }
         };
+        
         ws.onclose = () => {
-            console.log('🔌 WebSocket отключен, переподключение через 3 сек...');
+            console.log('🔌 WebSocket отключен');
             wsConnected = false;
-            setTimeout(connectWebSocket, 3000);
+            // Не переподключаемся автоматически
         };
-        ws.onerror = (error) => { console.error('WebSocket error:', error); };
+        
+        ws.onerror = (error) => {
+            console.error('WebSocket ошибка:', error);
+            wsConnected = false;
+        };
+    } catch (e) {
+        console.error('WebSocket ошибка:', e);
+        wsConnected = false;
     }
-
+}
     // ======== ЗВОНКИ (ИСПРАВЛЕННЫЕ) ========
     let peerConnection = null;
     let localStream = null;

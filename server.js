@@ -483,9 +483,14 @@ app.delete('/api/chats/:chatId', (req, res) => {
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
     console.log(`📧 Почта: ${emailConfigured ? '✅ настроена' : '❌ не настроена'}`);
+    console.log(`🔗 WebSocket доступен по адресу: ws://localhost:${PORT}/ws`);
 });
 
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ 
+    server,
+    path: '/ws'
+});
+
 const clients = new Map();
 
 wss.on('connection', (ws, req) => {

@@ -571,20 +571,30 @@ wss.on('connection', (ws, req) => {
                     const chat = fileData.chats.find(c => c.id === data.chatId);
                     if (chat) {
                         const msg = {
-                            id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+                            id: data.msgId || Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
                             sender: data.sender,
                             text: data.text || '',
                             video: data.video || null,
                             file: data.file || null,
                             audio: data.audio || null,
                             isCircle: data.isCircle || false,
+                            isSticker: data.isSticker || false,
+                            stickerData: data.stickerData || null,
                             isSystem: data.isSystem || false,
                             isBot: data.isBot || false,
                             time: Date.now()
                         };
-                        chat.messages.push(msg);
-                        saveData(fileData);
+                        
+                        // Проверяем, есть ли уже такое сообщение
+                        const exists = chat.messages.some(m => m.id === msg.id);
+                        if (!exists) {
+                            chat.messages.push(msg);
+                            saveData(fileData);
+                        }
+                        
+                        // Отправляем ВСЕМ участникам, КРОМЕ отправителя
                         chat.participants.forEach(pid => {
+                            if (pid === data.sender) return;
                             const c = clients.get(pid);
                             if (c && c.readyState === WebSocket.OPEN) {
                                 c.send(JSON.stringify({
@@ -611,6 +621,27 @@ wss.on('connection', (ws, req) => {
                                         isTyping: data.isTyping
                                     }));
                                 }
+                            }
+                        });
+                    }
+                    break;
+                    
+                case 'update_chat':
+                    const updateData = loadData();
+                    const updateChat = updateData.chats.find(c => c.id === data.chatId);
+                    if (updateChat) {
+                        if (data.name) updateChat.name = data.name;
+                        if (data.description !== undefined) updateChat.description = data.description;
+                        if (data.avatar !== undefined) updateChat.avatar = data.avatar;
+                        saveData(updateData);
+                        updateChat.participants.forEach(pid => {
+                            const c = clients.get(pid);
+                            if (c && c.readyState === WebSocket.OPEN) {
+                                c.send(JSON.stringify({
+                                    type: 'chat_updated',
+                                    chatId: data.chatId,
+                                    chat: updateChat
+                                }));
                             }
                         });
                     }

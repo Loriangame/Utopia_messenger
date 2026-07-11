@@ -145,15 +145,22 @@
         .msg .audio-container .audio-progress{flex:1;height:3px;background:#2b3b4a;border-radius:2px;cursor:pointer;position:relative}
         .msg .audio-container .audio-progress .audio-fill{height:100%;background:#64b5f6;border-radius:2px;width:0%;transition:width 0.1s}
         .msg .audio-container .audio-time{font-size:9px;color:#8e9fb1;min-width:30px;text-align:center}
+        
+        /* Цитата/ответ на сообщение */
+        .msg .reply-to{background:#1a2a3a;border-left:3px solid #64b5f6;padding:3px 8px;border-radius:4px;margin-bottom:4px;font-size:11px;color:#8e9fb1;cursor:pointer}
+        .msg .reply-to .reply-author{color:#64b5f6;font-weight:500}
+        .msg .reply-to .reply-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:inline-block;vertical-align:bottom}
 
-        .msg-actions{display:flex;gap:3px;position:absolute;top:-7px;right:-7px;opacity:0;transition:0.2s}
+        .msg-actions{display:flex;gap:3px;position:absolute;top:-7px;right:-7px;opacity:0;transition:0.2s;background:#0e1621;border-radius:12px;padding:2px;z-index:10}
         .msg:hover .msg-actions{opacity:1}
-        .msg-actions button{background:#2b3b4a;border:none;border-radius:50%;width:18px;height:18px;font-size:9px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:0.2s}
+        .msg-actions button{background:#2b3b4a;border:none;border-radius:50%;width:20px;height:20px;font-size:9px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:0.2s}
         .msg-actions button:hover{transform:scale(1.1)}
         .msg-actions .pin-btn{background:#2b5278}
         .msg-actions .pin-btn.pinned{background:#64b5f6;color:#0e1621}
         .msg-actions .delete-btn{background:#f28b82;color:#0e1621}
         .msg-actions .delete-btn:hover{background:#ff6b6b}
+        .msg-actions .reply-btn{background:#2ecc71;color:#0e1621}
+        .msg-actions .reply-btn:hover{background:#27ae60}
         @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
         #inputRow{display:flex;padding:5px 8px 8px;background:#17212b;border-top:1px solid #2b3b4a;gap:5px;align-items:flex-end;flex-shrink:0}
@@ -165,6 +172,14 @@
         #inputRow .input-wrapper input::placeholder{color:#6b7f8f;font-size:12px}
         #inputRow .btn-send{background:#64b5f6;border:none;border-radius:50%;width:34px;height:34px;color:#0e1621;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         #inputRow .input-wrapper input:disabled{opacity:0.5;cursor:not-allowed}
+        
+        /* Панель ответа на сообщение */
+        #replyBar{display:none;background:#1a2a3a;padding:4px 12px;border-top:1px solid #2b3b4a;align-items:center;gap:8px;flex-shrink:0;font-size:12px}
+        #replyBar.show{display:flex}
+        #replyBar .reply-info{flex:1;color:#8e9fb1}
+        #replyBar .reply-info .reply-author{color:#64b5f6}
+        #replyBar .reply-info .reply-text{color:#e1e9f0}
+        #replyBar .reply-cancel{background:none;border:none;color:#f28b82;cursor:pointer;font-size:16px;padding:4px}
 
         #moreMenu{display:none;position:absolute;bottom:60px;right:10px;background:#1f2c38;border-radius:12px;padding:8px;min-width:180px;border:1px solid #2b3b4a;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:60}
         #moreMenu.show{display:block}
@@ -258,7 +273,6 @@
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#2b5278;border-radius:4px}
 
-        /* ===== МОБИЛЬНЫЙ РЕЖИМ ===== */
         .mode-mobile #moreBtn{display:flex!important}
         .mode-mobile .input-wrapper .btn-icon.hide-on-mobile{display:none!important}
         .mode-desktop #moreBtn{display:none!important}
@@ -272,14 +286,11 @@
             #chatViewHeader .cv-actions #chatMoreBtn{display:flex!important}
         }
 
-        /* ===== КОМП-РЕЖИМ — БОЛЬШИЕ КНОПКИ ===== */
         @media (min-width:769px){
             #moreBtn{display:none!important}
             .input-wrapper .btn-icon.hide-on-mobile{display:flex!important}
             #chatViewHeader .cv-actions button{display:flex}
             #chatViewHeader .cv-actions #chatMoreBtn{display:none!important}
-            
-            /* Увеличенные кнопки в комп-режиме */
             #topHeader .header-left .user-avatar{width:36px;height:36px;font-size:14px}
             #topHeader .header-left .app-logo{width:36px;height:36px;font-size:16px}
             #topHeader .header-left .user-name{font-size:16px}
@@ -316,6 +327,13 @@
         
         .call-ringing{animation:ring 1s ease-in-out infinite}
         @keyframes ring{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        
+        /* Групповой звонок - список участников */
+        .call-participants{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+        .call-participant{display:flex;flex-direction:column;align-items:center;background:#1f2c38;padding:8px 12px;border-radius:10px;min-width:60px}
+        .call-participant .cp-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;background:#2b5278;color:#fff}
+        .call-participant .cp-name{font-size:10px;color:#8e9fb1;margin-top:4px}
+        .call-participant .cp-muted{color:#f28b82;font-size:12px}
     </style>
 </head>
 <body>
@@ -441,6 +459,12 @@
                 <div id="pinnedBar"><span class="pinned-icon">📌</span><span class="pinned-text" id="pinnedText">Закреплённые</span><span class="pinned-arrow">↓</span></div>
                 <div id="messagesContainer"></div>
                 
+                <!-- Reply Bar -->
+                <div id="replyBar">
+                    <span class="reply-info">Ответ <span class="reply-author" id="replyAuthor">пользователю</span>: <span class="reply-text" id="replyText">текст</span></span>
+                    <button class="reply-cancel" id="replyCancelBtn">✕</button>
+                </div>
+                
                 <div id="stickerPanel"></div>
                 
                 <div id="voiceRecordBar">
@@ -504,6 +528,7 @@
                 <video id="remoteVideo" autoplay playsinline></video>
                 <audio id="remoteAudio" autoplay></audio>
             </div>
+            <div class="call-participants" id="callParticipants"></div>
             <div class="call-status" id="callStatus">📞 Соединение...</div>
             <div class="call-controls">
                 <button id="toggleMicBtn" class="toggle-mic" title="Микрофон">🎤</button>
@@ -556,10 +581,12 @@
         resetPending: null,
         stickers: [],
         lastMessageCount: {},
-        deletedChatIds: new Set()
+        deletedChatIds: new Set(),
+        replyToMsg: null, // { id, text, sender }
+        callParticipants: []
     };
 
-    // ======== СТИКЕРЫ (ЭМОДЗИ) ========
+    // ======== СТИКЕРЫ ========
     function loadStickers() {
         try {
             const saved = localStorage.getItem('utopiaStickers');
@@ -636,6 +663,12 @@
         const s = Math.floor(seconds % 60);
         return m + ':' + (s < 10 ? '0' : '') + s;
     }
+    function getUserName(id) {
+        if (id === 'bot') return 'Bot';
+        if (id === 'system') return 'Система';
+        const user = state.allUsers.find(u => u.id === id);
+        return user ? user.name : id;
+    }
 
     // ======== LOAD/SAVE ========
     function loadState() {
@@ -701,7 +734,6 @@
             });
             const chats = await response.json();
             
-            // Фильтруем удалённые чаты
             const filteredChats = chats.filter(c => !state.deletedChatIds.has(c.id));
             
             const localNames = {};
@@ -718,6 +750,7 @@
                     c.name = localNames[c.id];
                     c._customName = localNames[c.id];
                 }
+                if (!c.pinnedMessages) c.pinnedMessages = [];
             });
             
             for (let chat of state.chats) {
@@ -729,82 +762,6 @@
         } catch (e) {
             console.warn('Ошибка загрузки чатов:', e);
             return false;
-        }
-    }
-
-    async function updateUserAvatar(userId, avatarData) {
-        try {
-            const response = await fetch('/api/user/avatar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, avatar: avatarData })
-            });
-            const result = await response.json();
-            if (result.success) {
-                if (state.user && state.user.id === userId) {
-                    state.user.avatar = avatarData;
-                    saveState();
-                }
-                const user = state.allUsers.find(u => u.id === userId);
-                if (user) user.avatar = avatarData;
-                return true;
-            }
-            return false;
-        } catch (e) {
-            console.warn('Ошибка обновления аватарки:', e);
-            return false;
-        }
-    }
-
-    async function updateChatAvatar(chatId, avatarData) {
-        try {
-            const response = await fetch('/api/chats/' + chatId, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ avatar: avatarData })
-            });
-            const chat = await response.json();
-            if (chat) {
-                const localChat = getChat(chatId);
-                if (localChat) {
-                    localChat.avatar = avatarData;
-                    saveState();
-                }
-                return true;
-            }
-            return false;
-        } catch (e) {
-            console.warn('Ошибка обновления аватарки чата:', e);
-            return false;
-        }
-    }
-
-    // ======== ПРОВЕРКА КОДА ПРИГЛАШЕНИЯ ========
-    async function checkInviteCode() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const inviteCode = urlParams.get('invite');
-        
-        if (inviteCode && state.user) {
-            try {
-                const response = await fetch('/api/join-chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ inviteCode, userId: state.user.id })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    alert(`✅ Вы присоединились к чату "${result.chat.name}"!`);
-                    state.chats.push(result.chat);
-                    renderChatList();
-                    openChat(result.chat.id);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } else {
-                    alert('❌ ' + result.error);
-                }
-            } catch (e) {
-                console.error('Ошибка присоединения:', e);
-                alert('❌ Не удалось присоединиться к чату');
-            }
         }
     }
 
@@ -900,24 +857,7 @@
                             }
                             break;
                         case 'call_offer':
-                            console.log('📞 Входящий звонок от', data.from);
-                            const userName = state.allUsers.find(u => u.id === data.from)?.name || data.from;
-                            document.getElementById('callStatus').textContent = `📞 Входящий звонок от ${userName}...`;
-                            document.getElementById('callContainer').style.display = 'flex';
-                            document.getElementById('callStatus').classList.add('call-ringing');
-                            
-                            const accept = confirm(`📞 Входящий звонок от ${userName} ${data.isVideo ? '(видео)' : '(аудио)'}`);
-                            if (accept) {
-                                answerCall(data.offer, data.from, data.isVideo);
-                            } else {
-                                if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                                    ws.send(JSON.stringify({
-                                        type: 'call_end',
-                                        targetUserId: data.from
-                                    }));
-                                }
-                                document.getElementById('callContainer').style.display = 'none';
-                            }
+                            handleCallOffer(data);
                             break;
                         case 'call_answer':
                             if (peerConnection) {
@@ -938,6 +878,12 @@
                                 endCall();
                                 document.getElementById('callContainer').style.display = 'none';
                             }, 1000);
+                            break;
+                        case 'call_user_joined':
+                            addCallParticipant(data.userId);
+                            break;
+                        case 'call_user_left':
+                            removeCallParticipant(data.userId);
                             break;
                         case 'auth_success':
                             console.log('✅ WebSocket авторизация успешна');
@@ -974,6 +920,7 @@
     let isVideoCall = false;
     let isMicOn = true;
     let isVideoOn = true;
+    let callRoomId = null;
 
     const rtcConfig = {
         iceServers: [
@@ -986,6 +933,61 @@
             { urls: 'stun:stun.ekiga.net:3478' }
         ]
     };
+
+    function handleCallOffer(data) {
+        console.log('📞 Входящий звонок от', data.from);
+        const userName = getUserName(data.from);
+        
+        // Показываем информацию о звонке
+        document.getElementById('callStatus').textContent = `📞 Входящий звонок от ${userName}...`;
+        document.getElementById('callContainer').style.display = 'flex';
+        document.getElementById('callStatus').classList.add('call-ringing');
+        
+        // Добавляем участника
+        addCallParticipant(data.from);
+        if (data.participants) {
+            data.participants.forEach(pid => addCallParticipant(pid));
+        }
+        
+        const isVideo = data.isVideo || false;
+        const accept = confirm(`📞 Входящий звонок от ${userName} ${isVideo ? '(видео)' : '(аудио)'}`);
+        
+        if (accept) {
+            answerCall(data.offer, data.from, isVideo);
+        } else {
+            if (wsConnected && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'call_end',
+                    targetUserId: data.from,
+                    roomId: data.roomId
+                }));
+            }
+            document.getElementById('callContainer').style.display = 'none';
+            document.getElementById('callParticipants').innerHTML = '';
+        }
+    }
+
+    function addCallParticipant(userId) {
+        const container = document.getElementById('callParticipants');
+        const name = getUserName(userId);
+        // Проверяем, нет ли уже такого участника
+        if (container.querySelector(`[data-userid="${userId}"]`)) return;
+        
+        const div = document.createElement('div');
+        div.className = 'call-participant';
+        div.dataset.userid = userId;
+        div.innerHTML = `
+            <div class="cp-avatar">${name.charAt(0).toUpperCase()}</div>
+            <div class="cp-name">${name}</div>
+        `;
+        container.appendChild(div);
+    }
+
+    function removeCallParticipant(userId) {
+        const container = document.getElementById('callParticipants');
+        const el = container.querySelector(`[data-userid="${userId}"]`);
+        if (el) el.remove();
+    }
 
     function createPeerConnection(targetUserId, isVideo) {
         console.log('🔄 Создание PeerConnection для', targetUserId);
@@ -1025,7 +1027,8 @@
                     ws.send(JSON.stringify({
                         type: 'ice_candidate',
                         targetUserId: targetUserId,
-                        candidate: event.candidate
+                        candidate: event.candidate,
+                        roomId: callRoomId
                     }));
                 }
             } else {
@@ -1041,6 +1044,7 @@
                 endCall();
                 setTimeout(() => {
                     document.getElementById('callContainer').style.display = 'none';
+                    document.getElementById('callParticipants').innerHTML = '';
                 }, 1000);
             }
             if (pc.iceConnectionState === 'connected') {
@@ -1055,6 +1059,7 @@
             if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
                 endCall();
                 document.getElementById('callContainer').style.display = 'none';
+                document.getElementById('callParticipants').innerHTML = '';
             }
         };
         
@@ -1070,9 +1075,9 @@
         
         callTarget = targetUserId;
         isVideoCall = isVideo;
+        callRoomId = generateId();
         
-        const user = state.allUsers.find(u => u.id === targetUserId);
-        const userName = user ? user.name : 'собеседник';
+        const userName = getUserName(targetUserId);
         
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -1090,6 +1095,10 @@
                 console.log('✅ Локальное видео отображается');
             }
             
+            // Добавляем себя в список участников
+            addCallParticipant(state.user.id);
+            addCallParticipant(targetUserId);
+            
             peerConnection = createPeerConnection(targetUserId, isVideo);
             const offer = await peerConnection.createOffer();
             console.log('✅ Оффер создан');
@@ -1097,12 +1106,21 @@
             await peerConnection.setLocalDescription(offer);
             console.log('✅ Локальное описание установлено');
             
+            // Получаем всех участников группы
+            const chat = getChat(state.currentChatId);
+            let participants = [];
+            if (chat && chat.type === 'group') {
+                participants = chat.participants.filter(id => id !== state.user.id && id !== targetUserId);
+            }
+            
             if (wsConnected && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     type: 'call_offer',
                     targetUserId: callTarget,
                     offer: peerConnection.localDescription,
-                    isVideo: isVideoCall
+                    isVideo: isVideoCall,
+                    roomId: callRoomId,
+                    participants: participants
                 }));
                 console.log('✅ Оффер отправлен');
                 
@@ -1116,12 +1134,14 @@
                 alert('❌ Нет соединения с сервером');
                 endCall();
                 document.getElementById('callContainer').style.display = 'none';
+                document.getElementById('callParticipants').innerHTML = '';
             }
         } catch (error) {
             console.error('❌ Ошибка звонка:', error);
             alert('❌ Не удалось начать звонок: ' + error.message);
             endCall();
             document.getElementById('callContainer').style.display = 'none';
+            document.getElementById('callParticipants').innerHTML = '';
         }
     }
 
@@ -1129,9 +1149,9 @@
         console.log('📞 Ответ на звонок от', fromUserId, 'видео:', isVideo);
         callTarget = fromUserId;
         isVideoCall = isVideo;
+        callRoomId = generateId();
         
-        const user = state.allUsers.find(u => u.id === fromUserId);
-        const userName = user ? user.name : 'собеседник';
+        const userName = getUserName(fromUserId);
         
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -1149,6 +1169,9 @@
                 console.log('✅ Локальное видео отображается');
             }
             
+            addCallParticipant(state.user.id);
+            addCallParticipant(fromUserId);
+            
             peerConnection = createPeerConnection(fromUserId, isVideo);
             
             await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
@@ -1164,7 +1187,8 @@
                 ws.send(JSON.stringify({
                     type: 'call_answer',
                     targetUserId: callTarget,
-                    answer: peerConnection.localDescription
+                    answer: peerConnection.localDescription,
+                    roomId: callRoomId
                 }));
                 console.log('✅ Ответ отправлен');
                 
@@ -1179,12 +1203,14 @@
                 alert('❌ Нет соединения с сервером');
                 endCall();
                 document.getElementById('callContainer').style.display = 'none';
+                document.getElementById('callParticipants').innerHTML = '';
             }
         } catch (error) {
             console.error('❌ Ошибка ответа:', error);
             alert('❌ Не удалось ответить: ' + error.message);
             endCall();
             document.getElementById('callContainer').style.display = 'none';
+            document.getElementById('callParticipants').innerHTML = '';
         }
     }
 
@@ -1203,14 +1229,17 @@
         }
         remoteStream = null;
         isInCall = false;
+        document.getElementById('callParticipants').innerHTML = '';
         
         if (callTarget && wsConnected && ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({
                 type: 'call_end',
-                targetUserId: callTarget
+                targetUserId: callTarget,
+                roomId: callRoomId
             }));
         }
         callTarget = null;
+        callRoomId = null;
         
         document.getElementById('callContainer').style.display = 'none';
         const localVideo = document.getElementById('localVideo');
@@ -1257,7 +1286,7 @@
     }
 
     // ======== ОТПРАВКА СООБЩЕНИЯ ========
-    function sendMessage(text, videoData, isCircle, fileData, audioData, isSticker) {
+    function sendMessage(text, videoData, isCircle, fileData, audioData, isSticker, replyTo) {
         const chat = getChat(state.currentChatId);
         if (!chat || isChatBlocked(chat.id)) return;
         if (!text && !videoData && !fileData && !audioData && !isSticker) return;
@@ -1273,6 +1302,7 @@
             isSticker: isSticker || false,
             isBot: false,
             isSystem: false,
+            replyTo: replyTo || null,
             time: Date.now()
         };
         
@@ -1280,6 +1310,9 @@
         renderMessages();
         renderChatList();
         saveState();
+        
+        // Очищаем панель ответа
+        clearReplyBar();
         
         if (wsConnected && ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({
@@ -1294,7 +1327,8 @@
                 isCircle: isCircle || false,
                 isSticker: isSticker || false,
                 isSystem: false,
-                isBot: false
+                isBot: false,
+                replyTo: replyTo || null
             }));
         }
         
@@ -1334,14 +1368,77 @@
         const chat = getChat(chatId);
         if (chat) {
             chat.messages = chat.messages.filter(m => m.id !== msgId);
-            if (chat.pinnedMessages) chat.pinnedMessages = chat.pinnedMessages.filter(id => id !== msgId);
+            if (chat.pinnedMessages) {
+                chat.pinnedMessages = chat.pinnedMessages.filter(id => id !== msgId);
+            }
             saveState();
             renderMessages();
             renderChatList();
             if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'delete_message', chatId: chatId, msgId: msgId }));
+                ws.send(JSON.stringify({ 
+                    type: 'delete_message', 
+                    chatId: chatId, 
+                    msgId: msgId 
+                }));
             }
         }
+    }
+
+    // ======== ЗАКРЕПЛЕНИЕ СООБЩЕНИЯ ========
+    function togglePinMessage(chatId, msgId) {
+        const chat = getChat(chatId);
+        if (!chat) return;
+        if (!chat.pinnedMessages) chat.pinnedMessages = [];
+        
+        const index = chat.pinnedMessages.indexOf(msgId);
+        if (index > -1) {
+            chat.pinnedMessages.splice(index, 1);
+        } else {
+            chat.pinnedMessages.push(msgId);
+            // Показываем уведомление
+            const msg = chat.messages.find(m => m.id === msgId);
+            if (msg) {
+                addSystemMessage(chatId, `📌 Сообщение закреплено: ${msg.text || 'сообщение'}`);
+            }
+        }
+        saveState();
+        renderMessages();
+        renderChatList();
+        updatePinnedBar();
+    }
+
+    function updatePinnedBar() {
+        const chat = getChat(state.currentChatId);
+        const bar = document.getElementById('pinnedBar');
+        const textEl = document.getElementById('pinnedText');
+        
+        if (!chat || !chat.pinnedMessages || chat.pinnedMessages.length === 0) {
+            bar.classList.remove('show');
+            return;
+        }
+        
+        const pinnedMsg = chat.messages.find(m => m.id === chat.pinnedMessages[chat.pinnedMessages.length - 1]);
+        if (pinnedMsg) {
+            textEl.textContent = pinnedMsg.text || 'Закреплённое сообщение';
+            bar.classList.add('show');
+        } else {
+            bar.classList.remove('show');
+        }
+    }
+
+    // ======== ОТВЕТ НА СООБЩЕНИЕ ========
+    function setReplyTo(msg) {
+        state.replyToMsg = msg;
+        const bar = document.getElementById('replyBar');
+        document.getElementById('replyAuthor').textContent = getUserName(msg.sender);
+        document.getElementById('replyText').textContent = msg.text || 'сообщение';
+        bar.classList.add('show');
+        document.getElementById('messageInput').focus();
+    }
+
+    function clearReplyBar() {
+        state.replyToMsg = null;
+        document.getElementById('replyBar').classList.remove('show');
     }
 
     // ======== ПОИСК ========
@@ -1447,7 +1544,7 @@
         container.classList.add('show');
     }
 
-    // ======== СТИКЕРЫ (ЭМОДЗИ) ========
+    // ======== СТИКЕРЫ ========
     function renderStickers() {
         const panel = document.getElementById('stickerPanel');
         if (!state.stickers.length) {
@@ -1483,12 +1580,14 @@
                             stickerData: sticker,
                             isBot: false,
                             isSystem: false,
+                            replyTo: state.replyToMsg || null,
                             time: Date.now()
                         };
                         chat.messages.push(msg);
                         renderMessages();
                         renderChatList();
                         saveState();
+                        clearReplyBar();
                         if (wsConnected && ws.readyState === WebSocket.OPEN) {
                             ws.send(JSON.stringify({
                                 type: 'new_message',
@@ -1496,7 +1595,8 @@
                                 sender: state.user.id,
                                 msgId: msg.id,
                                 text: sticker,
-                                isSticker: true
+                                isSticker: true,
+                                replyTo: state.replyToMsg || null
                             }));
                         }
                     }
@@ -1532,7 +1632,6 @@
     // ======== RENDER ========
     function renderChatList() {
         const container = document.getElementById('chatList');
-        // Фильтруем удалённые чаты
         let list = state.chats.filter(c => !c.isBlocked && !state.deletedChatIds.has(c.id));
         list.sort((a, b) => {
             const ta = a.messages && a.messages.length ? a.messages[a.messages.length - 1].time : 0;
@@ -1629,9 +1728,20 @@
                 msg._isNew = false;
             }
             
-            let content = msg.text || '';
+            let content = '';
+            
+            // Ответ на сообщение
+            if (msg.replyTo) {
+                const repliedMsg = chat.messages.find(m => m.id === msg.replyTo);
+                if (repliedMsg) {
+                    const replyAuthor = getUserName(repliedMsg.sender);
+                    const replyText = repliedMsg.text || 'сообщение';
+                    content += `<div class="reply-to"><span class="reply-author">${replyAuthor}</span>: <span class="reply-text">${replyText}</span></div>`;
+                }
+            }
+            
             if (msg.isSticker && msg.stickerData) {
-                content = `<div class="sticker-msg">${msg.stickerData}</div>`;
+                content += `<div class="sticker-msg">${msg.stickerData}</div>`;
             } else if (msg.video) {
                 const videoClass = msg.isCircle ? 'circle-video' : '';
                 content += `<video src="${msg.video}" controls class="${videoClass}"></video>`;
@@ -1650,17 +1760,67 @@
                     <div class="audio-progress"><div class="audio-fill"></div></div>
                     <span class="audio-time">${formatDuration(msg.audio.duration || 0)}</span>
                 </div>`;
+            } else if (msg.text) {
+                content += msg.text;
             }
+            
             div.innerHTML = `<div class="msg-text">${content}</div><div class="msg-time">${formatTime(msg.time)}</div>`;
+            
+            // Действия с сообщением (только для своих сообщений)
             if (!isBlocked && !msg.isSystem && isOwn) {
                 const actions = document.createElement('div');
                 actions.className = 'msg-actions';
-                actions.innerHTML = `<button class="pin-btn${(chat.pinnedMessages || []).includes(msg.id) ? ' pinned' : ''}" data-msg-id="${msg.id}">📌</button><button class="delete-btn" data-msg-id="${msg.id}">✕</button>`;
+                const isPinned = (chat.pinnedMessages || []).includes(msg.id);
+                actions.innerHTML = `
+                    <button class="reply-btn" data-msg-id="${msg.id}" title="Ответить">↩</button>
+                    <button class="pin-btn${isPinned ? ' pinned' : ''}" data-msg-id="${msg.id}" title="Закрепить">📌</button>
+                    <button class="delete-btn" data-msg-id="${msg.id}" title="Удалить">✕</button>
+                `;
+                div.appendChild(actions);
+            } else if (!isBlocked && !msg.isSystem && !isOwn) {
+                // Для чужих сообщений только ответ
+                const actions = document.createElement('div');
+                actions.className = 'msg-actions';
+                actions.innerHTML = `
+                    <button class="reply-btn" data-msg-id="${msg.id}" title="Ответить">↩</button>
+                `;
                 div.appendChild(actions);
             }
+            
             container.appendChild(div);
             if (isNew) newMsgAdded = true;
         });
+        
+        // Обработчики для кнопок действий
+        container.querySelectorAll('.reply-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const msgId = btn.dataset.msgId;
+                const msg = chat.messages.find(m => m.id === msgId);
+                if (msg) {
+                    setReplyTo(msg);
+                }
+            });
+        });
+        
+        container.querySelectorAll('.pin-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const msgId = btn.dataset.msgId;
+                togglePinMessage(chat.id, msgId);
+            });
+        });
+        
+        container.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const msgId = btn.dataset.msgId;
+                if (confirm('Удалить сообщение?')) {
+                    deleteMessage(chat.id, msgId);
+                }
+            });
+        });
+        
         container.querySelectorAll('.audio-container').forEach(el => {
             const audioData = el.dataset.audio;
             const playBtn = el.querySelector('.play-btn');
@@ -1689,6 +1849,7 @@
                 audio.currentTime = percent * audio.duration;
             });
         });
+        
         container.querySelectorAll('.download-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1707,10 +1868,35 @@
             });
         });
         
+        // Клик по цитате — прокрутка к сообщению
+        container.querySelectorAll('.reply-to').forEach(el => {
+            el.addEventListener('click', () => {
+                const parent = el.closest('.msg');
+                const replyText = el.querySelector('.reply-text')?.textContent;
+                if (replyText) {
+                    // Ищем сообщение с таким текстом и прокручиваем
+                    const msgs = container.querySelectorAll('.msg');
+                    for (const m of msgs) {
+                        const textEl = m.querySelector('.msg-text');
+                        if (textEl && textEl.textContent.includes(replyText)) {
+                            m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            m.style.background = '#2b5278';
+                            setTimeout(() => {
+                                m.style.background = '';
+                            }, 2000);
+                            break;
+                        }
+                    }
+                }
+            });
+        });
+        
         if (newMsgAdded || !container._lastScrollHeight) {
             container.scrollTop = container.scrollHeight;
         }
         container._lastScrollHeight = container.scrollHeight;
+        
+        updatePinnedBar();
     }
 
     // ======== ПЕРЕИМЕНОВАНИЕ ЧАТА ========
@@ -1763,7 +1949,6 @@
         if (!chat || chat.creator !== state.user?.id) { alert('❌ Только создатель может удалить'); return; }
         if (!confirm(`Удалить "${chat.name}"?`)) return;
         
-        // Добавляем в список удалённых
         state.deletedChatIds.add(chatId);
         state.chats = state.chats.filter(c => c.id !== chatId);
         
@@ -1771,7 +1956,6 @@
         saveState();
         renderChatList();
         
-        // Удаляем на сервере
         fetch('/api/chats/' + chatId, {
             method: 'DELETE'
         }).catch(e => console.warn('Ошибка удаления на сервере:', e));
@@ -1812,10 +1996,7 @@
         const chat = getChat(chatId);
         if (!chat) return;
         const participants = chat.participants || [];
-        const users = participants.filter(id => id !== state.user?.id).map(id => {
-            const u = state.allUsers.find(a => a.id === id);
-            return u ? u.name : id;
-        });
+        const users = participants.filter(id => id !== state.user?.id).map(id => getUserName(id));
         openModal('🚫 Блокировка', `
             <p style="color:#8e9fb1;font-size:13px;margin-bottom:8px;">Выберите пользователя:</p>
             <select id="blockUserSelect" style="width:100%;padding:8px;margin-bottom:8px;background:#1f2c38;border:none;border-radius:8px;color:#fff;">
@@ -1903,13 +2084,13 @@
                 <button class="btn-danger" id="deleteChatSettingsBtn">🗑️ Удалить</button>
             ` : `
                 <p style="color:#8e9fb1;font-size:13px;">Только создатель может изменять настройки</p>
-                <p style="color:#8e9fb1;font-size:12px;">Создатель: ${state.allUsers.find(u => u.id === chat.creator)?.name || chat.creator}</p>
+                <p style="color:#8e9fb1;font-size:12px;">Создатель: ${getUserName(chat.creator)}</p>
                 <button class="btn-secondary" onclick="closeModal()">Закрыть</button>
             `}
             ${chat.type === 'group' ? `
                 <hr style="border-color:#2b3b4a;margin:12px 0;">
                 <div style="color:#8e9fb1;font-size:12px;"><strong>Участники (${(chat.participants || []).length}):</strong><br>
-                ${(chat.participants || []).map(id => { const u = state.allUsers.find(a => a.id === id); return u ? u.name : id; }).join(', ')}</div>
+                ${(chat.participants || []).map(id => getUserName(id)).join(', ')}</div>
                 ${isCreator ? `<button class="btn-primary" id="addUserSettingsBtn" style="margin-top:8px;">➕ Добавить</button>` : ''}
             ` : ''}
         `);
@@ -2070,6 +2251,7 @@
                 })
             });
             const newChat = await response.json();
+            newChat.pinnedMessages = [];
             state.chats.push(newChat);
             state.lastMessageCount[newChat.id] = 0;
             
@@ -2093,6 +2275,7 @@
         if (!chat || chat.isBlocked) { alert('🚫 Чат заблокирован'); return; }
         state.currentChatId = chatId;
         document.getElementById('chatView').classList.add('open');
+        clearReplyBar();
         renderMessages();
         updateChatHeader();
         saveState();
@@ -2101,6 +2284,7 @@
     function closeChat() {
         document.getElementById('chatView').classList.remove('open');
         state.currentChatId = null;
+        clearReplyBar();
         saveState();
         renderChatList();
     }
@@ -2132,6 +2316,8 @@
         const input = document.getElementById('messageInput');
         input.disabled = isChatBlocked(chat.id);
         input.placeholder = isChatBlocked(chat.id) ? '🚫 Чат заблокирован' : 'Сообщение...';
+        
+        updatePinnedBar();
     }
 
     // ======== VOICE RECORDING ========
@@ -2149,7 +2335,7 @@
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const audioData = { data: ev.target.result, duration: state.recordingSeconds };
-                    sendMessage(null, null, false, null, audioData);
+                    sendMessage(null, null, false, null, audioData, false, state.replyToMsg);
                     state.audioChunks = [];
                     state.isRecording = false;
                     voiceBar.classList.remove('show');
@@ -2211,37 +2397,8 @@
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             .then(stream => {
-                try {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const source = audioContext.createMediaStreamSource(stream);
-                    const filter = audioContext.createBiquadFilter();
-                    filter.type = 'highpass';
-                    filter.frequency.value = 100;
-                    filter.Q.value = 0.7;
-                    const compressor = audioContext.createDynamicsCompressor();
-                    compressor.threshold.value = -24;
-                    compressor.knee.value = 30;
-                    compressor.ratio.value = 12;
-                    compressor.attack.value = 0.003;
-                    compressor.release.value = 0.25;
-                    const gainNode = audioContext.createGain();
-                    gainNode.gain.value = 1.2;
-                    source.connect(filter);
-                    filter.connect(compressor);
-                    compressor.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    const destination = audioContext.createMediaStreamDestination();
-                    gainNode.connect(destination);
-                    const processedStream = new MediaStream([
-                        ...stream.getVideoTracks(),
-                        ...destination.stream.getAudioTracks()
-                    ]);
-                    state.circleStream = processedStream;
-                } catch (e) {
-                    state.circleStream = stream;
-                }
-
-                preview.srcObject = state.circleStream;
+                state.circleStream = stream;
+                preview.srcObject = stream;
                 preview.play();
                 startBtn.disabled = false;
                 stopBtn.disabled = true;
@@ -2266,7 +2423,7 @@
                         if (blob.size > 0) {
                             const reader = new FileReader();
                             reader.onload = (ev) => {
-                                sendMessage(null, ev.target.result, true, null, null);
+                                sendMessage(null, ev.target.result, true, null, null, false, state.replyToMsg);
                                 closeCircleRecorder();
                             };
                             reader.readAsDataURL(blob);
@@ -2321,7 +2478,7 @@
         const reader = new FileReader();
         reader.onload = (e) => {
             const fileData = { name: file.name, size: file.size, type: file.type, data: e.target.result };
-            sendMessage(null, null, false, fileData, null);
+            sendMessage(null, null, false, fileData, null, false, state.replyToMsg);
         };
         reader.readAsDataURL(file);
         document.getElementById('fileInput').value = '';
@@ -2339,7 +2496,7 @@
             }
             const reader = new FileReader();
             reader.onload = (ev) => {
-                sendMessage(null, ev.target.result, false, null, null);
+                sendMessage(null, ev.target.result, false, null, null, false, state.replyToMsg);
             };
             reader.readAsDataURL(file);
         }
@@ -2972,7 +3129,6 @@
             });
             const serverChats = await response.json();
             
-            // Фильтруем удалённые чаты
             const filteredChats = serverChats.filter(c => !state.deletedChatIds.has(c.id));
             
             for (const serverChat of filteredChats) {
@@ -3026,6 +3182,7 @@
                         headers: { 'Cache-Control': 'no-cache' }
                     });
                     serverChat.messages = await msgsResponse.json();
+                    serverChat.pinnedMessages = serverChat.pinnedMessages || [];
                     state.chats.push(serverChat);
                     newChatsAdded = true;
                     console.log(`📨 Новый чат: ${serverChat.name}`);
@@ -3178,6 +3335,7 @@
         document.getElementById('callBtn').addEventListener('click', () => {
             const chat = getChat(state.currentChatId);
             if (!chat) return;
+            // Для групповых звонков выбираем первого участника, но отправляем приглашение всем
             const otherId = chat.participants?.find(id => id !== state.user.id);
             if (otherId) {
                 startCall(otherId, false);
@@ -3199,6 +3357,9 @@
         document.getElementById('toggleMicBtn').addEventListener('click', toggleMic);
         document.getElementById('toggleVideoBtn').addEventListener('click', toggleVideo);
 
+        // Reply cancel
+        document.getElementById('replyCancelBtn').addEventListener('click', clearReplyBar);
+
         // File handlers
         document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
         document.getElementById('fileInput').addEventListener('change', (e) => { if (e.target.files.length) handleFileSelect(e.target.files[0]); });
@@ -3210,7 +3371,7 @@
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const fileData = { name: file.name || 'photo.jpg', size: file.size, type: file.type, data: ev.target.result };
-                    sendMessage(null, null, false, fileData, null);
+                    sendMessage(null, null, false, fileData, null, false, state.replyToMsg);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3281,7 +3442,10 @@
         // Send
         function handleSend() {
             const input = document.getElementById('messageInput');
-            if (input.value.trim()) { sendMessage(input.value.trim()); input.value = ''; }
+            if (input.value.trim()) { 
+                sendMessage(input.value.trim(), null, false, null, null, false, state.replyToMsg); 
+                input.value = ''; 
+            }
         }
         document.getElementById('sendBtn').addEventListener('click', handleSend);
         document.getElementById('messageInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); } });
@@ -3299,11 +3463,13 @@
                 document.getElementById('stickerPanel').classList.remove('show');
                 document.getElementById('moreMenu').classList.remove('show');
                 document.getElementById('donatePanel').classList.remove('show');
+                document.getElementById('replyBar').classList.remove('show');
+                state.replyToMsg = null;
                 if (document.getElementById('chatView').classList.contains('open')) closeChat();
             }
         });
 
-        console.log('🚀 Utopia с WebSocket, автообновлением и WebRTC загружен!');
+        console.log('🚀 Utopia с WebSocket, автообновлением, WebRTC (групповые звонки), ответами и закреплением загружен!');
         console.log('👥 Всего пользователей на сервере:', state.allUsers.length);
         console.log('💬 Всего чатов:', state.chats.length);
         console.log('👤 Текущий пользователь:', state.user?.name || 'не авторизован');

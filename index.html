@@ -331,6 +331,15 @@
         .call-participant .cp-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;background:#2b5278;color:#fff}
         .call-participant .cp-name{font-size:10px;color:#8e9fb1;margin-top:4px}
         .call-participant .cp-muted{color:#f28b82;font-size:12px}
+        
+        /* Стили для модального окна звонка */
+        .call-modal-buttons{display:flex;gap:20px;justify-content:center;margin-top:20px}
+        .call-modal-buttons button{width:64px;height:64px;border-radius:50%;border:none;font-size:32px;cursor:pointer;transition:0.2s}
+        .call-modal-buttons button:hover{transform:scale(1.1)}
+        .call-modal-buttons .accept-call{background:#2ecc71;color:#fff}
+        .call-modal-buttons .accept-call:hover{background:#27ae60}
+        .call-modal-buttons .reject-call{background:#f28b82;color:#fff}
+        .call-modal-buttons .reject-call:hover{background:#ff6b6b}
     </style>
 </head>
 <body>
@@ -579,22 +588,29 @@
         lastMessageCount: {},
         deletedChatIds: new Set(),
         replyToMsg: null,
-        callParticipants: []
+        callParticipants: [],
+        pendingCallData: null // для хранения данных входящего звонка
     };
     
-    // ======== ГЛОБАЛЬНАЯ ПЕРЕМЕННАЯ ДЛЯ АУДИОКОНТЕКСТА ========
     let circleAudioContext = null;
 
-    // ======== СТИКЕРЫ ========
+    // ======== СТИКЕРЫ (МНОГО ЭМОДЗИ) ========
     function loadStickers() {
         try {
             const saved = localStorage.getItem('utopiaStickers');
             if (saved) {
                 state.stickers = JSON.parse(saved);
             } else {
-                state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯'];
+                state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯', 
+                                  '🤗', '😇', '🥰', '😘', '🥳', '🤩', '😱', '🤯', '😤', '🤬',
+                                  '👋', '🤝', '👍', '👎', '👏', '🙌', '💪', '🖐️', '✊', '👊',
+                                  '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
+                                  '⭐', '🌙', '☀️', '🌈', '☁️', '❄️', '⚡', '💫', '✨', '🌟',
+                                  '🌸', '🌺', '🌻', '🌹', '🌷', '🌿', '🍀', '🌵', '🎄', '🌲'];
             }
-        } catch(e) { state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯']; }
+        } catch(e) { 
+            state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯']; 
+        }
     }
 
     function saveStickers() {
@@ -618,8 +634,11 @@
     // ======== HELPERS ========
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 6); }
     function getChat(id) { return state.chats.find(c => c.id === id); }
+    
+    // ВАЖНО: Имя чата — имя собеседника для личных чатов
     function getChatName(chat) {
         let name = chat.name;
+        // Для личных чатов — имя СОБЕСЕДНИКА
         if (chat.type === 'chat' && chat.participants && chat.participants.length === 2) {
             const otherId = chat.participants.find(id => id !== state.user?.id);
             if (otherId) {
@@ -636,6 +655,7 @@
         if (chat.isBlocked) name = name + ' 🚫';
         return name;
     }
+    
     function formatTime(ts) {
         const d = new Date(ts);
         return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
@@ -932,7 +952,10 @@
                             }
                             break;
                         case 'call_offer':
-                            handleCallOffer(data);
+                            // Сохраняем данные звонка
+                            state.pendingCallData = data;
+                            // Показываем модальное окно вместо confirm
+                            showCallModal(data);
                             break;
                         case 'call_answer':
                             if (peerConnection) {
@@ -986,6 +1009,49 @@
         }
     }
 
+    // ======== МОДАЛЬНОЕ ОКНО ДЛЯ ЗВОНКА ========
+    function showCallModal(data) {
+        const userName = getUserName(data.from);
+        const isVideo = data.isVideo || false;
+        
+        openModal('📞 Входящий звонок', `
+            <div style="text-align:center;padding:20px 0;">
+                <div style="font-size:64px;margin-bottom:10px;">${isVideo ? '🎥' : '📞'}</div>
+                <h3 style="color:#64b5f6;font-size:20px;">${userName}</h3>
+                <p style="color:#8e9fb1;font-size:14px;margin-top:4px;">${isVideo ? 'Видеозвонок' : 'Аудиозвонок'}</p>
+                <div class="call-modal-buttons">
+                    <button id="callAcceptBtn" class="accept-call" title="Принять">✅</button>
+                    <button id="callRejectBtn" class="reject-call" title="Отклонить">❌</button>
+                </div>
+            </div>
+        `);
+        
+        document.getElementById('callAcceptBtn').addEventListener('click', () => {
+            closeModal();
+            if (state.pendingCallData) {
+                const d = state.pendingCallData;
+                answerCall(d.offer, d.from, d.isVideo || false);
+                state.pendingCallData = null;
+            }
+        });
+        
+        document.getElementById('callRejectBtn').addEventListener('click', () => {
+            closeModal();
+            if (state.pendingCallData) {
+                const d = state.pendingCallData;
+                if (wsConnected && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'call_end',
+                        targetUserId: d.from,
+                        roomId: d.roomId
+                    }));
+                }
+                state.pendingCallData = null;
+                document.getElementById('callContainer').style.display = 'none';
+            }
+        });
+    }
+
     // ======== ЗВОНКИ (WebRTC) ========
     let peerConnection = null;
     let localStream = null;
@@ -1008,37 +1074,6 @@
             { urls: 'stun:stun.ekiga.net:3478' }
         ]
     };
-
-    function handleCallOffer(data) {
-        console.log('📞 Входящий звонок от', data.from);
-        const userName = getUserName(data.from);
-        
-        document.getElementById('callStatus').textContent = `📞 Входящий звонок от ${userName}...`;
-        document.getElementById('callContainer').style.display = 'flex';
-        document.getElementById('callStatus').classList.add('call-ringing');
-        
-        addCallParticipant(data.from);
-        if (data.participants) {
-            data.participants.forEach(pid => addCallParticipant(pid));
-        }
-        
-        const isVideo = data.isVideo || false;
-        const accept = confirm(`📞 Входящий звонок от ${userName} ${isVideo ? '(видео)' : '(аудио)'}`);
-        
-        if (accept) {
-            answerCall(data.offer, data.from, isVideo);
-        } else {
-            if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'call_end',
-                    targetUserId: data.from,
-                    roomId: data.roomId
-                }));
-            }
-            document.getElementById('callContainer').style.display = 'none';
-            document.getElementById('callParticipants').innerHTML = '';
-        }
-    }
 
     function addCallParticipant(userId) {
         const container = document.getElementById('callParticipants');
@@ -1329,6 +1364,7 @@
         isVideoOn = true;
         isMicOn = true;
         document.getElementById('callStatus').classList.remove('call-ringing');
+        state.pendingCallData = null;
     }
 
     function toggleMic() {
@@ -1355,7 +1391,7 @@
         }
     }
 
-    // ======== ИСПРАВЛЕННАЯ ЗАПИСЬ КРУЖКА ========
+    // ======== ЗАПИСЬ КРУЖКА (исправленная) ========
     let circleHoldTimer = null;
 
     function startCircleHold() {
@@ -1380,11 +1416,8 @@
         recorderDiv.style.display = 'block';
         document.getElementById('inputRow').style.display = 'none';
 
-        // Закрываем старый аудиоконтекст
         if (circleAudioContext) {
-            try {
-                circleAudioContext.close();
-            } catch(e) {}
+            try { circleAudioContext.close(); } catch(e) {}
             circleAudioContext = null;
         }
 
@@ -1401,10 +1434,8 @@
             }
         })
         .then(stream => {
-            // Сохраняем поток
             state.circleStream = stream;
             
-            // Применяем фильтры
             try {
                 circleAudioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const source = circleAudioContext.createMediaStreamSource(stream);
@@ -1510,9 +1541,7 @@
 
     function stopCircleRecording() {
         if (state.circleRecorder && state.circleRecorder.state !== 'inactive') {
-            try {
-                state.circleRecorder.stop();
-            } catch(e) {}
+            try { state.circleRecorder.stop(); } catch(e) {}
         }
         clearInterval(state.circleTimer);
         document.getElementById('circleTimer').textContent = '⏹';
@@ -1520,10 +1549,8 @@
     }
 
     function closeCircleRecorder() {
-        // Останавливаем таймер
         clearInterval(state.circleTimer);
         
-        // Останавливаем рекордер
         if (state.circleRecorder) {
             try {
                 if (state.circleRecorder.state !== 'inactive') {
@@ -1533,7 +1560,6 @@
             state.circleRecorder = null;
         }
         
-        // Останавливаем и очищаем поток
         if (state.circleStream) {
             state.circleStream.getTracks().forEach(track => {
                 try {
@@ -1544,15 +1570,11 @@
             state.circleStream = null;
         }
         
-        // Закрываем аудиоконтекст
         if (circleAudioContext) {
-            try {
-                circleAudioContext.close();
-            } catch(e) {}
+            try { circleAudioContext.close(); } catch(e) {}
             circleAudioContext = null;
         }
         
-        // Очищаем превью
         const preview = document.getElementById('circlePreview');
         if (preview) {
             preview.srcObject = null;
@@ -1560,16 +1582,13 @@
             preview.load();
         }
         
-        // Скрываем панель записи
         document.getElementById('circleRecorder').style.display = 'none';
         document.getElementById('inputRow').style.display = 'flex';
         
-        // Сбрасываем состояние
         state.circleChunks = [];
         state.isRecording = false;
         state.circleSeconds = 0;
         
-        // Восстанавливаем кнопки
         const startBtn = document.getElementById('circleStartBtn');
         const stopBtn = document.getElementById('circleStopBtn');
         if (startBtn) startBtn.disabled = false;
@@ -1604,7 +1623,6 @@
         renderMessages();
         renderChatList();
         saveState();
-        
         clearReplyBar();
         
         if (wsConnected && ws.readyState === WebSocket.OPEN) {
@@ -1956,6 +1974,8 @@
             if (chat.avatar && chat.avatar.startsWith('data:image')) {
                 avatarContent = `<img src="${chat.avatar}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
             }
+            // Используем getChatName для правильного отображения имени
+            const displayName = getChatName(chat);
             div.innerHTML = `
                 <div class="chat-avatar" style="background:${chat.avatarColor || '#2b5278'}">
                     ${typeof avatarContent === 'string' && avatarContent.includes('<img') ? avatarContent : avatarContent}
@@ -1963,7 +1983,7 @@
                     ${chat.isBlocked ? '<span class="blocked-badge">🚫</span>' : ''}
                 </div>
                 <div class="chat-info">
-                    <div class="chat-name" id="chatName_${chat.id}">${getChatName(chat)}</div>
+                    <div class="chat-name" id="chatName_${chat.id}">${displayName}</div>
                     <div class="chat-last">${lastText}</div>
                 </div>
                 ${lastTime ? `<div class="chat-time">${lastTime}</div>` : ''}
@@ -2587,6 +2607,7 @@
             document.getElementById('cvAvatar').style.background = chat.avatarColor || '#2b5278';
         }
         
+        // Используем getChatName для правильного имени
         document.getElementById('cvName').innerHTML = getChatName(chat) + ` <button class="desc-btn" id="descBtn" title="Описание">ℹ️</button>`;
         document.getElementById('cvStatus').textContent = chat.type === 'channel' ? '📢 Канал' : chat.type === 'group' ? `👥 Группа (${(chat.participants || []).length} уч.)` : 'онлайн';
         document.getElementById('descBtn')?.addEventListener('click', () => {
@@ -3654,7 +3675,7 @@
             }
         });
 
-        console.log('🚀 Utopia загружена! Кружки исправлены!');
+        console.log('🚀 Utopia загружена! Звонки в модальном окне, имена чатов исправлены, стикеров много!');
         console.log('👥 Всего пользователей на сервере:', state.allUsers.length);
         console.log('💬 Всего чатов:', state.chats.length);
         console.log('👤 Текущий пользователь:', state.user?.name || 'не авторизован');

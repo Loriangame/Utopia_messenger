@@ -595,41 +595,122 @@
     let circleAudioContext = null;
 
     // ======== СТИКЕРЫ (МНОГО ЭМОДЗИ) ========
-    function loadStickers() {
-        try {
-            const saved = localStorage.getItem('utopiaStickers');
-            if (saved) {
-                state.stickers = JSON.parse(saved);
-            } else {
-                state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯', 
-                                  '🤗', '😇', '🥰', '😘', '🥳', '🤩', '😱', '🤯', '😤', '🤬',
-                                  '👋', '🤝', '👍', '👎', '👏', '🙌', '💪', '🖐️', '✊', '👊',
-                                  '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
-                                  '⭐', '🌙', '☀️', '🌈', '☁️', '❄️', '⚡', '💫', '✨', '🌟',
-                                  '🌸', '🌺', '🌻', '🌹', '🌷', '🌿', '🍀', '🌵', '🎄', '🌲'];
+function loadStickers() {
+    try {
+        const saved = localStorage.getItem('utopiaStickers');
+        if (saved && JSON.parse(saved).length > 0) {
+            state.stickers = JSON.parse(saved);
+        } else {
+            // Большой набор стикеров-эмодзи
+            state.stickers = [
+                // Смайлики
+                '😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯',
+                '🤗', '😇', '🥰', '😘', '🥳', '🤩', '😱', '🤯', '😤', '🤬',
+                '😡', '🥺', '😢', '😭', '😅', '🤣', '😁', '😆', '🙃', '😉',
+                // Жесты
+                '👋', '🤝', '👍', '👎', '👏', '🙌', '💪', '🖐️', '✊', '👊',
+                '🤞', '✌️', '🤟', '🤘', '👌', '🤙', '🙏', '💅', '💃', '🕺',
+                // Сердечки
+                '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
+                '❤️‍🔥', '❤️‍🩹', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟',
+                // Природа
+                '⭐', '🌙', '☀️', '🌈', '☁️', '❄️', '⚡', '💫', '✨', '🌟',
+                '🌸', '🌺', '🌻', '🌹', '🌷', '🌿', '🍀', '🌵', '🎄', '🌲',
+                '🌳', '🌴', '🌱', '🍃', '🍂', '🍁', '🌾', '🌽', '🍄', '🌰',
+                // Животные
+                '🐱', '🐶', '🐺', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁',
+                '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🐣', '🦆',
+                '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐞', '🦋',
+                // Еда
+                '🍕', '🍔', '🍟', '🌭', '🍿', '🧇', '🥞', '🧀', '🍖', '🥩',
+                '🍗', '🥓', '🍳', '🥚', '🍞', '🥐', '🥖', '🥨', '🥯', '🧇',
+                '🍔', '🍟', '🌭', '🍕', '🥪', '🥙', '🌮', '🌯', '🥗', '🥘',
+                // Фрукты
+                '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒',
+                '🍑', '🍍', '🥝', '🥑', '🍆', '🍅', '🥒', '🌶️', '🌽', '🥕',
+                // Спорт
+                '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱',
+                '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '⛳', '🏹', '🎣',
+                '🥊', '🥋', '⛸️', '🎿', '⛷️', '🏂', '🏋️', '🤼', '🤸', '⛹️'
+            ];
+            saveStickers();
+        }
+    } catch(e) { 
+        state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯']; 
+        saveStickers();
+    }
+}
+
+function renderStickers() {
+    const panel = document.getElementById('stickerPanel');
+    
+    // Если нет стикеров — показываем кнопку добавления
+    if (!state.stickers || state.stickers.length === 0) {
+        panel.innerHTML = `
+            <div style="color:#8e9fb1;font-size:12px;padding:8px;width:100%;text-align:center;">Нет стикеров. Нажмите + чтобы добавить</div>
+            <div class="sticker-add" id="addStickerBtn">➕</div>
+        `;
+        document.getElementById('addStickerBtn')?.addEventListener('click', () => {
+            document.getElementById('stickerInput').click();
+        });
+        return;
+    }
+    
+    // Показываем стикеры
+    panel.innerHTML = state.stickers.map((s, i) => `
+        <div class="sticker" data-index="${i}" title="${s}">${s}</div>
+    `).join('') + `<div class="sticker-add" id="addStickerBtn">➕</div>`;
+    
+    // Обработчик клика по стикеру
+    panel.querySelectorAll('.sticker').forEach(el => {
+        el.addEventListener('click', () => {
+            const idx = parseInt(el.dataset.index);
+            const sticker = state.stickers[idx];
+            if (sticker) {
+                const chat = getChat(state.currentChatId);
+                if (chat) {
+                    const msg = {
+                        id: generateId(),
+                        sender: state.user.id,
+                        text: sticker,
+                        video: null,
+                        file: null,
+                        audio: null,
+                        isCircle: false,
+                        isSticker: true,
+                        stickerData: sticker,
+                        isBot: false,
+                        isSystem: false,
+                        replyTo: state.replyToMsg || null,
+                        time: Date.now()
+                    };
+                    chat.messages.push(msg);
+                    renderMessages();
+                    renderChatList();
+                    saveState();
+                    clearReplyBar();
+                    if (wsConnected && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            type: 'new_message',
+                            chatId: chat.id,
+                            sender: state.user.id,
+                            msgId: msg.id,
+                            text: sticker,
+                            isSticker: true,
+                            replyTo: state.replyToMsg || null
+                        }));
+                    }
+                }
+                document.getElementById('stickerPanel').classList.remove('show');
             }
-        } catch(e) { 
-            state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯']; 
-        }
-    }
-
-    function saveStickers() {
-        try {
-            localStorage.setItem('utopiaStickers', JSON.stringify(state.stickers));
-        } catch(e) {}
-    }
-
-    // ======== БОТ ========
-    class SimpleBot {
-        constructor() { this.hasGreeted = {}; }
-        setUserName(name) { this.userName = name; }
-        getResponse(message, chatId) {
-            if (this.hasGreeted[chatId]) return null;
-            this.hasGreeted[chatId] = true;
-            const name = this.userName || 'Пользователь';
-            return `Привет, ${name}! 👋 Я бот Utopia. Приятно познакомиться!`;
-        }
-    }
+        });
+    });
+    
+    // Кнопка добавления стикера
+    document.getElementById('addStickerBtn')?.addEventListener('click', () => {
+        document.getElementById('stickerInput').click();
+    });
+}
 
     // ======== HELPERS ========
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 6); }

@@ -146,7 +146,6 @@
         .msg .audio-container .audio-progress .audio-fill{height:100%;background:#64b5f6;border-radius:2px;width:0%;transition:width 0.1s}
         .msg .audio-container .audio-time{font-size:9px;color:#8e9fb1;min-width:30px;text-align:center}
         
-        /* Цитата/ответ на сообщение */
         .msg .reply-to{background:#1a2a3a;border-left:3px solid #64b5f6;padding:3px 8px;border-radius:4px;margin-bottom:4px;font-size:11px;color:#8e9fb1;cursor:pointer}
         .msg .reply-to .reply-author{color:#64b5f6;font-weight:500}
         .msg .reply-to .reply-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:inline-block;vertical-align:bottom}
@@ -173,7 +172,6 @@
         #inputRow .btn-send{background:#64b5f6;border:none;border-radius:50%;width:34px;height:34px;color:#0e1621;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         #inputRow .input-wrapper input:disabled{opacity:0.5;cursor:not-allowed}
         
-        /* Панель ответа на сообщение */
         #replyBar{display:none;background:#1a2a3a;padding:4px 12px;border-top:1px solid #2b3b4a;align-items:center;gap:8px;flex-shrink:0;font-size:12px}
         #replyBar.show{display:flex}
         #replyBar .reply-info{flex:1;color:#8e9fb1}
@@ -328,7 +326,6 @@
         .call-ringing{animation:ring 1s ease-in-out infinite}
         @keyframes ring{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
         
-        /* Групповой звонок - список участников */
         .call-participants{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
         .call-participant{display:flex;flex-direction:column;align-items:center;background:#1f2c38;padding:8px 12px;border-radius:10px;min-width:60px}
         .call-participant .cp-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;background:#2b5278;color:#fff}
@@ -459,7 +456,6 @@
                 <div id="pinnedBar"><span class="pinned-icon">📌</span><span class="pinned-text" id="pinnedText">Закреплённые</span><span class="pinned-arrow">↓</span></div>
                 <div id="messagesContainer"></div>
                 
-                <!-- Reply Bar -->
                 <div id="replyBar">
                     <span class="reply-info">Ответ <span class="reply-author" id="replyAuthor">пользователю</span>: <span class="reply-text" id="replyText">текст</span></span>
                     <button class="reply-cancel" id="replyCancelBtn">✕</button>
@@ -582,9 +578,12 @@
         stickers: [],
         lastMessageCount: {},
         deletedChatIds: new Set(),
-        replyToMsg: null, // { id, text, sender }
+        replyToMsg: null,
         callParticipants: []
     };
+    
+    // ======== ГЛОБАЛЬНАЯ ПЕРЕМЕННАЯ ДЛЯ АУДИОКОНТЕКСТА ========
+    let circleAudioContext = null;
 
     // ======== СТИКЕРЫ ========
     function loadStickers() {
@@ -765,6 +764,82 @@
         }
     }
 
+    async function updateUserAvatar(userId, avatarData) {
+        try {
+            const response = await fetch('/api/user/avatar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, avatar: avatarData })
+            });
+            const result = await response.json();
+            if (result.success) {
+                if (state.user && state.user.id === userId) {
+                    state.user.avatar = avatarData;
+                    saveState();
+                }
+                const user = state.allUsers.find(u => u.id === userId);
+                if (user) user.avatar = avatarData;
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.warn('Ошибка обновления аватарки:', e);
+            return false;
+        }
+    }
+
+    async function updateChatAvatar(chatId, avatarData) {
+        try {
+            const response = await fetch('/api/chats/' + chatId, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatar: avatarData })
+            });
+            const chat = await response.json();
+            if (chat) {
+                const localChat = getChat(chatId);
+                if (localChat) {
+                    localChat.avatar = avatarData;
+                    saveState();
+                }
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.warn('Ошибка обновления аватарки чата:', e);
+            return false;
+        }
+    }
+
+    // ======== ПРОВЕРКА КОДА ПРИГЛАШЕНИЯ ========
+    async function checkInviteCode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteCode = urlParams.get('invite');
+        
+        if (inviteCode && state.user) {
+            try {
+                const response = await fetch('/api/join-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ inviteCode, userId: state.user.id })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(`✅ Вы присоединились к чату "${result.chat.name}"!`);
+                    state.chats.push(result.chat);
+                    renderChatList();
+                    openChat(result.chat.id);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            } catch (e) {
+                console.error('Ошибка присоединения:', e);
+                alert('❌ Не удалось присоединиться к чату');
+            }
+        }
+    }
+
     // ======== WebSocket ========
     let ws = null;
     let wsConnected = false;
@@ -938,12 +1013,10 @@
         console.log('📞 Входящий звонок от', data.from);
         const userName = getUserName(data.from);
         
-        // Показываем информацию о звонке
         document.getElementById('callStatus').textContent = `📞 Входящий звонок от ${userName}...`;
         document.getElementById('callContainer').style.display = 'flex';
         document.getElementById('callStatus').classList.add('call-ringing');
         
-        // Добавляем участника
         addCallParticipant(data.from);
         if (data.participants) {
             data.participants.forEach(pid => addCallParticipant(pid));
@@ -970,7 +1043,6 @@
     function addCallParticipant(userId) {
         const container = document.getElementById('callParticipants');
         const name = getUserName(userId);
-        // Проверяем, нет ли уже такого участника
         if (container.querySelector(`[data-userid="${userId}"]`)) return;
         
         const div = document.createElement('div');
@@ -1095,7 +1167,6 @@
                 console.log('✅ Локальное видео отображается');
             }
             
-            // Добавляем себя в список участников
             addCallParticipant(state.user.id);
             addCallParticipant(targetUserId);
             
@@ -1106,7 +1177,6 @@
             await peerConnection.setLocalDescription(offer);
             console.log('✅ Локальное описание установлено');
             
-            // Получаем всех участников группы
             const chat = getChat(state.currentChatId);
             let participants = [];
             if (chat && chat.type === 'group') {
@@ -1285,6 +1355,230 @@
         }
     }
 
+    // ======== ИСПРАВЛЕННАЯ ЗАПИСЬ КРУЖКА ========
+    let circleHoldTimer = null;
+
+    function startCircleHold() {
+        circleHoldTimer = setTimeout(() => {
+            startCircleRecording();
+        }, 300);
+    }
+
+    function stopCircleHold() {
+        clearTimeout(circleHoldTimer);
+        if (state.circleRecorder && state.isRecording) {
+            stopCircleRecording();
+        }
+    }
+
+    function startCircleRecording() {
+        const preview = document.getElementById('circlePreview');
+        const recorderDiv = document.getElementById('circleRecorder');
+        const startBtn = document.getElementById('circleStartBtn');
+        const stopBtn = document.getElementById('circleStopBtn');
+        const timerEl = document.getElementById('circleTimer');
+        recorderDiv.style.display = 'block';
+        document.getElementById('inputRow').style.display = 'none';
+
+        // Закрываем старый аудиоконтекст
+        if (circleAudioContext) {
+            try {
+                circleAudioContext.close();
+            } catch(e) {}
+            circleAudioContext = null;
+        }
+
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'user',
+                width: { ideal: 320 },
+                height: { ideal: 320 }
+            }, 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            }
+        })
+        .then(stream => {
+            // Сохраняем поток
+            state.circleStream = stream;
+            
+            // Применяем фильтры
+            try {
+                circleAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = circleAudioContext.createMediaStreamSource(stream);
+                
+                const filter = circleAudioContext.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 80;
+                
+                const compressor = circleAudioContext.createDynamicsCompressor();
+                compressor.threshold.value = -30;
+                compressor.knee.value = 20;
+                compressor.ratio.value = 8;
+                compressor.attack.value = 0.003;
+                compressor.release.value = 0.25;
+                
+                const gainNode = circleAudioContext.createGain();
+                gainNode.gain.value = 1.5;
+                
+                source.connect(filter);
+                filter.connect(compressor);
+                compressor.connect(gainNode);
+                gainNode.connect(circleAudioContext.destination);
+                
+                const destination = circleAudioContext.createMediaStreamDestination();
+                gainNode.connect(destination);
+                
+                const processedStream = new MediaStream([
+                    ...stream.getVideoTracks(),
+                    ...destination.stream.getAudioTracks()
+                ]);
+                
+                state.circleStream = processedStream;
+            } catch (e) {
+                console.warn('Аудиофильтры не применены:', e);
+                state.circleStream = stream;
+            }
+
+            preview.srcObject = state.circleStream;
+            preview.play();
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            timerEl.textContent = '0 сек';
+            state.circleSeconds = 0;
+            state.circleChunks = [];
+
+            startBtn.onclick = () => {
+                if (!state.circleStream) return;
+                
+                if (state.circleRecorder && state.circleRecorder.state !== 'inactive') {
+                    try { state.circleRecorder.stop(); } catch(e) {}
+                }
+                
+                state.circleChunks = [];
+                const recorder = new MediaRecorder(state.circleStream, { 
+                    mimeType: 'video/webm;codecs=vp9,opus',
+                    audioBitsPerSecond: 128000,
+                    videoBitsPerSecond: 2500000
+                });
+                state.circleRecorder = recorder;
+                state.isRecording = true;
+                
+                recorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) state.circleChunks.push(e.data);
+                };
+                
+                recorder.onstop = () => {
+                    const blob = new Blob(state.circleChunks, { type: 'video/webm' });
+                    if (blob.size > 0) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            sendMessage(null, ev.target.result, true, null, null, false, state.replyToMsg);
+                            closeCircleRecorder();
+                        };
+                        reader.readAsDataURL(blob);
+                    } else {
+                        alert('Запись не удалась');
+                        closeCircleRecorder();
+                    }
+                    state.circleChunks = [];
+                    state.isRecording = false;
+                };
+                
+                recorder.start(1000);
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                state.circleSeconds = 0;
+                clearInterval(state.circleTimer);
+                state.circleTimer = setInterval(() => {
+                    state.circleSeconds++;
+                    timerEl.textContent = state.circleSeconds + ' сек';
+                    if (state.circleSeconds >= 5) stopCircleRecording();
+                }, 1000);
+            };
+
+            stopBtn.onclick = stopCircleRecording;
+            document.getElementById('circleCancelBtn').onclick = closeCircleRecorder;
+        })
+        .catch(err => {
+            alert('❌ Ошибка камеры: ' + err.message);
+            closeCircleRecorder();
+        });
+    }
+
+    function stopCircleRecording() {
+        if (state.circleRecorder && state.circleRecorder.state !== 'inactive') {
+            try {
+                state.circleRecorder.stop();
+            } catch(e) {}
+        }
+        clearInterval(state.circleTimer);
+        document.getElementById('circleTimer').textContent = '⏹';
+        state.isRecording = false;
+    }
+
+    function closeCircleRecorder() {
+        // Останавливаем таймер
+        clearInterval(state.circleTimer);
+        
+        // Останавливаем рекордер
+        if (state.circleRecorder) {
+            try {
+                if (state.circleRecorder.state !== 'inactive') {
+                    state.circleRecorder.stop();
+                }
+            } catch (e) {}
+            state.circleRecorder = null;
+        }
+        
+        // Останавливаем и очищаем поток
+        if (state.circleStream) {
+            state.circleStream.getTracks().forEach(track => {
+                try {
+                    track.stop();
+                    track.enabled = false;
+                } catch(e) {}
+            });
+            state.circleStream = null;
+        }
+        
+        // Закрываем аудиоконтекст
+        if (circleAudioContext) {
+            try {
+                circleAudioContext.close();
+            } catch(e) {}
+            circleAudioContext = null;
+        }
+        
+        // Очищаем превью
+        const preview = document.getElementById('circlePreview');
+        if (preview) {
+            preview.srcObject = null;
+            preview.pause();
+            preview.load();
+        }
+        
+        // Скрываем панель записи
+        document.getElementById('circleRecorder').style.display = 'none';
+        document.getElementById('inputRow').style.display = 'flex';
+        
+        // Сбрасываем состояние
+        state.circleChunks = [];
+        state.isRecording = false;
+        state.circleSeconds = 0;
+        
+        // Восстанавливаем кнопки
+        const startBtn = document.getElementById('circleStartBtn');
+        const stopBtn = document.getElementById('circleStopBtn');
+        if (startBtn) startBtn.disabled = false;
+        if (stopBtn) stopBtn.disabled = true;
+        document.getElementById('circleTimer').textContent = '0 сек';
+        
+        console.log('✅ Кружок закрыт, все ресурсы освобождены');
+    }
+
     // ======== ОТПРАВКА СООБЩЕНИЯ ========
     function sendMessage(text, videoData, isCircle, fileData, audioData, isSticker, replyTo) {
         const chat = getChat(state.currentChatId);
@@ -1311,7 +1605,6 @@
         renderChatList();
         saveState();
         
-        // Очищаем панель ответа
         clearReplyBar();
         
         if (wsConnected && ws.readyState === WebSocket.OPEN) {
@@ -1384,7 +1677,7 @@
         }
     }
 
-    // ======== ЗАКРЕПЛЕНИЕ СООБЩЕНИЯ ========
+    // ======== ЗАКРЕПЛЕНИЕ ========
     function togglePinMessage(chatId, msgId) {
         const chat = getChat(chatId);
         if (!chat) return;
@@ -1395,7 +1688,6 @@
             chat.pinnedMessages.splice(index, 1);
         } else {
             chat.pinnedMessages.push(msgId);
-            // Показываем уведомление
             const msg = chat.messages.find(m => m.id === msgId);
             if (msg) {
                 addSystemMessage(chatId, `📌 Сообщение закреплено: ${msg.text || 'сообщение'}`);
@@ -1426,7 +1718,7 @@
         }
     }
 
-    // ======== ОТВЕТ НА СООБЩЕНИЕ ========
+    // ======== ОТВЕТ ========
     function setReplyTo(msg) {
         state.replyToMsg = msg;
         const bar = document.getElementById('replyBar');
@@ -1730,7 +2022,6 @@
             
             let content = '';
             
-            // Ответ на сообщение
             if (msg.replyTo) {
                 const repliedMsg = chat.messages.find(m => m.id === msg.replyTo);
                 if (repliedMsg) {
@@ -1766,7 +2057,6 @@
             
             div.innerHTML = `<div class="msg-text">${content}</div><div class="msg-time">${formatTime(msg.time)}</div>`;
             
-            // Действия с сообщением (только для своих сообщений)
             if (!isBlocked && !msg.isSystem && isOwn) {
                 const actions = document.createElement('div');
                 actions.className = 'msg-actions';
@@ -1778,7 +2068,6 @@
                 `;
                 div.appendChild(actions);
             } else if (!isBlocked && !msg.isSystem && !isOwn) {
-                // Для чужих сообщений только ответ
                 const actions = document.createElement('div');
                 actions.className = 'msg-actions';
                 actions.innerHTML = `
@@ -1791,7 +2080,6 @@
             if (isNew) newMsgAdded = true;
         });
         
-        // Обработчики для кнопок действий
         container.querySelectorAll('.reply-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1868,13 +2156,11 @@
             });
         });
         
-        // Клик по цитате — прокрутка к сообщению
         container.querySelectorAll('.reply-to').forEach(el => {
             el.addEventListener('click', () => {
                 const parent = el.closest('.msg');
                 const replyText = el.querySelector('.reply-text')?.textContent;
                 if (replyText) {
-                    // Ищем сообщение с таким текстом и прокручиваем
                     const msgs = container.querySelectorAll('.msg');
                     for (const m of msgs) {
                         const textEl = m.querySelector('.msg-text');
@@ -2368,106 +2654,6 @@
             document.getElementById('voiceTimer').textContent = '0:00';
             clearInterval(state.recordingTimer);
         }
-    }
-
-    // ======== ЗАПИСЬ КРУЖКА ========
-    let circleHoldTimer = null;
-
-    function startCircleHold() {
-        circleHoldTimer = setTimeout(() => {
-            startCircleRecording();
-        }, 300);
-    }
-
-    function stopCircleHold() {
-        clearTimeout(circleHoldTimer);
-        if (state.circleRecorder && state.isRecording) {
-            stopCircleRecording();
-        }
-    }
-
-    function startCircleRecording() {
-        const preview = document.getElementById('circlePreview');
-        const recorderDiv = document.getElementById('circleRecorder');
-        const startBtn = document.getElementById('circleStartBtn');
-        const stopBtn = document.getElementById('circleStopBtn');
-        const timerEl = document.getElementById('circleTimer');
-        recorderDiv.style.display = 'block';
-        document.getElementById('inputRow').style.display = 'none';
-
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(stream => {
-                state.circleStream = stream;
-                preview.srcObject = stream;
-                preview.play();
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-                timerEl.textContent = '0 сек';
-                state.circleSeconds = 0;
-                state.circleChunks = [];
-
-                startBtn.onclick = () => {
-                    if (!state.circleStream) return;
-                    state.circleChunks = [];
-                    const recorder = new MediaRecorder(state.circleStream, { 
-                        mimeType: 'video/webm;codecs=vp9,opus',
-                        audioBitsPerSecond: 128000,
-                        videoBitsPerSecond: 2500000
-                    });
-                    state.circleRecorder = recorder;
-                    recorder.ondataavailable = (e) => {
-                        if (e.data.size > 0) state.circleChunks.push(e.data);
-                    };
-                    recorder.onstop = () => {
-                        const blob = new Blob(state.circleChunks, { type: 'video/webm' });
-                        if (blob.size > 0) {
-                            const reader = new FileReader();
-                            reader.onload = (ev) => {
-                                sendMessage(null, ev.target.result, true, null, null, false, state.replyToMsg);
-                                closeCircleRecorder();
-                            };
-                            reader.readAsDataURL(blob);
-                        } else {
-                            alert('Запись не удалась');
-                            closeCircleRecorder();
-                        }
-                        state.circleChunks = [];
-                    };
-                    recorder.start(1000);
-                    startBtn.disabled = true;
-                    stopBtn.disabled = false;
-                    state.circleSeconds = 0;
-                    clearInterval(state.circleTimer);
-                    state.circleTimer = setInterval(() => {
-                        state.circleSeconds++;
-                        timerEl.textContent = state.circleSeconds + ' сек';
-                        if (state.circleSeconds >= 5) stopCircleRecording();
-                    }, 1000);
-                };
-
-                stopBtn.onclick = stopCircleRecording;
-                document.getElementById('circleCancelBtn').onclick = closeCircleRecorder;
-            })
-            .catch(err => {
-                alert('❌ Ошибка камеры: ' + err.message);
-                closeCircleRecorder();
-            });
-    }
-
-    function stopCircleRecording() {
-        if (state.circleRecorder && state.circleRecorder.state !== 'inactive') state.circleRecorder.stop();
-        clearInterval(state.circleTimer);
-        document.getElementById('circleTimer').textContent = '⏹';
-    }
-
-    function closeCircleRecorder() {
-        clearInterval(state.circleTimer);
-        if (state.circleStream) { state.circleStream.getTracks().forEach(t => t.stop()); state.circleStream = null; }
-        if (state.circleRecorder) { try { state.circleRecorder.stop(); } catch (e) {} state.circleRecorder = null; }
-        document.getElementById('circleRecorder').style.display = 'none';
-        document.getElementById('inputRow').style.display = 'flex';
-        document.getElementById('circlePreview').srcObject = null;
-        state.circleChunks = [];
     }
 
     // ======== FILE HANDLING ========
@@ -3116,7 +3302,7 @@
         }
     }
 
-    // ======== АВТООБНОВЛЕНИЕ СООБЩЕНИЙ ========
+    // ======== АВТООБНОВЛЕНИЕ ========
     let autoRefreshInterval = null;
 
     async function autoRefreshMessages() {
@@ -3335,7 +3521,6 @@
         document.getElementById('callBtn').addEventListener('click', () => {
             const chat = getChat(state.currentChatId);
             if (!chat) return;
-            // Для групповых звонков выбираем первого участника, но отправляем приглашение всем
             const otherId = chat.participants?.find(id => id !== state.user.id);
             if (otherId) {
                 startCall(otherId, false);
@@ -3469,7 +3654,7 @@
             }
         });
 
-        console.log('🚀 Utopia с WebSocket, автообновлением, WebRTC (групповые звонки), ответами и закреплением загружен!');
+        console.log('🚀 Utopia загружена! Кружки исправлены!');
         console.log('👥 Всего пользователей на сервере:', state.allUsers.length);
         console.log('💬 Всего чатов:', state.chats.length);
         console.log('👤 Текущий пользователь:', state.user?.name || 'не авторизован');

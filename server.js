@@ -585,14 +585,12 @@ wss.on('connection', (ws, req) => {
                             time: Date.now()
                         };
                         
-                        // Проверяем, есть ли уже такое сообщение
                         const exists = chat.messages.some(m => m.id === msg.id);
                         if (!exists) {
                             chat.messages.push(msg);
                             saveData(fileData);
                         }
                         
-                        // Отправляем ВСЕМ участникам, КРОМЕ отправителя
                         chat.participants.forEach(pid => {
                             if (pid === data.sender) return;
                             const c = clients.get(pid);

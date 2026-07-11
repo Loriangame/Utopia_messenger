@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Utopia</title>
     <style>
-        /* ======== ОБНУЛЕНИЕ И БАЗОВЫЕ СТИЛИ ======== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
         body{background:#0e1621;color:#e1e9f0;height:100vh;overflow:hidden}
 
-        /* ======== ЭКРАН ВХОДА ======== */
         #loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#17212b;padding:20px}
         #loginScreen .login-logo{width:80px;height:80px;margin-bottom:20px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;color:#0e1621;overflow:hidden}
         #loginScreen .login-logo img{width:100%;height:100%;object-fit:cover}
-        #loginScreen h1{margin-bottom:20px}
         #loginScreen h1 .utopia-logo{background:#64b5f6;color:#0e1621;padding:4px 16px;border-radius:12px;font-size:28px;font-weight:800}
-        .login-box{background:#1f2c38;padding:30px 25px;border-radius:20px;width:100%;max-width:380px;margin-bottom:0}
+        .login-box{background:#1f2c38;padding:30px 25px;border-radius:20px;width:100%;max-width:380px}
         .login-box input{width:100%;padding:14px 16px;margin-bottom:12px;background:#2b3b4a;border:none;border-radius:12px;color:#fff;font-size:16px;outline:1px solid transparent}
         .login-box input:focus{outline:1px solid #64b5f6;background:#1f2c38}
         .login-box input::placeholder{color:#8e9fb1}
@@ -40,18 +37,16 @@
         .code-input-group button{padding:14px 20px;background:#2b5278;border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;font-size:18px}
         .code-input-group button:hover{background:#3a6b94}
 
-        /* ======== ГЛАВНОЕ ПРИЛОЖЕНИЕ ======== */
         #mainApp{display:none;height:100vh;background:#17212b;overflow:hidden;flex-direction:column}
 
-        /* ======== ВЕРХНЯЯ ПАНЕЛЬ ======== */
-        #topHeader{background:#17212b;padding:6px 12px;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:44px;z-index:10}
+        #topHeader{background:#17212b;padding:6px 12px;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:44px}
         #topHeader .header-left{display:flex;align-items:center;gap:8px}
-        #topHeader .header-left .app-logo{width:28px;height:28px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#0e1621;flex-shrink:0;overflow:hidden}
+        #topHeader .header-left .app-logo{width:28px;height:28px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0e1621;flex-shrink:0;overflow:hidden}
         #topHeader .header-left .app-logo img{width:100%;height:100%;object-fit:cover}
         #topHeader .header-left .user-avatar{width:28px;height:28px;border-radius:50%;background:#2b5278;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:11px;color:#fff;cursor:pointer;overflow:hidden;flex-shrink:0}
         #topHeader .header-left .user-avatar img{width:100%;height:100%;object-fit:cover}
-        #topHeader .header-left .user-name{font-size:14px;font-weight:600;color:#e1e9f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
-        #topHeader .search-wrap{flex:1;position:relative;margin:0 4px;min-width:80px}
+        #topHeader .header-left .user-name{font-size:14px;font-weight:600;color:#e1e9f0}
+        #topHeader .search-wrap{flex:1;position:relative;margin:0 4px}
         #topHeader .search-wrap input{width:100%;background:#1f2c38;border:none;border-radius:18px;padding:5px 10px 5px 28px;color:#fff;font-size:13px;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' fill='%238e9fb1' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:7px center;background-size:13px}
         #topHeader .search-wrap input:focus{background-color:#1a2a3a;outline:1px solid #64b5f6}
         #topHeader .search-wrap input::placeholder{color:#6b7f8f;font-size:12px}
@@ -63,11 +58,10 @@
         #topHeader .search-wrap #searchResults .result-item .r-avatar img{width:100%;height:100%;object-fit:cover}
         #topHeader .search-wrap #searchResults .result-item .r-name{flex:1;color:#e1e9f0;font-size:13px}
         #topHeader .search-wrap #searchResults .result-item .r-type{font-size:10px;color:#8e9fb1;background:#0e1621;padding:2px 8px;border-radius:8px}
-        #topHeader .header-right{display:flex;align-items:center;gap:4px;flex-shrink:0}
+        #topHeader .header-right{display:flex;align-items:center;gap:4px}
         #topHeader .header-right button{background:none;border:none;color:#8e9fb1;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:0.2s}
         #topHeader .header-right button:hover{background:#1f2c38;color:#64b5f6}
 
-        /* ======== ПАНЕЛЬ СОЗДАНИЯ ======== */
         #createBar{display:flex;gap:5px;padding:5px 10px;background:#0e1621;border-bottom:1px solid #2b3b4a;flex-shrink:0;overflow-x:auto;flex-wrap:nowrap}
         #createBar .create-btn{padding:5px 12px;border:none;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:0.2s;flex-shrink:0}
         #createBar .create-btn:active{transform:scale(0.95)}
@@ -76,9 +70,7 @@
         #createBar .btn-folder{background:#9b59b6;color:#fff}
         #createBar .btn-settings{background:#64b5f6;color:#0e1621}
 
-        /* ======== СПИСОК ЧАТОВ ======== */
-        #chatListContainer{flex:1;overflow-y:auto;padding:4px 0;background:#17212b;min-height:100px}
-        #chatList{height:100%}
+        #chatListContainer{flex:1;overflow-y:auto;padding:4px 0;background:#17212b}
         .chat-item{display:flex;align-items:center;padding:8px 12px;gap:10px;cursor:pointer;border-bottom:1px solid #1f2c38;transition:0.1s}
         .chat-item:hover{background:#1f2c38}
         .chat-item:active{background:#1f2c38}
@@ -99,18 +91,14 @@
         .chat-actions button:hover{background:#1f2c38;color:#64b5f6}
         .chat-actions button.danger:hover{color:#f28b82}
 
-        /* ======== НИЖНЯЯ ПАНЕЛЬ (МОБИЛЬНАЯ) ======== */
         #bottomBar{display:flex;background:#17212b;border-top:1px solid #2b3b4a;padding:5px 10px 8px;justify-content:space-around;align-items:center;flex-shrink:0}
         #bottomBar .bottom-btn{background:none;border:none;color:#8e9fb1;font-size:14px;cursor:pointer;padding:4px 10px;border-radius:10px;display:flex;align-items:center;gap:4px;font-weight:500}
         #bottomBar .bottom-btn.active{color:#64b5f6;background:#1f2c38}
         #bottomBar .bottom-btn .btn-label{font-size:11px}
 
-        /* ======== ОКНО ЧАТА ======== */
         #chatView{display:none;flex-direction:column;height:100%;background:#0e1621;position:absolute;top:0;left:0;right:0;bottom:0;z-index:50;animation:slideUp 0.3s ease}
         #chatView.open{display:flex}
         @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-        
-        /* ======== ШАПКА ЧАТА ======== */
         #chatViewHeader{background:#17212b;padding:6px 12px;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;gap:10px;flex-shrink:0;min-height:44px}
         #chatViewHeader .back-btn{background:none;border:none;color:#64b5f6;font-size:20px;cursor:pointer;padding:4px}
         #chatViewHeader .cv-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;color:#fff;background:#2b5278;flex-shrink:0;overflow:hidden}
@@ -120,20 +108,18 @@
         #chatViewHeader .cv-name .desc-btn{font-size:12px;color:#64b5f6;cursor:pointer;background:none;border:none;padding:2px 6px;border-radius:6px}
         #chatViewHeader .cv-name .desc-btn:hover{background:#1f2c38}
         #chatViewHeader .cv-status{font-size:10px;color:#8e9fb1}
-        #chatViewHeader .cv-actions{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;flex-shrink:0}
+        #chatViewHeader .cv-actions{display:flex;align-items:center;gap:4px;flex-wrap:nowrap}
         #chatViewHeader .cv-actions button{background:none;border:none;color:#8e9fb1;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:4px;transition:0.2s;flex-shrink:0}
         #chatViewHeader .cv-actions button:hover{background:#1f2c38;color:#64b5f6}
         #chatViewHeader .cv-actions button.danger:hover{color:#f28b82}
 
-        /* ======== ЗАКРЕПЛЁННЫЕ СООБЩЕНИЯ ======== */
         #pinnedBar{display:none;background:#1a2a3a;padding:3px 12px;border-bottom:1px solid #2b3b4a;align-items:center;gap:6px;flex-shrink:0;cursor:pointer;font-size:12px}
         #pinnedBar.show{display:flex}
         #pinnedBar .pinned-icon{color:#64b5f6;font-size:13px}
         #pinnedBar .pinned-text{flex:1;color:#e1e9f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         #pinnedBar .pinned-arrow{color:#8e9fb1;font-size:13px}
 
-        /* ======== КОНТЕЙНЕР СООБЩЕНИЙ ======== */
-        #messagesContainer{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:4px;background:#0e1621;min-height:100px}
+        #messagesContainer{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:4px;background:#0e1621}
         .msg{max-width:80%;padding:6px 10px;border-radius:12px;word-break:break-word;position:relative;animation:fadeIn 0.2s ease;font-size:13px}
         .msg.pinned{border:2px solid #64b5f6;background:#1a2a3a}
         .msg.own{align-self:flex-end;background:#2b5278;border-bottom-right-radius:3px}
@@ -162,7 +148,6 @@
         .msg .sticker-msg{max-width:128px;border-radius:8px;display:block}
         .msg .sticker-msg:hover{transform:scale(1.02)}
 
-        /* ======== ДЕЙСТВИЯ НАД СООБЩЕНИЕМ ======== */
         .msg-actions{display:flex;gap:3px;position:absolute;top:-7px;right:-7px;opacity:0;transition:0.2s}
         .msg:hover .msg-actions{opacity:1}
         .msg-actions button{background:#2b3b4a;border:none;border-radius:50%;width:18px;height:18px;font-size:9px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:0.2s}
@@ -175,7 +160,6 @@
         .msg-actions .reply-btn:hover{transform:scale(1.1)}
         @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-        /* ======== СТРОКА ВВОДА ======== */
         #inputRow{display:flex;padding:5px 8px 8px;background:#17212b;border-top:1px solid #2b3b4a;gap:5px;align-items:flex-end;flex-shrink:0}
         #inputRow .input-wrapper{flex:1;display:flex;gap:4px;align-items:flex-end;background:#1f2c38;border-radius:18px;padding:3px 5px}
         #inputRow .input-wrapper .btn-icon{background:none;border:none;color:#8e9fb1;font-size:16px;cursor:pointer;padding:4px 5px;border-radius:50%;transition:0.2s;position:relative}
@@ -186,7 +170,6 @@
         #inputRow .btn-send{background:#64b5f6;border:none;border-radius:50%;width:34px;height:34px;color:#0e1621;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         #inputRow .input-wrapper input:disabled{opacity:0.5;cursor:not-allowed}
 
-        /* ======== МЕНЮ "ЕЩЁ" ======== */
         #moreMenu{display:none;position:absolute;bottom:60px;right:10px;background:#1f2c38;border-radius:12px;padding:8px;min-width:180px;border:1px solid #2b3b4a;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:60}
         #moreMenu.show{display:block}
         #moreMenu button{display:flex;align-items:center;gap:10px;background:none;border:none;color:#e1e9f0;padding:8px 12px;width:100%;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:0.2s}
@@ -194,7 +177,6 @@
         #moreMenu button img{width:20px;height:20px;object-fit:contain}
         #moreMenu .separator{height:1px;background:#2b3b4a;margin:4px 0}
 
-        /* ======== ПАНЕЛЬ СТИКЕРОВ ======== */
         #stickerPanel{display:none;background:#1f2c38;border-top:1px solid #2b3b4a;padding:8px;flex-wrap:wrap;gap:6px;max-height:150px;overflow-y:auto;flex-shrink:0}
         #stickerPanel.show{display:flex}
         #stickerPanel .sticker{width:64px;height:64px;border-radius:8px;cursor:pointer;transition:0.2s;object-fit:contain;background:#0e1621;padding:4px}
@@ -202,7 +184,6 @@
         #stickerPanel .sticker-add{width:64px;height:64px;border-radius:8px;border:2px dashed #2b3b4a;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#8e9fb1;font-size:24px;transition:0.2s}
         #stickerPanel .sticker-add:hover{background:#2b3b4a}
 
-        /* ======== ПАНЕЛЬ ДОНАТА ======== */
         #donatePanel{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1f2c38;border-radius:16px;padding:20px;border:1px solid #2b3b4a;z-index:70;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
         #donatePanel.show{display:block}
         #donatePanel h3{color:#64b5f6;margin-bottom:8px}
@@ -211,7 +192,6 @@
         #donatePanel .donate-btn:hover{transform:scale(1.05)}
         #donatePanel .close-donate{background:none;border:none;color:#8e9fb1;font-size:20px;cursor:pointer;float:right}
 
-        /* ======== ГОЛОСОВАЯ ЗАПИСЬ ======== */
         #voiceRecordBar{display:none;background:#1f2c38;padding:4px 12px;border-top:1px solid #2b3b4a;align-items:center;gap:8px;flex-shrink:0}
         #voiceRecordBar.show{display:flex}
         #voiceRecordBar .voice-timer{color:#f28b82;font-weight:bold;font-size:13px;min-width:40px}
@@ -221,7 +201,6 @@
         #voiceRecordBar .voice-cancel-btn{background:none;border:none;color:#f28b82;font-size:16px;cursor:pointer;padding:4px}
         #voiceRecordBar .voice-send-btn{background:#64b5f6;border:none;border-radius:50%;width:28px;height:28px;color:#0e1621;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-        /* ======== ЗАПИСЬ КРУЖКА ======== */
         #circleRecorder{display:none;padding:6px;background:#0e1621;border-top:1px solid #2b3b4a;flex-shrink:0}
         #circleRecorder video{width:100%;border-radius:10px;max-height:160px;background:#000}
         #circleRecorder .record-controls{display:flex;gap:6px;margin-top:4px}
@@ -231,7 +210,6 @@
         #circleRecorder .record-controls .btn-secondary{background:#2b3b4a;color:#fff}
         #circleTimer{color:#64b5f6;font-weight:bold;text-align:center;margin-top:3px;font-size:13px}
 
-        /* ======== МОДАЛЬНОЕ ОКНО ======== */
         .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px)}
         .modal-overlay.open{display:flex}
         .modal{background:#17212b;padding:24px;border-radius:16px;width:92%;max-width:420px;max-height:85vh;overflow-y:auto;color:#e1e9f0;position:relative}
@@ -258,7 +236,6 @@
         .modal .user-select-list .user-item .add-user-btn{background:#2ecc71;border:none;color:#0e1621;padding:2px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600}
         .modal .user-select-list .user-item .add-user-btn:hover{background:#27ae60}
 
-        /* ======== ПОПАП ОПИСАНИЯ ======== */
         #descPopup{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
         #descPopup.show{display:flex}
         #descPopup .popup-content{background:#17212b;padding:20px;border-radius:14px;max-width:340px;width:90%}
@@ -267,7 +244,6 @@
         #descPopup .popup-content .popup-info{font-size:12px;color:#8e9fb1;margin-bottom:4px}
         #descPopup .popup-content .popup-close{width:100%;padding:10px;background:#2b5278;border:none;border-radius:8px;color:#fff;font-weight:600;cursor:pointer;font-size:14px}
 
-        /* ======== ЗВОНКИ ======== */
         #callContainer{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(14,22,33,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
         #callContainer .call-videos{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:100%;max-width:800px}
         #callContainer .call-videos video{background:#0e1621;border-radius:12px;max-width:45%;max-height:50vh;border:2px solid #2b3b4a;object-fit:cover}
@@ -283,13 +259,16 @@
         #callContainer .call-controls .toggle-mic{background:#2b5278;color:#fff}
         #callContainer .call-controls .toggle-mic:hover{background:#3a6b94}
 
-        /* ======== СКРЫТЫЕ ИНПУТЫ ======== */
         .file-input-hidden{display:none}
         ::-webkit-scrollbar{width:3px}
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#2b5278;border-radius:4px}
 
-        /* ======== МОБИЛЬНАЯ ВЕРСИЯ ======== */
+        .btn-icon img{width:20px;height:20px;object-fit:contain;display:block}
+        .btn-send img{width:22px;height:22px;object-fit:contain}
+        .cv-actions button img{width:20px;height:20px;object-fit:contain}
+        #moreMenu button img{width:20px;height:20px;object-fit:contain}
+
         @media (max-width:768px){
             .input-wrapper .btn-icon.hide-on-mobile{display:none!important}
             #moreBtn{display:flex!important}
@@ -299,31 +278,17 @@
             .msg-actions{opacity:1!important}
         }
 
-        /* ======== ДЕСКТОПНАЯ ВЕРСИЯ - ВЕРТИКАЛЬНОЕ РАЗДЕЛЕНИЕ 20%/80% ======== */
         @media (min-width:769px){
-            /* Основной контейнер - горизонтальное расположение */
             #mainApp{display:flex!important;flex-direction:row!important;height:100vh;overflow:hidden}
-            
-            /* Список чатов - 20% ширины, слева */
-            #chatListContainer{width:20%!important;height:100vh!important;border-right:2px solid #2b3b4a;overflow-y:auto;flex:none!important;background:#17212b}
-            
-            /* Окно чата - 80% ширины, справа */
-            #chatView{width:80%!important;height:100vh!important;position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;animation:none!important;display:flex!important;flex-direction:column!important;z-index:1!important}
+            #chatListContainer{width:20%!important;height:100vh!important;border-right:1px solid #2b3b4a;overflow-y:auto;flex:none!important}
+            #chatView{width:80%!important;height:100vh!important;position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;animation:none!important;display:flex!important;flex-direction:column!important}
             #chatView.open{display:flex!important}
-            
-            /* Остальные элементы на всю ширину */
             #topHeader{width:100%;flex-shrink:0}
             #createBar{width:100%;flex-shrink:0}
-            
-            /* Скрываем мобильную нижнюю панель */
             #bottomBar{display:none!important}
-            
-            /* Скрываем кнопку "Ещё" в десктопе */
             #moreBtn{display:none!important}
             .input-wrapper .btn-icon.hide-on-mobile{display:flex!important}
             
-            /* ===== УВЕЛИЧЕННЫЕ КНОПКИ В ДЕСКТОПЕ ===== */
-            /* Кнопки в шапке чата */
             #chatViewHeader .cv-actions button{
                 display:flex!important;
                 font-size:20px!important;
@@ -332,28 +297,14 @@
                 min-height:44px;
                 align-items:center;
                 justify-content:center;
-                background:transparent;
-                border:none;
-                border-radius:8px;
-                color:#8e9fb1;
-                cursor:pointer;
-                transition:0.2s;
-            }
-            #chatViewHeader .cv-actions button:hover{
-                background:#1f2c38;
-                color:#64b5f6;
             }
             #chatViewHeader .cv-actions #chatMoreBtn{display:none!important}
             
-            /* Кнопка отправки */
             #inputRow .btn-send{
                 width:48px!important;
                 height:48px!important;
                 font-size:22px!important;
-                border-radius:50%!important;
             }
-            
-            /* Кнопки-иконки в строке ввода */
             #inputRow .input-wrapper .btn-icon{
                 font-size:22px!important;
                 padding:8px 12px!important;
@@ -362,33 +313,19 @@
                 display:flex!important;
                 align-items:center;
                 justify-content:center;
-                border-radius:50%!important;
             }
-            
-            /* Поле ввода */
             #inputRow .input-wrapper input{
                 font-size:15px!important;
                 padding:8px 5px!important;
             }
             
-            /* Действия над сообщениями всегда видны в десктопе */
             .msg-actions{opacity:1!important}
             .msg:hover .msg-actions{opacity:1!important}
         }
-
-        /* ======== ОБЩИЕ СТИЛИ ДЛЯ КНОПОК С КАРТИНКАМИ ======== */
-        .btn-icon img{width:20px;height:20px;object-fit:contain;display:block}
-        .btn-send img{width:22px;height:22px;object-fit:contain}
-        .cv-actions button img{width:20px;height:20px;object-fit:contain}
-        #moreMenu button img{width:20px;height:20px;object-fit:contain}
-        
-        /* Загрузка */
-        .loading{color:#8e9fb1;text-align:center;padding:30px;font-size:13px}
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- ======== ЭКРАН ВХОДА ======== -->
         <div id="loginScreen">
             <div class="login-logo"><span>U</span></div>
             <h1><span class="utopia-logo">Utopia</span></h1>
@@ -397,8 +334,6 @@
                     <button class="active" id="tabPassword">🔑 Вход</button>
                     <button id="tabCode">📧 Регистрация</button>
                 </div>
-                
-                <!-- Форма входа -->
                 <div id="passwordForm">
                     <input type="text" id="loginUsername" placeholder="Имя пользователя" />
                     <div class="password-toggle">
@@ -410,7 +345,6 @@
                     <div class="info-msg" id="forgotPasswordLink">🔑 Забыли пароль?</div>
                 </div>
                 
-                <!-- Форма регистрации с кодом -->
                 <div id="codeForm" style="display:none;">
                     <input type="text" id="regUsername" placeholder="Имя пользователя" />
                     <input type="email" id="regEmail" placeholder="Почта (необязательно)" />
@@ -437,7 +371,6 @@
                     </div>
                 </div>
                 
-                <!-- Форма восстановления пароля -->
                 <div id="resetForm" style="display:none; margin-top:15px;">
                     <p style="color:#8e9fb1;font-size:13px;margin-bottom:10px;">🔑 Восстановление пароля</p>
                     <input type="text" id="resetName" placeholder="Имя пользователя" />
@@ -461,9 +394,7 @@
             </div>
         </div>
 
-        <!-- ======== ГЛАВНОЕ ПРИЛОЖЕНИЕ ======== -->
         <div id="mainApp">
-            <!-- Верхняя панель -->
             <div id="topHeader">
                 <div class="header-left">
                     <div class="app-logo"><span>U</span></div>
@@ -471,7 +402,7 @@
                     <span class="user-name" id="userNameDisplay">Пользователь</span>
                 </div>
                 <div class="search-wrap">
-                    <input type="text" id="globalSearchInput" placeholder="Поиск..." />
+                    <input type="text" id="globalSearchInput" placeholder="Поиск пользователей..." />
                     <div id="searchResults"></div>
                 </div>
                 <div class="header-right">
@@ -479,7 +410,6 @@
                 </div>
             </div>
 
-            <!-- Панель создания -->
             <div id="createBar">
                 <button class="create-btn btn-channel" id="createChannelBtn">📢 Канал</button>
                 <button class="create-btn btn-group" id="createGroupBtn">👥 Группа</button>
@@ -487,18 +417,14 @@
                 <button class="create-btn btn-settings" id="settingsBtn">⚙️ Настройки</button>
             </div>
 
-            <!-- Список чатов -->
-            <div id="chatListContainer"><div id="chatList"><div class="loading">Загрузка чатов...</div></div></div>
+            <div id="chatListContainer"><div id="chatList"></div></div>
 
-            <!-- Нижняя панель (мобильная) -->
             <div id="bottomBar">
                 <button class="bottom-btn active" id="chatsBtn"><span>💬</span><span class="btn-label">Чаты</span></button>
                 <button class="bottom-btn" id="donateBtn"><span>✨</span><span class="btn-label">Поддержать</span></button>
             </div>
 
-            <!-- ======== ОКНО ЧАТА ======== -->
             <div id="chatView">
-                <!-- Шапка чата -->
                 <div id="chatViewHeader">
                     <button class="back-btn" id="backBtn">←</button>
                     <div class="cv-avatar" id="cvAvatar">C</div>
@@ -516,17 +442,11 @@
                         <button id="chatAvatarBtn" title="Изменить аватар чата">🖼️</button>
                     </div>
                 </div>
-                
-                <!-- Закреплённые сообщения -->
                 <div id="pinnedBar"><span class="pinned-icon">📌</span><span class="pinned-text" id="pinnedText">Закреплённые</span><span class="pinned-arrow">↓</span></div>
-                
-                <!-- Контейнер сообщений -->
                 <div id="messagesContainer"></div>
                 
-                <!-- Панель стикеров -->
                 <div id="stickerPanel"></div>
                 
-                <!-- Панель голосовой записи -->
                 <div id="voiceRecordBar">
                     <span class="voice-timer" id="voiceTimer">0:00</span>
                     <div class="voice-wave" id="voiceWave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -534,7 +454,6 @@
                     <button class="voice-send-btn" id="voiceSendBtn">➤</button>
                 </div>
                 
-                <!-- Панель записи кружка -->
                 <div id="circleRecorder">
                     <video id="circlePreview" autoplay muted></video>
                     <div class="record-controls">
@@ -545,7 +464,6 @@
                     <div id="circleTimer">0 сек</div>
                 </div>
                 
-                <!-- Строка ввода -->
                 <div id="inputRow">
                     <div class="input-wrapper">
                         <button class="btn-icon hide-on-mobile" id="cameraBtn" title="Фото">📷</button>
@@ -560,7 +478,6 @@
                     <button class="btn-send" id="sendBtn">➤</button>
                 </div>
                 
-                <!-- Меню "Ещё" -->
                 <div id="moreMenu">
                     <button id="moreCamera">📷 Фото</button>
                     <button id="moreFile">📎 Файл</button>
@@ -570,7 +487,6 @@
                 </div>
             </div>
 
-            <!-- Скрытые инпуты для загрузки файлов -->
             <input type="file" id="fileInput" class="file-input-hidden" />
             <input type="file" id="videoFileInput" accept="video/*" class="file-input-hidden" />
             <input type="file" id="cameraInput" accept="image/*" capture="environment" class="file-input-hidden" />
@@ -579,7 +495,6 @@
             <input type="file" id="stickerInput" accept="image/*" class="file-input-hidden" />
         </div>
 
-        <!-- ======== ПАНЕЛЬ ДОНАТА ======== -->
         <div id="donatePanel">
             <button class="close-donate" id="closeDonate">✕</button>
             <h3>✨ Искорки надежды</h3>
@@ -587,7 +502,6 @@
             <a href="https://www.donationalerts.com/r/loriang_game" target="_blank" class="donate-btn">💖 Поддержать</a>
         </div>
 
-        <!-- ======== ИНТЕРФЕЙС ЗВОНКА ======== -->
         <div id="callContainer">
             <div class="call-videos">
                 <video id="localVideo" autoplay muted playsinline></video>
@@ -602,7 +516,6 @@
             </div>
         </div>
 
-        <!-- ======== ПОПАП ОПИСАНИЯ ======== -->
         <div id="descPopup">
             <div class="popup-content">
                 <h3 id="popupTitle">Описание</h3>
@@ -612,7 +525,6 @@
             </div>
         </div>
 
-        <!-- ======== МОДАЛЬНОЕ ОКНО ======== -->
         <div class="modal-overlay" id="modalOverlay">
             <div class="modal" id="modalContent">
                 <button class="close-modal" id="modalClose">✕</button>
@@ -622,15 +534,8 @@
         </div>
     </div>
 
-    <!-- ======== ОСНОВНОЙ СКРИПТ ======== -->
     <script>
-    // ============================================
-    //  UTOPIA - ПОЛНОСТЬЮ РАБОЧИЙ КЛИЕНТ
-    //  С ПОДДЕРЖКОЙ ВЕБСОКЕТОВ, ЗВОНКОВ, ЧАТОВ
-    // ============================================
-
-    // ======== СОСТОЯНИЕ ПРИЛОЖЕНИЯ ========
-    const state = {
+    let state = {
         user: null,
         chats: [],
         currentChatId: null,
@@ -653,7 +558,6 @@
         stickers: []
     };
 
-    // ======== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ========
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 6); }
     function getChat(id) { return state.chats.find(c => c.id === id); }
     function getChatName(chat) {
@@ -683,16 +587,7 @@
     }
     function getFileIcon(filename) {
         const ext = filename.split('.').pop().toLowerCase();
-        const icons = {
-            'pdf':'📄','doc':'📄','docx':'📄','txt':'📄',
-            'xls':'📊','xlsx':'📊','csv':'📊',
-            'zip':'📦','rar':'📦','7z':'📦',
-            'jpg':'🖼️','jpeg':'🖼️','png':'🖼️','gif':'🖼️','webp':'🖼️','svg':'🖼️',
-            'mp3':'🎵','wav':'🎵','flac':'🎵',
-            'mp4':'🎬','avi':'🎬','mkv':'🎬','mov':'🎬',
-            'exe':'⚙️','apk':'📱',
-            'json':'📋','html':'📋','css':'📋','js':'📋','xml':'📋'
-        };
+        const icons = {'pdf':'📄','doc':'📄','txt':'📄','xls':'📊','csv':'📊','zip':'📦','rar':'📦','jpg':'🖼️','jpeg':'🖼️','png':'🖼️','gif':'🖼️','webp':'🖼️','mp3':'🎵','wav':'🎵','mp4':'🎬','avi':'🎬','mkv':'🎬','exe':'⚙️','apk':'📱','json':'📋','html':'📋','css':'📋','js':'📋'};
         return icons[ext] || '📎';
     }
     function formatDuration(seconds) {
@@ -701,7 +596,6 @@
         return m + ':' + (s < 10 ? '0' : '') + s;
     }
 
-    // ======== ЗАГРУЗКА/СОХРАНЕНИЕ ========
     function loadState() {
         try {
             const savedUser = localStorage.getItem('utopiaUser');
@@ -753,7 +647,6 @@
         } catch(e) {}
     }
 
-    // ======== КЛАСС БОТА ========
     class SimpleBot {
         constructor() { this.hasGreeted = {}; }
         setUserName(name) { this.userName = name; }
@@ -765,7 +658,6 @@
         }
     }
 
-    // ======== ЗАПРОСЫ К СЕРВЕРУ ========
     async function fetchAllUsers() {
         try {
             const response = await fetch('/api/users', {
@@ -819,7 +711,9 @@
             if (type === 'chat' && participants && participants.length === 2) {
                 const otherId = participants.find(id => id !== creator);
                 const otherUser = state.allUsers.find(u => u.id === otherId);
-                if (otherUser) chatName = otherUser.name;
+                if (otherUser) {
+                    chatName = otherUser.name;
+                }
             }
             const response = await fetch('/api/chats', {
                 method: 'POST',
@@ -898,11 +792,10 @@
         }
     }
 
-    // ======== WEBSOCKET ========
     let ws = null;
     let wsConnected = false;
     let wsReconnectAttempts = 0;
-    const MAX_RECONNECT_ATTEMPTS = 5;
+    const MAX_RECONNECT_ATTEMPTS = 3;
 
     function connectWebSocket() {
         if (!state.user) return;
@@ -1023,7 +916,6 @@
         }
     }
 
-    // ======== ЗВОНКИ (WebRTC) ========
     let peerConnection = null;
     let localStream = null;
     let remoteStream = null;
@@ -1233,7 +1125,6 @@
         }
     }
 
-    // ======== ОТПРАВКА СООБЩЕНИЙ ========
     function sendMessage(text, videoData, isCircle, fileData, audioData, isSticker, stickerData) {
         const chat = getChat(state.currentChatId);
         if (!chat || isChatBlocked(chat.id)) return;
@@ -1328,7 +1219,6 @@
         renderChatList();
     }
 
-    // ======== ОТРИСОВКА ========
     function renderChatList() {
         const container = document.getElementById('chatList');
         let list = state.chats.filter(c => !c.isBlocked);
@@ -1451,7 +1341,6 @@
             }
             container.appendChild(div);
         });
-        // Аудио обработчики
         container.querySelectorAll('.audio-container').forEach(el => {
             const audioData = el.dataset.audio;
             const playBtn = el.querySelector('.play-btn');
@@ -1480,7 +1369,6 @@
                 audio.currentTime = percent * audio.duration;
             });
         });
-        // Скачивание файлов
         container.querySelectorAll('.download-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1498,7 +1386,6 @@
                 } catch (e) { window.open(data, '_blank'); }
             });
         });
-        // Ответ на сообщение
         container.querySelectorAll('.reply-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1511,7 +1398,6 @@
                 input.dataset.replyText = msgText;
             });
         });
-        // Закрепление
         container.querySelectorAll('.pin-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1524,7 +1410,6 @@
                 renderMessages();
             });
         });
-        // Удаление
         container.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1770,7 +1655,7 @@
         }
     }
 
-    // ======== ПОИСК ========
+    // === ПОИСК ===
     async function performGlobalSearch(query) {
         const container = document.getElementById('searchResults');
         if (!query || query.length < 1) {
@@ -1861,7 +1746,7 @@
         container.classList.add('show');
     }
 
-    // ======== СТИКЕРЫ ========
+    // === СТИКЕРЫ ===
     function renderStickers() {
         const panel = document.getElementById('stickerPanel');
         if (!state.stickers.length) {
@@ -1892,7 +1777,7 @@
         });
     }
 
-    // ======== ГОЛОСОВАЯ ЗАПИСЬ ========
+    // === ГОЛОСОВАЯ ЗАПИСЬ ===
     function startVoiceRecording() {
         if (state.isRecording) return;
         const voiceBar = document.getElementById('voiceRecordBar');
@@ -1942,7 +1827,7 @@
         }
     }
 
-    // ======== ЗАПИСЬ КРУЖКА ========
+    // === ЗАПИСЬ КРУЖКА ===
     let circleHoldTimer = null;
 
     function startCircleHold() {
@@ -2039,7 +1924,7 @@
         state.circleChunks = [];
     }
 
-    // ======== ФАЙЛЫ ========
+    // === ФАЙЛЫ ===
     function handleFileSelect(file) {
         if (!file) return;
         if (file.size > 50 * 1024 * 1024) { alert('Файл > 50MB'); return; }
@@ -2064,7 +1949,7 @@
     function handleCamera() { document.getElementById('cameraInput').click(); }
     function handleVideoUpload() { document.getElementById('videoFileInput').click(); }
 
-    // ======== ВХОД И РЕГИСТРАЦИЯ ========
+    // === ВХОД И РЕГИСТРАЦИЯ ===
     async function loginWithPassword() {
         const name = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
@@ -2385,7 +2270,7 @@
         }
     }
 
-    // ======== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ========
+    // === ВОССТАНОВЛЕНИЕ ПАРОЛЯ ===
     async function sendResetCode() {
         const name = document.getElementById('resetName').value.trim();
         const email = document.getElementById('resetEmail').value.trim();
@@ -2503,7 +2388,7 @@
         }
     }
 
-    // ======== НАСТРОЙКИ ========
+    // === НАСТРОЙКИ ===
     function showSettings() {
         openModal('⚙️ Настройки', `
             <div><label class="modal-label">Имя</label><input type="text" id="settingsUsername" value="${state.user?.name || ''}" /></div>
@@ -2558,7 +2443,7 @@
         saveState();
     }
 
-    // ======== МОДАЛЬНОЕ ОКНО ========
+    // === МОДАЛЬНОЕ ОКНО ===
     function openModal(title, bodyHTML) {
         document.getElementById('modalTitle').textContent = title;
         document.getElementById('modalBody').innerHTML = bodyHTML;
@@ -2569,19 +2454,16 @@
         document.getElementById('modalOverlay').classList.remove('open');
     }
 
-    // ======== ДОНАТ ========
     function toggleDonate() {
         const panel = document.getElementById('donatePanel');
         panel.classList.toggle('show');
     }
 
-    // ======== МЕНЮ "ЕЩЁ" ========
     function toggleMoreMenu() {
         const menu = document.getElementById('moreMenu');
         menu.classList.toggle('show');
     }
 
-    // ======== СТИКЕРЫ ========
     function toggleStickers() {
         const panel = document.getElementById('stickerPanel');
         panel.classList.toggle('show');
@@ -2618,7 +2500,7 @@
         }
     }
 
-    // ======== ИНИЦИАЛИЗАЦИЯ ========
+    // === ИНИЦИАЛИЗАЦИЯ ===
     document.addEventListener('DOMContentLoaded', async () => {
         const loaded = loadState();
         if (loaded && state.user) {
@@ -2634,7 +2516,7 @@
             renderStickers();
         }
 
-        // Переключение вкладок
+        // === ОБРАБОТЧИКИ ===
         document.getElementById('tabPassword').addEventListener('click', () => {
             document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
             document.getElementById('tabPassword').classList.add('active');
@@ -2650,7 +2532,6 @@
             document.getElementById('resetForm').style.display = 'none';
         });
 
-        // Забыли пароль
         document.getElementById('forgotPasswordLink').addEventListener('click', () => {
             document.getElementById('passwordForm').style.display = 'none';
             document.getElementById('resetForm').style.display = 'block';
@@ -2670,7 +2551,6 @@
             document.getElementById('resetSendBtn').textContent = '📧 Отправить код';
         });
 
-        // Вход
         document.getElementById('loginPasswordBtn').addEventListener('click', loginWithPassword);
         document.getElementById('loginPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') loginWithPassword(); });
         document.getElementById('togglePassword').addEventListener('click', () => {
@@ -2678,7 +2558,6 @@
             inp.type = inp.type === 'password' ? 'text' : 'password';
         });
 
-        // Регистрация
         document.getElementById('sendCodeBtn').addEventListener('click', sendVerificationCode);
         document.getElementById('verifyBtn').addEventListener('click', verifyCode);
         document.getElementById('verifyCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyCode(); });
@@ -2697,28 +2576,23 @@
             inp.type = inp.type === 'password' ? 'text' : 'password';
         });
 
-        // Восстановление пароля
         document.getElementById('resetSendBtn').addEventListener('click', sendResetCode);
         document.getElementById('resetVerifyBtn').addEventListener('click', resetPasswordVerify);
         document.getElementById('resetVerifyCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') resetPasswordVerify(); });
         document.getElementById('resetResendBtn').addEventListener('click', resendResetCode);
 
-        // Выход
         document.getElementById('logoutBtn').addEventListener('click', logout);
 
-        // Чат
         document.getElementById('backBtn').addEventListener('click', closeChat);
         document.getElementById('chatsBtn').addEventListener('click', () => {
             document.getElementById('chatsBtn').classList.add('active');
             closeChat();
         });
 
-        // Донат
         document.getElementById('donateBtn').addEventListener('click', toggleDonate);
         document.getElementById('closeDonate').addEventListener('click', toggleDonate);
         document.getElementById('moreDonate').addEventListener('click', toggleDonate);
 
-        // Поиск
         const searchInput = document.getElementById('globalSearchInput');
         searchInput.addEventListener('input', (e) => performGlobalSearch(e.target.value.trim()));
         document.addEventListener('click', (e) => {
@@ -2727,7 +2601,7 @@
             }
         });
 
-        // Создание канала/группы
+        // === СОЗДАНИЕ КАНАЛА/ГРУППЫ ЧЕРЕЗ МОДАЛЬНОЕ ОКНО ===
         document.getElementById('createChannelBtn').addEventListener('click', () => {
             openModal('📢 Создание канала', `
                 <label class="modal-label">Название канала</label>
@@ -2765,19 +2639,16 @@
         document.getElementById('createFolderBtn').addEventListener('click', () => alert('📂 Папки в разработке'));
         document.getElementById('settingsBtn').addEventListener('click', showSettings);
 
-        // Действия чата
         document.getElementById('chatSettingsBtn').addEventListener('click', showChatSettings);
         document.getElementById('chatInviteBtn').addEventListener('click', () => { if (state.currentChatId) showChatInvite(state.currentChatId); });
         document.getElementById('addUserBtn').addEventListener('click', showAddUserModal);
         document.getElementById('chatAvatarBtn').addEventListener('click', handleChatAvatarUpload);
 
-        // Кнопка "Ещё" в чате
         document.getElementById('chatMoreBtn').addEventListener('click', () => {
             const menu = document.getElementById('chatSettingsBtn');
             menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
         });
 
-        // Звонки
         document.getElementById('callBtn').addEventListener('click', () => {
             const chat = getChat(state.currentChatId);
             if (!chat) return;
@@ -2802,7 +2673,6 @@
         document.getElementById('toggleMicBtn').addEventListener('click', toggleMic);
         document.getElementById('toggleVideoBtn').addEventListener('click', toggleVideo);
 
-        // Файлы
         document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
         document.getElementById('fileInput').addEventListener('change', (e) => { if (e.target.files.length) handleFileSelect(e.target.files[0]); });
         document.getElementById('cameraBtn').addEventListener('click', handleCamera);
@@ -2856,7 +2726,6 @@
             e.target.value = '';
         });
 
-        // Кружок
         const circleBtn = document.getElementById('circleBtn');
         circleBtn.addEventListener('mousedown', startCircleHold);
         circleBtn.addEventListener('mouseup', stopCircleHold);
@@ -2864,7 +2733,6 @@
         circleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startCircleHold(); });
         circleBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopCircleHold(); });
 
-        // Голосовое
         const voiceBtn = document.getElementById('voiceBtn');
         voiceBtn.addEventListener('mousedown', () => { setTimeout(startVoiceRecording, 300); });
         voiceBtn.addEventListener('mouseup', () => { if (state.isRecording) stopVoiceRecording(); });
@@ -2875,7 +2743,6 @@
         document.getElementById('voiceCancelBtn').addEventListener('click', cancelVoiceRecording);
         document.getElementById('voiceSendBtn').addEventListener('click', stopVoiceRecording);
 
-        // Стикеры
         document.getElementById('stickerBtn').addEventListener('click', toggleStickers);
         document.getElementById('stickerInput').addEventListener('change', (e) => {
             if (e.target.files.length) {
@@ -2896,7 +2763,6 @@
             e.target.value = '';
         });
 
-        // Меню "Ещё"
         document.getElementById('moreBtn').addEventListener('click', toggleMoreMenu);
         document.getElementById('moreCamera').addEventListener('click', () => {
             document.getElementById('moreMenu').classList.remove('show');
@@ -2911,7 +2777,6 @@
             handleVideoUpload();
         });
 
-        // Аватар
         document.getElementById('userAvatar').addEventListener('click', () => document.getElementById('avatarInput').click());
         document.getElementById('avatarInput').addEventListener('change', async (e) => {
             if (e.target.files.length) {
@@ -2964,7 +2829,6 @@
             e.target.value = '';
         });
 
-        // Отправка
         document.getElementById('sendBtn').addEventListener('click', handleSend);
         document.getElementById('messageInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -2973,11 +2837,9 @@
             }
         });
 
-        // Модальное окно
         document.getElementById('modalClose').addEventListener('click', closeModal);
         document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
 
-        // Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
@@ -2990,14 +2852,19 @@
             }
         });
 
-        // Автообновление
-        setInterval(() => {
-            if (state.currentChatId) {
-                const chat = getChat(state.currentChatId);
-                if (chat) renderMessages();
+        // === АВТООБНОВЛЕНИЕ КАЖДЫЕ 3 СЕКУНДЫ ===
+        setInterval(async () => {
+            // Загружаем свежие данные с сервера
+            if (state.user) {
+                await loadChatsFromServer();
+                renderChatList();
+                if (state.currentChatId) {
+                    const chat = getChat(state.currentChatId);
+                    if (chat) renderMessages();
+                }
+                saveState();
             }
-            renderChatList();
-        }, 10000);
+        }, 3000);
 
         console.log('🚀 Utopia загружен!');
         console.log('👥 Всего пользователей:', state.allUsers.length);

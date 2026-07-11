@@ -258,6 +258,7 @@
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#2b5278;border-radius:4px}
 
+        /* ===== МОБИЛЬНЫЙ РЕЖИМ ===== */
         .mode-mobile #moreBtn{display:flex!important}
         .mode-mobile .input-wrapper .btn-icon.hide-on-mobile{display:none!important}
         .mode-desktop #moreBtn{display:none!important}
@@ -271,11 +272,36 @@
             #chatViewHeader .cv-actions #chatMoreBtn{display:flex!important}
         }
 
+        /* ===== КОМП-РЕЖИМ — БОЛЬШИЕ КНОПКИ ===== */
         @media (min-width:769px){
             #moreBtn{display:none!important}
             .input-wrapper .btn-icon.hide-on-mobile{display:flex!important}
             #chatViewHeader .cv-actions button{display:flex}
             #chatViewHeader .cv-actions #chatMoreBtn{display:none!important}
+            
+            /* Увеличенные кнопки в комп-режиме */
+            #topHeader .header-left .user-avatar{width:36px;height:36px;font-size:14px}
+            #topHeader .header-left .app-logo{width:36px;height:36px;font-size:16px}
+            #topHeader .header-left .user-name{font-size:16px}
+            #createBar .create-btn{padding:8px 18px;font-size:14px}
+            #bottomBar .bottom-btn{font-size:18px;padding:6px 16px}
+            #bottomBar .bottom-btn .btn-label{font-size:13px}
+            .chat-item{padding:10px 16px}
+            .chat-avatar{width:46px;height:46px;font-size:18px}
+            .chat-name{font-size:15px}
+            .chat-last{font-size:13px}
+            #inputRow .input-wrapper .btn-icon{font-size:22px;padding:6px 8px}
+            #inputRow .btn-send{width:42px;height:42px;font-size:20px}
+            #inputRow .input-wrapper input{font-size:15px}
+            #chatViewHeader .cv-avatar{width:40px;height:40px;font-size:18px}
+            #chatViewHeader .cv-name{font-size:18px}
+            #chatViewHeader .cv-actions button{font-size:20px;padding:6px 8px}
+            #messagesContainer .msg{font-size:15px;padding:8px 14px}
+            #messagesContainer .msg .msg-text{font-size:15px}
+            .modal{max-width:500px;padding:24px}
+            .modal h2{font-size:20px}
+            .modal input,.modal textarea{font-size:15px;padding:10px 14px}
+            #topHeader .search-wrap input{font-size:15px;padding:6px 12px 6px 32px;background-size:16px}
         }
 
         .btn-icon img{width:20px;height:20px;object-fit:contain;display:block}
@@ -296,7 +322,7 @@
     <div id="app">
         <!-- LOGIN -->
         <div id="loginScreen">
-            <div class="login-logo"><span style="font-size:40px;">🚀</span></div>
+            <div class="login-logo"><img src="logo.png" alt="Utopia" id="loginLogoImg" onerror="this.style.display='none';this.parentElement.textContent='🚀'"></div>
             <h1><span class="utopia-logo">Utopia</span></h1>
             <div class="login-box">
                 <div class="tab-buttons">
@@ -367,7 +393,7 @@
         <div id="mainApp">
             <div id="topHeader">
                 <div class="header-left">
-                    <div class="app-logo">🚀</div>
+                    <div class="app-logo"><img src="logo.png" alt="Utopia" onerror="this.style.display='none';this.parentElement.textContent='🚀'"></div>
                     <div class="user-avatar" id="userAvatar" title="Изменить аватар"><span id="avatarText">U</span></div>
                     <span class="user-name" id="userNameDisplay">Пользователь</span>
                 </div>
@@ -529,19 +555,17 @@
         pendingVerification: null,
         resetPending: null,
         stickers: [],
-        lastMessageCount: {}
+        lastMessageCount: {},
+        deletedChatIds: new Set()
     };
 
     // ======== СТИКЕРЫ (ЭМОДЗИ) ========
-    const EMOJI_STICKERS = ['😊', '😂', '😍', '😎', '🤔', '😡', '💪', '❤️', '🔥', '🌟', '🎉', '💯', '👀', '🙈', '💀', '✨', '🌈', '⭐', '🌙', '🌸', '🌺', '🍀', '🌻', '🌹', '🍕', '🍔', '🍟', '🎮', '💻', '📱', '🎵', '🎶', '🎤', '🎧', '📸', '🏆', '🎯', '💎', '🔮', '💊', '🧠', '🦋', '🐱', '🐶', '🐺', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🐣', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐞', '🦋', '🐌', '🐚', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🐘', '🦏', '🐪', '🐫', '🦒', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🐐', '🦌', '🐕', '🐩', '🐈', '🐓', '🦃', '🐇', '🐁', '🐀', '🐿️', '🦔', '🐾', '🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🍍', '🥝', '🥑', '🌽', '🥕', '🥦', '🍆', '🍅', '🥒', '🌶️', '🌽', '🥔', '🍠', '🥐', '🥖', '🥨', '🍞', '🥯', '🧀', '🍳', '🥚', '🍔', '🍟', '🌭', '🍕', '🥪', '🥙', '🌮', '🌯', '🥗', '🥘', '🍝', '🍜', '🍲', '🍛', '🍣', '🍤', '🍥', '🍙', '🍚', '🍘', '🍢', '🍡', '🍧', '🍨', '🍩', '🍪', '🎂', '🍰', '🧁', '🍫', '🍬', '🍭', '🍮', '🍯', '🧃', '🥤', '🧋', '🍵', '☕', '🧉', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🍾', '🧊', '🎄', '🎅', '🤶', '🦌', '⛄', '🎁', '☃️', '🎊', '🎉', '🎈', '🎀', '🎏', '🎐', '🎑', '🎇', '🎆', '🧨', '✨', '🎠', '🎡', '🎢', '💈', '🎪', '🎭', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🎻', '🪕', '🎯', '🎳', '🎮', '🎲', '♟️', '🎽', '🏆', '🏅', '🥇', '🥈', '🥉', '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '⛳', '🏹', '🎣', '🥊', '🥋', '⛸️', '🎿', '⛷️', '🏂', '🏋️', '🤼', '🤸', '⛹️', '🤾', '🏌️', '🏇', '🧘', '🏄', '🏊', '🤽', '🚣', '🧗', '🚵', '🚴', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️'];
-
     function loadStickers() {
         try {
             const saved = localStorage.getItem('utopiaStickers');
             if (saved) {
                 state.stickers = JSON.parse(saved);
             } else {
-                // По умолчанию добавляем несколько эмодзи
                 state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯'];
             }
         } catch(e) { state.stickers = ['😊', '😂', '😍', '😎', '🔥', '❤️', '💪', '🌟', '🎉', '💯']; }
@@ -677,6 +701,9 @@
             });
             const chats = await response.json();
             
+            // Фильтруем удалённые чаты
+            const filteredChats = chats.filter(c => !state.deletedChatIds.has(c.id));
+            
             const localNames = {};
             state.chats.forEach(c => {
                 if (c._customName) {
@@ -684,7 +711,7 @@
                 }
             });
             
-            state.chats = chats;
+            state.chats = filteredChats;
             
             state.chats.forEach(c => {
                 if (localNames[c.id]) {
@@ -1505,7 +1532,8 @@
     // ======== RENDER ========
     function renderChatList() {
         const container = document.getElementById('chatList');
-        let list = state.chats.filter(c => !c.isBlocked);
+        // Фильтруем удалённые чаты
+        let list = state.chats.filter(c => !c.isBlocked && !state.deletedChatIds.has(c.id));
         list.sort((a, b) => {
             const ta = a.messages && a.messages.length ? a.messages[a.messages.length - 1].time : 0;
             const tb = b.messages && b.messages.length ? b.messages[b.messages.length - 1].time : 0;
@@ -1734,10 +1762,21 @@
         const chat = getChat(chatId);
         if (!chat || chat.creator !== state.user?.id) { alert('❌ Только создатель может удалить'); return; }
         if (!confirm(`Удалить "${chat.name}"?`)) return;
+        
+        // Добавляем в список удалённых
+        state.deletedChatIds.add(chatId);
         state.chats = state.chats.filter(c => c.id !== chatId);
+        
         if (state.currentChatId === chatId) closeChat();
         saveState();
         renderChatList();
+        
+        // Удаляем на сервере
+        fetch('/api/chats/' + chatId, {
+            method: 'DELETE'
+        }).catch(e => console.warn('Ошибка удаления на сервере:', e));
+        
+        alert('✅ Чат удалён');
     }
 
     async function showChatInvite(chatId) {
@@ -2816,6 +2855,7 @@
         state.user = null;
         state.currentChatId = null;
         state.chats = [];
+        state.deletedChatIds = new Set();
         if (ws) { try { ws.close(); } catch (e) {} }
         if (isInCall) endCall();
         closeChat();
@@ -2932,7 +2972,10 @@
             });
             const serverChats = await response.json();
             
-            for (const serverChat of serverChats) {
+            // Фильтруем удалённые чаты
+            const filteredChats = serverChats.filter(c => !state.deletedChatIds.has(c.id));
+            
+            for (const serverChat of filteredChats) {
                 const localChat = getChat(serverChat.id);
                 if (localChat) {
                     const msgsResponse = await fetch('/api/messages/' + serverChat.id, {
@@ -2976,8 +3019,8 @@
             const localIds = new Set(state.chats.map(c => c.id));
             let newChatsAdded = false;
             
-            for (const serverChat of serverChats) {
-                if (!localIds.has(serverChat.id)) {
+            for (const serverChat of filteredChats) {
+                if (!localIds.has(serverChat.id) && !state.deletedChatIds.has(serverChat.id)) {
                     const msgsResponse = await fetch('/api/messages/' + serverChat.id, {
                         cache: 'no-cache',
                         headers: { 'Cache-Control': 'no-cache' }

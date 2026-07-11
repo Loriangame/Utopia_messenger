@@ -12,7 +12,7 @@
         #loginScreen .login-logo{width:80px;height:80px;margin-bottom:20px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;color:#0e1621;overflow:hidden}
         #loginScreen .login-logo img{width:100%;height:100%;object-fit:cover}
         #loginScreen h1 .utopia-logo{background:#64b5f6;color:#0e1621;padding:4px 16px;border-radius:12px;font-size:28px;font-weight:800}
-        .login-box{background:#1f2c38;padding:30px 25px;border-radius:20px;width:100%;max-width:380px;margin-bottom:0}
+        .login-box{background:#1f2c38;padding:30px 25px;border-radius:20px;width:100%;max-width:380px}
         .login-box input{width:100%;padding:14px 16px;margin-bottom:12px;background:#2b3b4a;border:none;border-radius:12px;color:#fff;font-size:16px;outline:1px solid transparent}
         .login-box input:focus{outline:1px solid #64b5f6;background:#1f2c38}
         .login-box input::placeholder{color:#8e9fb1}
@@ -37,7 +37,7 @@
         .code-input-group button{padding:14px 20px;background:#2b5278;border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;font-size:18px}
         .code-input-group button:hover{background:#3a6b94}
 
-        #mainApp{display:none;height:100vh;background:#17212b;overflow:hidden}
+        #mainApp{display:none;height:100vh;background:#17212b;overflow:hidden;flex-direction:column}
 
         #topHeader{background:#17212b;padding:6px 12px;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:44px}
         #topHeader .header-left{display:flex;align-items:center;gap:8px}
@@ -112,7 +112,6 @@
         #chatViewHeader .cv-actions button{background:none;border:none;color:#8e9fb1;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:4px;transition:0.2s;flex-shrink:0}
         #chatViewHeader .cv-actions button:hover{background:#1f2c38;color:#64b5f6}
         #chatViewHeader .cv-actions button.danger:hover{color:#f28b82}
-        #chatViewHeader .cv-actions button img{width:20px;height:20px;object-fit:contain}
 
         #pinnedBar{display:none;background:#1a2a3a;padding:3px 12px;border-bottom:1px solid #2b3b4a;align-items:center;gap:6px;flex-shrink:0;cursor:pointer;font-size:12px}
         #pinnedBar.show{display:flex}
@@ -166,11 +165,9 @@
         #inputRow .input-wrapper .btn-icon{background:none;border:none;color:#8e9fb1;font-size:16px;cursor:pointer;padding:4px 5px;border-radius:50%;transition:0.2s;position:relative}
         #inputRow .input-wrapper .btn-icon:active{background:#2b3b4a}
         #inputRow .input-wrapper .btn-icon .badge{position:absolute;top:-4px;right:-4px;background:#f28b82;color:#0e1621;font-size:8px;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-weight:bold}
-        #inputRow .input-wrapper .btn-icon img{width:20px;height:20px;object-fit:contain;display:block}
         #inputRow .input-wrapper input{flex:1;background:transparent;border:none;padding:5px 3px;color:#fff;font-size:13px;outline:none;min-width:40px}
         #inputRow .input-wrapper input::placeholder{color:#6b7f8f;font-size:12px}
         #inputRow .btn-send{background:#64b5f6;border:none;border-radius:50%;width:34px;height:34px;color:#0e1621;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        #inputRow .btn-send img{width:22px;height:22px;object-fit:contain}
         #inputRow .input-wrapper input:disabled{opacity:0.5;cursor:not-allowed}
 
         #moreMenu{display:none;position:absolute;bottom:60px;right:10px;background:#1f2c38;border-radius:12px;padding:8px;min-width:180px;border:1px solid #2b3b4a;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:60}
@@ -229,14 +226,6 @@
         .modal .btn-secondary:hover{background:#3a4a5a}
         .modal .close-modal{position:absolute;top:12px;right:16px;background:none;border:none;color:#8e9fb1;font-size:24px;cursor:pointer}
         .modal .modal-label{font-size:13px;color:#8e9fb1;margin-bottom:6px;display:block}
-        .modal .blocked-users-list{max-height:150px;overflow-y:auto;margin:6px 0}
-        .modal .blocked-users-list .blocked-user{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#1f2c38;border-radius:6px;margin:3px 0}
-        .modal .blocked-users-list .blocked-user .unblock-btn{background:#2b5278;border:none;color:#fff;padding:2px 10px;border-radius:6px;cursor:pointer;font-size:11px}
-        .modal .blocked-users-list .blocked-user .unblock-btn:hover{background:#3a6b94}
-        .modal .user-select-list{max-height:120px;overflow-y:auto;margin:6px 0}
-        .modal .user-select-list .user-item{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:#1f2c38;border-radius:6px;margin:3px 0}
-        .modal .user-select-list .user-item .add-user-btn{background:#2ecc71;border:none;color:#0e1621;padding:2px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600}
-        .modal .user-select-list .user-item .add-user-btn:hover{background:#27ae60}
         .modal hr{border-color:#2b3b4a;margin:12px 0}
 
         #descPopup{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -276,7 +265,7 @@
             #chatViewHeader .cv-actions #chatMoreBtn{display:flex!important}
         }
 
-        /* Desktop - вертикальное разделение 20%/80% */
+        /* Desktop - увеличенные кнопки и фикс уплывания */
         @media (min-width:769px){
             #mainApp{display:flex!important;flex-direction:row!important;height:100vh;overflow:hidden}
             #chatListContainer{width:20%!important;height:100vh!important;border-right:1px solid #2b3b4a;overflow-y:auto;flex:none!important}
@@ -287,12 +276,46 @@
             #bottomBar{display:none!important}
             #moreBtn{display:none!important}
             .input-wrapper .btn-icon.hide-on-mobile{display:flex!important}
-            #chatViewHeader .cv-actions button{display:flex!important;font-size:18px!important;padding:6px 10px!important}
-            #chatViewHeader .cv-actions button img{width:24px!important;height:24px!important}
+            
+            /* Увеличенные кнопки */
+            #chatViewHeader .cv-actions button{
+                display:flex!important;
+                font-size:20px!important;
+                padding:8px 12px!important;
+                min-width:40px;
+                min-height:40px;
+                align-items:center;
+                justify-content:center;
+            }
+            #chatViewHeader .cv-actions button img{
+                width:28px!important;
+                height:28px!important;
+            }
             #chatViewHeader .cv-actions #chatMoreBtn{display:none!important}
-            #inputRow .btn-send{width:44px!important;height:44px!important;font-size:20px!important}
-            #inputRow .input-wrapper .btn-icon{font-size:20px!important;padding:8px 10px!important}
-            #inputRow .input-wrapper .btn-icon img{width:26px!important;height:26px!important}
+            
+            #inputRow .btn-send{
+                width:48px!important;
+                height:48px!important;
+                font-size:22px!important;
+            }
+            #inputRow .input-wrapper .btn-icon{
+                font-size:22px!important;
+                padding:8px 12px!important;
+                min-width:40px;
+                min-height:40px;
+                display:flex!important;
+                align-items:center;
+                justify-content:center;
+            }
+            #inputRow .input-wrapper .btn-icon img{
+                width:28px!important;
+                height:28px!important;
+            }
+            #inputRow .input-wrapper input{
+                font-size:15px!important;
+                padding:8px 5px!important;
+            }
+            
             .msg-actions{opacity:1!important}
             .msg:hover .msg-actions{opacity:1!important}
         }
@@ -1996,17 +2019,17 @@
         const reader = new FileReader();
         reader.onload = (e) => {
             const fileData = { name: file.name, size: file.size, type: file.type, data: e.target.result };
-            const text = document.getElementById('messageInput').value.trim();
-            let replyText = '';
             const input = document.getElementById('messageInput');
+            let replyText = '';
             if (input.dataset.replyTo) {
                 replyText = `↩️ Ответ на: ${input.dataset.replyText || 'сообщение'}\n`;
                 delete input.dataset.replyTo;
                 delete input.dataset.replyText;
                 input.placeholder = 'Сообщение...';
             }
+            const text = input.value.trim();
             sendMessage(replyText + text, null, false, fileData, null);
-            document.getElementById('messageInput').value = '';
+            input.value = '';
             state.pendingFile = null;
         };
         reader.readAsDataURL(file);
@@ -2771,7 +2794,7 @@
             if (!e.target.closest('.search-wrap')) document.getElementById('searchResults').classList.remove('show');
         });
 
-        // Create buttons with modals
+        // Create buttons with modals (центрированные окошки)
         document.getElementById('createChannelBtn').addEventListener('click', () => {
             openModal('📢 Создание канала', `
                 <label class="modal-label">Название канала</label>
@@ -2857,7 +2880,17 @@
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const fileData = { name: file.name || 'photo.jpg', size: file.size, type: file.type, data: ev.target.result };
-                    sendMessage(null, null, false, fileData, null);
+                    const input = document.getElementById('messageInput');
+                    let replyText = '';
+                    if (input.dataset.replyTo) {
+                        replyText = `↩️ Ответ на: ${input.dataset.replyText || 'сообщение'}\n`;
+                        delete input.dataset.replyTo;
+                        delete input.dataset.replyText;
+                        input.placeholder = 'Сообщение...';
+                    }
+                    const text = input.value.trim();
+                    sendMessage(replyText + text, null, false, fileData, null);
+                    input.value = '';
                 };
                 reader.readAsDataURL(file);
             }
@@ -2873,7 +2906,17 @@
                 }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    sendMessage(null, ev.target.result, false, null, null);
+                    const input = document.getElementById('messageInput');
+                    let replyText = '';
+                    if (input.dataset.replyTo) {
+                        replyText = `↩️ Ответ на: ${input.dataset.replyText || 'сообщение'}\n`;
+                        delete input.dataset.replyTo;
+                        delete input.dataset.replyText;
+                        input.placeholder = 'Сообщение...';
+                    }
+                    const text = input.value.trim();
+                    sendMessage(replyText + text, ev.target.result, false, null, null);
+                    input.value = '';
                 };
                 reader.readAsDataURL(file);
             }

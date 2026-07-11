@@ -13,6 +13,7 @@
         #loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#17212b;padding:20px}
         #loginScreen .login-logo{width:80px;height:80px;margin-bottom:20px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;color:#0e1621;overflow:hidden}
         #loginScreen .login-logo img{width:100%;height:100%;object-fit:cover}
+        #loginScreen h1{margin-bottom:20px}
         #loginScreen h1 .utopia-logo{background:#64b5f6;color:#0e1621;padding:4px 16px;border-radius:12px;font-size:28px;font-weight:800}
         .login-box{background:#1f2c38;padding:30px 25px;border-radius:20px;width:100%;max-width:380px;margin-bottom:0}
         .login-box input{width:100%;padding:14px 16px;margin-bottom:12px;background:#2b3b4a;border:none;border-radius:12px;color:#fff;font-size:16px;outline:1px solid transparent}
@@ -43,14 +44,14 @@
         #mainApp{display:none;height:100vh;background:#17212b;overflow:hidden;flex-direction:column}
 
         /* ======== ВЕРХНЯЯ ПАНЕЛЬ ======== */
-        #topHeader{background:#17212b;padding:6px 12px;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:44px}
+        #topHeader{background:#17212b;padding:6px 12px;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:44px;z-index:10}
         #topHeader .header-left{display:flex;align-items:center;gap:8px}
-        #topHeader .header-left .app-logo{width:28px;height:28px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0e1621;flex-shrink:0;overflow:hidden}
+        #topHeader .header-left .app-logo{width:28px;height:28px;border-radius:50%;background:#64b5f6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#0e1621;flex-shrink:0;overflow:hidden}
         #topHeader .header-left .app-logo img{width:100%;height:100%;object-fit:cover}
         #topHeader .header-left .user-avatar{width:28px;height:28px;border-radius:50%;background:#2b5278;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:11px;color:#fff;cursor:pointer;overflow:hidden;flex-shrink:0}
         #topHeader .header-left .user-avatar img{width:100%;height:100%;object-fit:cover}
-        #topHeader .header-left .user-name{font-size:14px;font-weight:600;color:#e1e9f0}
-        #topHeader .search-wrap{flex:1;position:relative;margin:0 4px}
+        #topHeader .header-left .user-name{font-size:14px;font-weight:600;color:#e1e9f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+        #topHeader .search-wrap{flex:1;position:relative;margin:0 4px;min-width:80px}
         #topHeader .search-wrap input{width:100%;background:#1f2c38;border:none;border-radius:18px;padding:5px 10px 5px 28px;color:#fff;font-size:13px;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' fill='%238e9fb1' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:7px center;background-size:13px}
         #topHeader .search-wrap input:focus{background-color:#1a2a3a;outline:1px solid #64b5f6}
         #topHeader .search-wrap input::placeholder{color:#6b7f8f;font-size:12px}
@@ -62,7 +63,7 @@
         #topHeader .search-wrap #searchResults .result-item .r-avatar img{width:100%;height:100%;object-fit:cover}
         #topHeader .search-wrap #searchResults .result-item .r-name{flex:1;color:#e1e9f0;font-size:13px}
         #topHeader .search-wrap #searchResults .result-item .r-type{font-size:10px;color:#8e9fb1;background:#0e1621;padding:2px 8px;border-radius:8px}
-        #topHeader .header-right{display:flex;align-items:center;gap:4px}
+        #topHeader .header-right{display:flex;align-items:center;gap:4px;flex-shrink:0}
         #topHeader .header-right button{background:none;border:none;color:#8e9fb1;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:0.2s}
         #topHeader .header-right button:hover{background:#1f2c38;color:#64b5f6}
 
@@ -76,7 +77,8 @@
         #createBar .btn-settings{background:#64b5f6;color:#0e1621}
 
         /* ======== СПИСОК ЧАТОВ ======== */
-        #chatListContainer{flex:1;overflow-y:auto;padding:4px 0;background:#17212b}
+        #chatListContainer{flex:1;overflow-y:auto;padding:4px 0;background:#17212b;min-height:100px}
+        #chatList{height:100%}
         .chat-item{display:flex;align-items:center;padding:8px 12px;gap:10px;cursor:pointer;border-bottom:1px solid #1f2c38;transition:0.1s}
         .chat-item:hover{background:#1f2c38}
         .chat-item:active{background:#1f2c38}
@@ -118,7 +120,7 @@
         #chatViewHeader .cv-name .desc-btn{font-size:12px;color:#64b5f6;cursor:pointer;background:none;border:none;padding:2px 6px;border-radius:6px}
         #chatViewHeader .cv-name .desc-btn:hover{background:#1f2c38}
         #chatViewHeader .cv-status{font-size:10px;color:#8e9fb1}
-        #chatViewHeader .cv-actions{display:flex;align-items:center;gap:4px;flex-wrap:nowrap}
+        #chatViewHeader .cv-actions{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;flex-shrink:0}
         #chatViewHeader .cv-actions button{background:none;border:none;color:#8e9fb1;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:4px;transition:0.2s;flex-shrink:0}
         #chatViewHeader .cv-actions button:hover{background:#1f2c38;color:#64b5f6}
         #chatViewHeader .cv-actions button.danger:hover{color:#f28b82}
@@ -131,7 +133,7 @@
         #pinnedBar .pinned-arrow{color:#8e9fb1;font-size:13px}
 
         /* ======== КОНТЕЙНЕР СООБЩЕНИЙ ======== */
-        #messagesContainer{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:4px;background:#0e1621}
+        #messagesContainer{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:4px;background:#0e1621;min-height:100px}
         .msg{max-width:80%;padding:6px 10px;border-radius:12px;word-break:break-word;position:relative;animation:fadeIn 0.2s ease;font-size:13px}
         .msg.pinned{border:2px solid #64b5f6;background:#1a2a3a}
         .msg.own{align-self:flex-end;background:#2b5278;border-bottom-right-radius:3px}
@@ -247,6 +249,14 @@
         .modal .close-modal{position:absolute;top:12px;right:16px;background:none;border:none;color:#8e9fb1;font-size:24px;cursor:pointer}
         .modal .modal-label{font-size:13px;color:#8e9fb1;margin-bottom:6px;display:block}
         .modal hr{border-color:#2b3b4a;margin:12px 0}
+        .modal .blocked-users-list{max-height:150px;overflow-y:auto;margin:6px 0}
+        .modal .blocked-users-list .blocked-user{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#1f2c38;border-radius:6px;margin:3px 0}
+        .modal .blocked-users-list .blocked-user .unblock-btn{background:#2b5278;border:none;color:#fff;padding:2px 10px;border-radius:6px;cursor:pointer;font-size:11px}
+        .modal .blocked-users-list .blocked-user .unblock-btn:hover{background:#3a6b94}
+        .modal .user-select-list{max-height:120px;overflow-y:auto;margin:6px 0}
+        .modal .user-select-list .user-item{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:#1f2c38;border-radius:6px;margin:3px 0}
+        .modal .user-select-list .user-item .add-user-btn{background:#2ecc71;border:none;color:#0e1621;padding:2px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600}
+        .modal .user-select-list .user-item .add-user-btn:hover{background:#27ae60}
 
         /* ======== ПОПАП ОПИСАНИЯ ======== */
         #descPopup{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -286,6 +296,7 @@
             #chatViewHeader .cv-actions button:not(.keep){display:none}
             #chatViewHeader .cv-actions .keep{display:flex}
             #chatViewHeader .cv-actions #chatMoreBtn{display:flex!important}
+            .msg-actions{opacity:1!important}
         }
 
         /* ======== ДЕСКТОПНАЯ ВЕРСИЯ - ВЕРТИКАЛЬНОЕ РАЗДЕЛЕНИЕ 20%/80% ======== */
@@ -370,6 +381,9 @@
         .btn-send img{width:22px;height:22px;object-fit:contain}
         .cv-actions button img{width:20px;height:20px;object-fit:contain}
         #moreMenu button img{width:20px;height:20px;object-fit:contain}
+        
+        /* Загрузка */
+        .loading{color:#8e9fb1;text-align:center;padding:30px;font-size:13px}
     </style>
 </head>
 <body>
@@ -457,7 +471,7 @@
                     <span class="user-name" id="userNameDisplay">Пользователь</span>
                 </div>
                 <div class="search-wrap">
-                    <input type="text" id="globalSearchInput" placeholder="Поиск пользователей..." />
+                    <input type="text" id="globalSearchInput" placeholder="Поиск..." />
                     <div id="searchResults"></div>
                 </div>
                 <div class="header-right">
@@ -474,7 +488,7 @@
             </div>
 
             <!-- Список чатов -->
-            <div id="chatListContainer"><div id="chatList"><div style="color:#8e9fb1;text-align:center;padding:30px;font-size:13px;">Загрузка чатов...</div></div></div>
+            <div id="chatListContainer"><div id="chatList"><div class="loading">Загрузка чатов...</div></div></div>
 
             <!-- Нижняя панель (мобильная) -->
             <div id="bottomBar">
@@ -610,50 +624,38 @@
 
     <!-- ======== ОСНОВНОЙ СКРИПТ ======== -->
     <script>
-    /**
-     * ============================================
-     *  UTOPIA - ПОЛНОСТЬЮ РАБОЧИЙ КЛИЕНТ
-     *  С ПОДДЕРЖКОЙ ВЕБСОКЕТОВ, ЗВОНКОВ, ЧАТОВ
-     * ============================================
-     */
+    // ============================================
+    //  UTOPIA - ПОЛНОСТЬЮ РАБОЧИЙ КЛИЕНТ
+    //  С ПОДДЕРЖКОЙ ВЕБСОКЕТОВ, ЗВОНКОВ, ЧАТОВ
+    // ============================================
 
     // ======== СОСТОЯНИЕ ПРИЛОЖЕНИЯ ========
     const state = {
-        user: null,                // Текущий пользователь
-        chats: [],                 // Список чатов
-        currentChatId: null,       // ID открытого чата
-        allUsers: [],              // Все пользователи с сервера
-        blockedUsers: [],          // Заблокированные пользователи
-        bot: null,                 // Экземпляр бота
-        pendingFile: null,         // Файл для отправки
-        mediaRecorder: null,       // Для записи голоса
-        audioChunks: [],           // Чанки аудио
-        isRecording: false,        // Флаг записи
-        recordingTimer: null,      // Таймер записи
-        recordingSeconds: 0,       // Секунды записи
-        circleStream: null,        // Поток для кружка
-        circleRecorder: null,      // Рекордер кружка
-        circleChunks: [],          // Чанки видео
-        circleTimer: null,         // Таймер кружка
-        circleSeconds: 0,          // Секунды кружка
-        pendingVerification: null, // Данные для верификации
-        resetPending: null,        // Данные для сброса пароля
-        stickers: []               // Список стикеров
+        user: null,
+        chats: [],
+        currentChatId: null,
+        allUsers: [],
+        blockedUsers: [],
+        bot: null,
+        pendingFile: null,
+        mediaRecorder: null,
+        audioChunks: [],
+        isRecording: false,
+        recordingTimer: null,
+        recordingSeconds: 0,
+        circleStream: null,
+        circleRecorder: null,
+        circleChunks: [],
+        circleTimer: null,
+        circleSeconds: 0,
+        pendingVerification: null,
+        resetPending: null,
+        stickers: []
     };
 
     // ======== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ========
-    
-    /** Генерация уникального ID */
-    function generateId() { 
-        return Date.now().toString(36) + Math.random().toString(36).substring(2, 6); 
-    }
-    
-    /** Получить чат по ID */
-    function getChat(id) { 
-        return state.chats.find(c => c.id === id); 
-    }
-    
-    /** Получить имя чата с эмодзи */
+    function generateId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 6); }
+    function getChat(id) { return state.chats.find(c => c.id === id); }
     function getChatName(chat) {
         let name = chat.name;
         if (chat.type === 'channel') name = '📢 ' + name;
@@ -663,32 +665,22 @@
         if (chat.isBlocked) name = name + ' 🚫';
         return name;
     }
-    
-    /** Форматирование времени */
     function formatTime(ts) {
         const d = new Date(ts);
         return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
     }
-    
-    /** Проверка, заблокирован ли пользователь */
     function isUserBlocked(username) {
         return state.blockedUsers.some(b => b.toLowerCase() === username.toLowerCase());
     }
-    
-    /** Проверка, заблокирован ли чат */
     function isChatBlocked(chatId) {
         const chat = getChat(chatId);
         return chat && chat.isBlocked;
     }
-    
-    /** Форматирование размера файла */
     function formatFileSize(bytes) {
         if (bytes < 1024) return bytes + ' B';
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
-    
-    /** Получить иконку файла по расширению */
     function getFileIcon(filename) {
         const ext = filename.split('.').pop().toLowerCase();
         const icons = {
@@ -703,17 +695,13 @@
         };
         return icons[ext] || '📎';
     }
-    
-    /** Форматирование длительности */
     function formatDuration(seconds) {
         const m = Math.floor(seconds / 60);
         const s = Math.floor(seconds % 60);
         return m + ':' + (s < 10 ? '0' : '') + s;
     }
 
-    // ======== ЗАГРУЗКА/СОХРАНЕНИЕ СОСТОЯНИЯ ========
-    
-    /** Загрузка данных из localStorage */
+    // ======== ЗАГРУЗКА/СОХРАНЕНИЕ ========
     function loadState() {
         try {
             const savedUser = localStorage.getItem('utopiaUser');
@@ -732,13 +720,9 @@
                 return true;
             }
             return false;
-        } catch (e) { 
-            console.warn('Ошибка загрузки состояния:', e); 
-            return false; 
-        }
+        } catch (e) { console.warn('Load error', e); return false; }
     }
 
-    /** Сохранение данных в localStorage */
     function saveState() {
         try {
             if (state.user) {
@@ -753,12 +737,9 @@
             }
             localStorage.setItem('utopiaBlocked', JSON.stringify(state.blockedUsers));
             saveStickers();
-        } catch (e) { 
-            console.warn('Ошибка сохранения состояния:', e); 
-        }
+        } catch (e) { console.warn('Save error', e); }
     }
 
-    /** Загрузка стикеров */
     function loadStickers() {
         try {
             const saved = localStorage.getItem('utopiaStickers');
@@ -766,7 +747,6 @@
         } catch(e) { state.stickers = []; }
     }
 
-    /** Сохранение стикеров */
     function saveStickers() {
         try {
             localStorage.setItem('utopiaStickers', JSON.stringify(state.stickers));
@@ -786,8 +766,6 @@
     }
 
     // ======== ЗАПРОСЫ К СЕРВЕРУ ========
-    
-    /** Получить всех пользователей */
     async function fetchAllUsers() {
         try {
             const response = await fetch('/api/users', {
@@ -803,7 +781,6 @@
         }
     }
 
-    /** Загрузить чаты пользователя */
     async function loadChatsFromServer() {
         if (!state.user) return;
         try {
@@ -812,33 +789,22 @@
                 headers: { 'Cache-Control': 'no-cache' }
             });
             const chats = await response.json();
-            
-            // Сохраняем локальные имена
             const localNames = {};
             state.chats.forEach(c => {
-                if (c._customName) {
-                    localNames[c.id] = c._customName;
-                }
+                if (c._customName) localNames[c.id] = c._customName;
             });
-            
             state.chats = chats;
-            
-            // Восстанавливаем локальные имена
             state.chats.forEach(c => {
                 if (localNames[c.id]) {
                     c.name = localNames[c.id];
                     c._customName = localNames[c.id];
                 }
             });
-            
-            // Загружаем сообщения для каждого чата
             for (let chat of state.chats) {
                 try {
                     const msgsResponse = await fetch('/api/messages/' + chat.id);
                     chat.messages = await msgsResponse.json();
-                } catch(e) {
-                    chat.messages = [];
-                }
+                } catch(e) { chat.messages = []; }
             }
             return true;
         } catch (e) {
@@ -847,18 +813,14 @@
         }
     }
 
-    /** Создать новый чат */
     async function createChat(type, name, participants, creator, isPrivate, description, avatar) {
         try {
             let chatName = name || 'Чат';
             if (type === 'chat' && participants && participants.length === 2) {
                 const otherId = participants.find(id => id !== creator);
                 const otherUser = state.allUsers.find(u => u.id === otherId);
-                if (otherUser) {
-                    chatName = otherUser.name;
-                }
+                if (otherUser) chatName = otherUser.name;
             }
-            
             const response = await fetch('/api/chats', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -874,22 +836,17 @@
             });
             const newChat = await response.json();
             state.chats.push(newChat);
-            
-            if (type === 'channel') {
-                addSystemMessage(newChat.id, `📢 Канал "${newChat.name}" создан!`);
-            } else if (type === 'group') {
-                addSystemMessage(newChat.id, `👥 Группа "${newChat.name}" создана!`);
-            }
+            if (type === 'channel') addSystemMessage(newChat.id, `📢 Канал "${newChat.name}" создан!`);
+            else if (type === 'group') addSystemMessage(newChat.id, `👥 Группа "${newChat.name}" создана!`);
             renderChatList();
             saveState();
             return newChat;
         } catch (e) {
-            console.error('Ошибка создания чата:', e);
+            console.error('Create chat error:', e);
             return null;
         }
     }
 
-    /** Обновить аватар пользователя */
     async function updateUserAvatar(userId, avatarData) {
         try {
             const response = await fetch('/api/user/avatar', {
@@ -914,11 +871,9 @@
         }
     }
 
-    /** Проверить код приглашения из URL */
     async function checkInviteCode() {
         const urlParams = new URLSearchParams(window.location.search);
         const inviteCode = urlParams.get('invite');
-        
         if (inviteCode && state.user) {
             try {
                 const response = await fetch('/api/join-chat', {
@@ -949,45 +904,36 @@
     let wsReconnectAttempts = 0;
     const MAX_RECONNECT_ATTEMPTS = 5;
 
-    /** Подключение к WebSocket */
     function connectWebSocket() {
         if (!state.user) return;
         if (wsReconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
             console.log('❌ Превышено количество попыток подключения WebSocket');
             return;
         }
-        
         try {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = protocol + '//' + window.location.host + '/ws';
             console.log('🔗 Подключение к WebSocket:', wsUrl);
-            
             ws = new WebSocket(wsUrl);
-            
             ws.onopen = () => {
                 console.log('✅ WebSocket подключен');
                 wsConnected = true;
                 wsReconnectAttempts = 0;
                 ws.send(JSON.stringify({ type: 'auth', userId: state.user.id }));
             };
-            
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
                     console.log('📨 Получено:', data.type);
                     handleWebSocketMessage(data);
-                } catch (e) { 
-                    console.error('Ошибка парсинга WebSocket:', e); 
-                }
+                } catch (e) { console.error('WebSocket parse error:', e); }
             };
-            
             ws.onclose = () => {
                 console.log('🔌 WebSocket отключен');
                 wsConnected = false;
                 wsReconnectAttempts++;
                 setTimeout(connectWebSocket, 3000);
             };
-            
             ws.onerror = (error) => {
                 console.error('WebSocket ошибка:', error);
                 wsConnected = false;
@@ -998,7 +944,6 @@
         }
     }
 
-    /** Обработка сообщений WebSocket */
     function handleWebSocketMessage(data) {
         switch (data.type) {
             case 'new_message':
@@ -1013,7 +958,6 @@
                     }
                 }
                 break;
-                
             case 'typing':
                 const typingChat = getChat(data.chatId);
                 if (typingChat && state.currentChatId === data.chatId) {
@@ -1021,15 +965,12 @@
                     if (data.isTyping) {
                         status.textContent = '✍️ печатает...';
                         clearTimeout(typingChat._typingTimeout);
-                        typingChat._typingTimeout = setTimeout(() => { 
-                            status.textContent = 'онлайн'; 
-                        }, 2000);
+                        typingChat._typingTimeout = setTimeout(() => { status.textContent = 'онлайн'; }, 2000);
                     } else {
                         status.textContent = 'онлайн';
                     }
                 }
                 break;
-                
             case 'message_deleted':
                 const delChat = getChat(data.chatId);
                 if (delChat) {
@@ -1042,7 +983,6 @@
                     saveState();
                 }
                 break;
-                
             case 'chat_updated':
                 const updChat = getChat(data.chatId);
                 if (updChat) {
@@ -1059,29 +999,24 @@
                     saveState();
                 }
                 break;
-                
             case 'call_offer':
                 handleIncomingCall(data);
                 break;
-                
             case 'call_answer':
                 if (peerConnection) {
                     peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                     document.getElementById('callStatus').textContent = '📞 Соединение установлено';
                 }
                 break;
-                
             case 'ice_candidate':
                 if (peerConnection) {
                     peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
                 }
                 break;
-                
             case 'call_end':
                 alert('📞 Звонок завершён');
                 endCall();
                 break;
-                
             case 'auth_success':
                 console.log('✅ WebSocket авторизация успешна');
                 break;
@@ -1098,7 +1033,6 @@
     let isMicOn = true;
     let isVideoOn = true;
 
-    /** Конфигурация ICE для WebRTC */
     const rtcConfig = {
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
@@ -1111,16 +1045,13 @@
         ]
     };
 
-    /** Создание PeerConnection */
     function createPeerConnection(targetUserId, isVideo) {
         const pc = new RTCPeerConnection(rtcConfig);
-        
         if (localStream) {
             localStream.getTracks().forEach(track => {
                 pc.addTrack(track, localStream);
             });
         }
-        
         pc.ontrack = (event) => {
             remoteStream = event.streams[0];
             const remoteVideo = document.getElementById('remoteVideo');
@@ -1136,7 +1067,6 @@
             }
             document.getElementById('callStatus').textContent = '📞 Соединено';
         };
-        
         pc.onicecandidate = (event) => {
             if (event.candidate) {
                 if (wsConnected && ws.readyState === WebSocket.OPEN) {
@@ -1148,7 +1078,6 @@
                 }
             }
         };
-        
         pc.oniceconnectionstatechange = () => {
             if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
                 endCall();
@@ -1158,29 +1087,20 @@
                 document.getElementById('callStatus').textContent = '📞 Разговор...';
             }
         };
-        
         return pc;
     }
 
-    /** Начать звонок */
     async function startCall(targetUserId, isVideo) {
-        if (isInCall) {
-            alert('Уже в звонке');
-            return;
-        }
-        
+        if (isInCall) { alert('Уже в звонке'); return; }
         callTarget = targetUserId;
         isVideoCall = isVideo;
-        
         const user = state.allUsers.find(u => u.id === targetUserId);
         const userName = user ? user.name : 'собеседник';
-        
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
                 video: isVideo
             });
-            
             localStream = stream;
             const localVideo = document.getElementById('localVideo');
             if (localVideo) {
@@ -1188,11 +1108,9 @@
                 localVideo.style.display = isVideo ? 'block' : 'none';
                 localVideo.play();
             }
-            
             peerConnection = createPeerConnection(targetUserId, isVideo);
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
-            
             if (wsConnected && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     type: 'call_offer',
@@ -1200,7 +1118,6 @@
                     offer: peerConnection.localDescription,
                     isVideo: isVideoCall
                 }));
-                
                 isInCall = true;
                 document.getElementById('callContainer').style.display = 'flex';
                 document.getElementById('callStatus').textContent = `📞 Звонок ${userName}...`;
@@ -1217,7 +1134,6 @@
         }
     }
 
-    /** Обработка входящего звонка */
     function handleIncomingCall(data) {
         console.log('📞 Входящий звонок от', data.from);
         const accept = confirm(`📞 Входящий звонок от ${data.from} ${data.isVideo ? '(видео)' : '(аудио)'}`);
@@ -1233,20 +1149,16 @@
         }
     }
 
-    /** Ответить на звонок */
     async function answerCall(offer, fromUserId, isVideo) {
         callTarget = fromUserId;
         isVideoCall = isVideo;
-        
         const user = state.allUsers.find(u => u.id === fromUserId);
         const userName = user ? user.name : 'собеседник';
-        
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
                 video: isVideo
             });
-            
             localStream = stream;
             const localVideo = document.getElementById('localVideo');
             if (localVideo) {
@@ -1254,19 +1166,16 @@
                 localVideo.style.display = isVideo ? 'block' : 'none';
                 localVideo.play();
             }
-            
             peerConnection = createPeerConnection(fromUserId, isVideo);
             await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
-            
             if (wsConnected && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     type: 'call_answer',
                     targetUserId: callTarget,
                     answer: peerConnection.localDescription
                 }));
-                
                 isInCall = true;
                 document.getElementById('callContainer').style.display = 'flex';
                 document.getElementById('callStatus').textContent = `📞 Соединение с ${userName}...`;
@@ -1280,7 +1189,6 @@
         }
     }
 
-    /** Завершить звонок */
     function endCall() {
         if (peerConnection) {
             peerConnection.close();
@@ -1292,15 +1200,10 @@
         }
         remoteStream = null;
         isInCall = false;
-        
         if (callTarget && wsConnected && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-                type: 'call_end',
-                targetUserId: callTarget
-            }));
+            ws.send(JSON.stringify({ type: 'call_end', targetUserId: callTarget }));
         }
         callTarget = null;
-        
         document.getElementById('callContainer').style.display = 'none';
         const localVideo = document.getElementById('localVideo');
         if (localVideo) { localVideo.srcObject = null; localVideo.style.display = 'none'; }
@@ -1312,40 +1215,29 @@
         isMicOn = true;
     }
 
-    /** Включить/выключить микрофон */
     function toggleMic() {
         if (localStream) {
             isMicOn = !isMicOn;
-            localStream.getAudioTracks().forEach(track => {
-                track.enabled = isMicOn;
-            });
+            localStream.getAudioTracks().forEach(track => { track.enabled = isMicOn; });
             document.getElementById('toggleMicBtn').textContent = isMicOn ? '🎤' : '🔇';
         }
     }
 
-    /** Включить/выключить видео */
     function toggleVideo() {
         if (localStream) {
             isVideoOn = !isVideoOn;
-            localStream.getVideoTracks().forEach(track => {
-                track.enabled = isVideoOn;
-            });
+            localStream.getVideoTracks().forEach(track => { track.enabled = isVideoOn; });
             document.getElementById('toggleVideoBtn').textContent = isVideoOn ? '📹' : '🚫';
             const localVideo = document.getElementById('localVideo');
-            if (localVideo) {
-                localVideo.style.display = isVideoOn ? 'block' : 'none';
-            }
+            if (localVideo) { localVideo.style.display = isVideoOn ? 'block' : 'none'; }
         }
     }
 
     // ======== ОТПРАВКА СООБЩЕНИЙ ========
-    
-    /** Отправить сообщение */
     function sendMessage(text, videoData, isCircle, fileData, audioData, isSticker, stickerData) {
         const chat = getChat(state.currentChatId);
         if (!chat || isChatBlocked(chat.id)) return;
         if (!text && !videoData && !fileData && !audioData && !isSticker) return;
-        
         const msg = {
             id: generateId(),
             sender: state.user.id,
@@ -1360,13 +1252,10 @@
             isSystem: false,
             time: Date.now()
         };
-        
         chat.messages.push(msg);
         renderMessages();
         renderChatList();
         saveState();
-        
-        // Отправка через WebSocket
         if (wsConnected && ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({
                 type: 'new_message',
@@ -1384,8 +1273,6 @@
                 isBot: false
             }));
         }
-        
-        // Ответ бота
         if (chat.isBot && text && state.bot) {
             setTimeout(() => {
                 const response = state.bot.getResponse(text, chat.id);
@@ -1417,7 +1304,6 @@
         }
     }
 
-    /** Удалить сообщение */
     function deleteMessage(chatId, msgId) {
         const chat = getChat(chatId);
         if (chat) {
@@ -1432,18 +1318,10 @@
         }
     }
 
-    /** Добавить системное сообщение */
     function addSystemMessage(chatId, text) {
         const chat = getChat(chatId);
         if (!chat) return;
-        const msg = { 
-            id: generateId(), 
-            sender: 'system', 
-            text: text, 
-            time: Date.now(), 
-            isSystem: true, 
-            isBot: false 
-        };
+        const msg = { id: generateId(), sender: 'system', text: text, time: Date.now(), isSystem: true, isBot: false };
         chat.messages.push(msg);
         saveState();
         if (state.currentChatId === chatId) renderMessages();
@@ -1451,8 +1329,6 @@
     }
 
     // ======== ОТРИСОВКА ========
-    
-    /** Отрисовать список чатов */
     function renderChatList() {
         const container = document.getElementById('chatList');
         let list = state.chats.filter(c => !c.isBlocked);
@@ -1505,11 +1381,7 @@
                 </div>
             `;
             div.dataset.id = chat.id;
-            
-            div.addEventListener('dblclick', () => {
-                renameChat(chat.id);
-            });
-            
+            div.addEventListener('dblclick', () => { renameChat(chat.id); });
             div.addEventListener('click', () => openChat(chat.id));
             container.appendChild(div);
         });
@@ -1524,7 +1396,6 @@
         });
     }
 
-    /** Отрисовать сообщения */
     function renderMessages() {
         const container = document.getElementById('messagesContainer');
         const chat = getChat(state.currentChatId);
@@ -1580,8 +1451,7 @@
             }
             container.appendChild(div);
         });
-        
-        // Обработчики аудио
+        // Аудио обработчики
         container.querySelectorAll('.audio-container').forEach(el => {
             const audioData = el.dataset.audio;
             const playBtn = el.querySelector('.play-btn');
@@ -1610,8 +1480,7 @@
                 audio.currentTime = percent * audio.duration;
             });
         });
-        
-        // Обработчики скачивания
+        // Скачивание файлов
         container.querySelectorAll('.download-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1629,8 +1498,7 @@
                 } catch (e) { window.open(data, '_blank'); }
             });
         });
-        
-        // Обработчики ответа
+        // Ответ на сообщение
         container.querySelectorAll('.reply-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1643,25 +1511,20 @@
                 input.dataset.replyText = msgText;
             });
         });
-        
-        // Обработчики закрепления
+        // Закрепление
         container.querySelectorAll('.pin-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const msgId = btn.dataset.msgId;
                 if (!chat.pinnedMessages) chat.pinnedMessages = [];
                 const idx = chat.pinnedMessages.indexOf(msgId);
-                if (idx > -1) {
-                    chat.pinnedMessages.splice(idx, 1);
-                } else {
-                    chat.pinnedMessages.push(msgId);
-                }
+                if (idx > -1) { chat.pinnedMessages.splice(idx, 1); }
+                else { chat.pinnedMessages.push(msgId); }
                 saveState();
                 renderMessages();
             });
         });
-        
-        // Обработчики удаления
+        // Удаление
         container.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1671,15 +1534,12 @@
                 }
             });
         });
-        
         container.scrollTop = container.scrollHeight;
     }
 
-    /** Обновить шапку чата */
     function updateChatHeader() {
         const chat = getChat(state.currentChatId);
         if (!chat) return;
-        
         let avatarContent = chat.avatar || chat.name.charAt(0).toUpperCase() || '?';
         if (chat.avatar && chat.avatar.startsWith('data:image')) {
             document.getElementById('cvAvatar').innerHTML = `<img src="${chat.avatar}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
@@ -1687,7 +1547,6 @@
             document.getElementById('cvAvatar').textContent = avatarContent;
             document.getElementById('cvAvatar').style.background = chat.avatarColor || '#2b5278';
         }
-        
         document.getElementById('cvName').innerHTML = getChatName(chat) + ` <button class="desc-btn" id="descBtn" title="Описание">ℹ️</button>`;
         document.getElementById('cvStatus').textContent = chat.type === 'channel' ? '📢 Канал' : 
             chat.type === 'group' ? `👥 Группа (${(chat.participants || []).length} уч.)` : 'онлайн';
@@ -1706,7 +1565,6 @@
         input.placeholder = isChatBlocked(chat.id) ? '🚫 Чат заблокирован' : 'Сообщение...';
     }
 
-    /** Открыть чат */
     function openChat(chatId) {
         const chat = getChat(chatId);
         if (!chat || chat.isBlocked) { alert('🚫 Чат заблокирован'); return; }
@@ -1717,7 +1575,6 @@
         saveState();
     }
 
-    /** Закрыть чат */
     function closeChat() {
         document.getElementById('chatView').classList.remove('open');
         state.currentChatId = null;
@@ -1725,57 +1582,36 @@
         renderChatList();
     }
 
-    /** Переименовать чат */
     async function renameChat(chatId) {
         const chat = getChat(chatId);
         if (!chat) return;
-        
         const isPersonal = chat.type === 'chat' && chat.participants && chat.participants.length === 2;
-        
         let newName = prompt(
-            isPersonal ? 
-            'Введите новое имя для чата (будет отображаться у вас):' : 
-            'Введите новое название:',
+            isPersonal ? 'Введите новое имя для чата (будет отображаться у вас):' : 'Введите новое название:',
             chat.name
         );
-        
         if (!newName || newName.trim() === '') return;
         newName = newName.trim();
-        
         chat.name = newName;
         chat._customName = newName;
         saveState();
         renderChatList();
-        if (state.currentChatId === chatId) {
-            updateChatHeader();
-        }
-        
+        if (state.currentChatId === chatId) updateChatHeader();
         try {
             await fetch('/api/chats/' + chat.id, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: newName })
             });
-        } catch (e) {
-            console.warn('Ошибка обновления имени:', e);
-        }
-        
+        } catch (e) { console.warn('Ошибка обновления имени:', e); }
         if (wsConnected && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-                type: 'update_chat',
-                chatId: chat.id,
-                name: newName
-            }));
+            ws.send(JSON.stringify({ type: 'update_chat', chatId: chat.id, name: newName }));
         }
     }
 
-    /** Удалить чат */
     function deleteChat(chatId) {
         const chat = getChat(chatId);
-        if (!chat || chat.creator !== state.user?.id) { 
-            alert('❌ Только создатель может удалить'); 
-            return; 
-        }
+        if (!chat || chat.creator !== state.user?.id) { alert('❌ Только создатель может удалить'); return; }
         if (!confirm(`Удалить "${chat.name}"?`)) return;
         state.chats = state.chats.filter(c => c.id !== chatId);
         if (state.currentChatId === chatId) closeChat();
@@ -1783,11 +1619,9 @@
         renderChatList();
     }
 
-    /** Показать ссылку-приглашение */
     async function showChatInvite(chatId) {
         const chat = getChat(chatId);
         if (!chat) return;
-        
         if (!chat.inviteCode) {
             chat.inviteCode = generateId();
             try {
@@ -1796,11 +1630,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ inviteCode: chat.inviteCode })
                 });
-            } catch (e) {
-                console.warn('Ошибка сохранения кода:', e);
-            }
+            } catch (e) { console.warn('Ошибка сохранения кода:', e); }
         }
-        
         const link = window.location.origin + '/?invite=' + chat.inviteCode;
         openModal('🔗 Ссылка-приглашение', `
             <p style="color:#8e9fb1;font-size:13px;margin-bottom:8px;">Ссылка для приглашения в "${chat.name}":</p>
@@ -1813,7 +1644,6 @@
         `);
     }
 
-    /** Показать модалку блокировки */
     function showBlockUserModal(chatId) {
         const chat = getChat(chatId);
         if (!chat) return;
@@ -1854,23 +1684,14 @@
         });
     }
 
-    /** Показать модалку добавления пользователя */
     function showAddUserModal() {
         const chat = getChat(state.currentChatId);
-        if (!chat || chat.type !== 'group') { 
-            alert('❌ Только для групп'); 
-            return; 
-        }
+        if (!chat || chat.type !== 'group') { alert('❌ Только для групп'); return; }
         const participants = chat.participants || [];
         const availableUsers = state.allUsers.filter(u => 
-            u.id !== state.user?.id && 
-            !participants.includes(u.id) && 
-            !isUserBlocked(u.name)
+            u.id !== state.user?.id && !participants.includes(u.id) && !isUserBlocked(u.name)
         );
-        if (!availableUsers.length) { 
-            alert('❌ Нет доступных пользователей'); 
-            return; 
-        }
+        if (!availableUsers.length) { alert('❌ Нет доступных пользователей'); return; }
         openModal('➕ Добавить', `
             <p style="color:#8e9fb1;font-size:13px;margin-bottom:8px;">Выберите пользователя:</p>
             <div class="user-select-list">
@@ -1897,7 +1718,6 @@
         });
     }
 
-    /** Показать настройки чата */
     function showChatSettings() {
         const chat = getChat(state.currentChatId);
         if (!chat) return;
@@ -1934,12 +1754,7 @@
                     closeModal();
                     alert('✅ Сохранено');
                     if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({
-                            type: 'update_chat',
-                            chatId: chat.id,
-                            name: name,
-                            description: desc
-                        }));
+                        ws.send(JSON.stringify({ type: 'update_chat', chatId: chat.id, name: name, description: desc }));
                     }
                     try {
                         await fetch('/api/chats/' + chat.id, {
@@ -1950,14 +1765,8 @@
                     } catch (e) { console.warn('Update chat error:', e); }
                 }
             });
-            document.getElementById('deleteChatSettingsBtn')?.addEventListener('click', () => { 
-                closeModal(); 
-                deleteChat(chat.id); 
-            });
-            document.getElementById('addUserSettingsBtn')?.addEventListener('click', () => { 
-                closeModal(); 
-                showAddUserModal(); 
-            });
+            document.getElementById('deleteChatSettingsBtn')?.addEventListener('click', () => { closeModal(); deleteChat(chat.id); });
+            document.getElementById('addUserSettingsBtn')?.addEventListener('click', () => { closeModal(); showAddUserModal(); });
         }
     }
 
@@ -1969,12 +1778,10 @@
             container.innerHTML = '';
             return;
         }
-
         const allUsers = await fetchAllUsers();
         const q = query.toLowerCase();
         const results = [];
         const seen = new Set();
-
         allUsers.forEach(user => {
             if (user.id !== state.user?.id && user.name.toLowerCase().includes(q)) {
                 if (!seen.has(user.id)) {
@@ -1989,7 +1796,6 @@
                 }
             }
         });
-
         state.chats.forEach(chat => {
             if (chat.name.toLowerCase().includes(q) && !chat.isBlocked) {
                 if (!seen.has(chat.id)) {
@@ -2004,15 +1810,9 @@
                 }
             }
         });
-
         container.innerHTML = '';
-
         if (results.length === 0) {
-            container.innerHTML = `
-                <div style="padding:8px 12px;color:#8e9fb1;font-size:12px;">
-                    ❌ Ничего не найдено. Всего пользователей: ${allUsers.length}
-                </div>
-            `;
+            container.innerHTML = `<div style="padding:8px 12px;color:#8e9fb1;font-size:12px;">❌ Ничего не найдено</div>`;
         } else {
             results.slice(0, 10).forEach(item => {
                 const div = document.createElement('div');
@@ -2021,13 +1821,11 @@
                 const typeLabel = item.type === 'user' ? '👤 Пользователь' : 
                                  item.type === 'channel' ? '📢 Канал' : 
                                  item.type === 'group' ? '👥 Группа' : '💬 Чат';
-
                 div.innerHTML = `
                     <div class="r-avatar" style="background:${item.avatarColor || '#2b5278'}">${avatarContent}</div>
                     <span class="r-name">${item.name}</span>
                     <span class="r-type">${typeLabel}</span>
                 `;
-
                 div.addEventListener('click', async () => {
                     if (item.type === 'user') {
                         const user = allUsers.find(u => u.id === item.id);
@@ -2060,7 +1858,6 @@
                 container.appendChild(div);
             });
         }
-
         container.classList.add('show');
     }
 
@@ -2080,7 +1877,6 @@
         panel.innerHTML = state.stickers.map((s, i) => `
             <img src="${s}" class="sticker" data-index="${i}" alt="стикер" />
         `).join('') + `<div class="sticker-add" id="addStickerBtn">➕</div>`;
-        
         panel.querySelectorAll('.sticker').forEach(el => {
             el.addEventListener('click', () => {
                 const idx = parseInt(el.dataset.index);
@@ -2091,7 +1887,6 @@
                 }
             });
         });
-        
         document.getElementById('addStickerBtn')?.addEventListener('click', () => {
             document.getElementById('stickerInput').click();
         });
@@ -2106,9 +1901,7 @@
             state.audioChunks = [];
             state.isRecording = true;
             state.recordingSeconds = 0;
-            state.mediaRecorder.ondataavailable = (e) => { 
-                if (e.data.size > 0) state.audioChunks.push(e.data); 
-            };
+            state.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) state.audioChunks.push(e.data); };
             state.mediaRecorder.onstop = () => {
                 const blob = new Blob(state.audioChunks, { type: 'audio/webm' });
                 const reader = new FileReader();
@@ -2153,9 +1946,7 @@
     let circleHoldTimer = null;
 
     function startCircleHold() {
-        circleHoldTimer = setTimeout(() => {
-            startCircleRecording();
-        }, 300);
+        circleHoldTimer = setTimeout(() => { startCircleRecording(); }, 300);
     }
 
     function stopCircleHold() {
@@ -2173,7 +1964,6 @@
         const timerEl = document.getElementById('circleTimer');
         recorderDiv.style.display = 'block';
         document.getElementById('inputRow').style.display = 'none';
-
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             .then(stream => {
                 state.circleStream = stream;
@@ -2184,7 +1974,6 @@
                 timerEl.textContent = '0 сек';
                 state.circleSeconds = 0;
                 state.circleChunks = [];
-
                 startBtn.onclick = () => {
                     if (!state.circleStream) return;
                     state.circleChunks = [];
@@ -2223,7 +2012,6 @@
                         if (state.circleSeconds >= 5) stopCircleRecording();
                     }, 1000);
                 };
-
                 stopBtn.onclick = stopCircleRecording;
                 document.getElementById('circleCancelBtn').onclick = closeCircleRecorder;
             })
@@ -2243,14 +2031,8 @@
 
     function closeCircleRecorder() {
         clearInterval(state.circleTimer);
-        if (state.circleStream) { 
-            state.circleStream.getTracks().forEach(t => t.stop()); 
-            state.circleStream = null; 
-        }
-        if (state.circleRecorder) { 
-            try { state.circleRecorder.stop(); } catch (e) {} 
-            state.circleRecorder = null; 
-        }
+        if (state.circleStream) { state.circleStream.getTracks().forEach(t => t.stop()); state.circleStream = null; }
+        if (state.circleRecorder) { try { state.circleRecorder.stop(); } catch (e) {} state.circleRecorder = null; }
         document.getElementById('circleRecorder').style.display = 'none';
         document.getElementById('inputRow').style.display = 'flex';
         document.getElementById('circlePreview').srcObject = null;
@@ -2260,10 +2042,7 @@
     // ======== ФАЙЛЫ ========
     function handleFileSelect(file) {
         if (!file) return;
-        if (file.size > 50 * 1024 * 1024) { 
-            alert('Файл > 50MB'); 
-            return; 
-        }
+        if (file.size > 50 * 1024 * 1024) { alert('Файл > 50MB'); return; }
         const reader = new FileReader();
         reader.onload = (e) => {
             const fileData = { name: file.name, size: file.size, type: file.type, data: e.target.result };
@@ -2282,17 +2061,10 @@
         reader.readAsDataURL(file);
     }
 
-    function handleCamera() { 
-        document.getElementById('cameraInput').click(); 
-    }
-    
-    function handleVideoUpload() { 
-        document.getElementById('videoFileInput').click(); 
-    }
+    function handleCamera() { document.getElementById('cameraInput').click(); }
+    function handleVideoUpload() { document.getElementById('videoFileInput').click(); }
 
     // ======== ВХОД И РЕГИСТРАЦИЯ ========
-    
-    /** Вход с паролем */
     async function loginWithPassword() {
         const name = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
@@ -2307,7 +2079,6 @@
             errorEl.classList.remove('hidden');
             return;
         }
-
         try {
             const response = await fetch('/api/login', {
                 method: 'POST',
@@ -2315,21 +2086,16 @@
                 body: JSON.stringify({ name, password })
             });
             const result = await response.json();
-            
             if (result.error) {
                 errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
-
             state.user = result.user;
             state.bot = new SimpleBot();
             state.bot.setUserName(name);
-            
             await fetchAllUsers();
             await loadChatsFromServer();
-
-            // Создаём чат с ботом, если нет чатов
             if (!state.chats.length) {
                 const botChat = {
                     id: generateId(),
@@ -2360,12 +2126,9 @@
                     body: JSON.stringify(botChat)
                 });
             }
-
             saveState();
-            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'flex';
-            
             document.getElementById('userNameDisplay').textContent = state.user.name;
             if (state.user.avatar) {
                 document.getElementById('avatarText').textContent = '';
@@ -2373,15 +2136,12 @@
             } else {
                 document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
             }
-            
             renderChatList();
             connectWebSocket();
             checkInviteCode();
             errorEl.classList.add('hidden');
-            
             console.log('✅ Всего пользователей на сервере:', state.allUsers.length);
             console.log('✅ Всего чатов:', state.chats.length);
-            
         } catch (e) {
             errorEl.textContent = 'Ошибка подключения к серверу';
             errorEl.classList.remove('hidden');
@@ -2389,7 +2149,6 @@
         }
     }
 
-    /** Отправить код подтверждения */
     async function sendVerificationCode() {
         const name = document.getElementById('regUsername').value.trim();
         const email = document.getElementById('regEmail').value.trim();
@@ -2397,7 +2156,6 @@
         const password = document.getElementById('regPassword').value.trim();
         const errorEl = document.getElementById('codeError');
         const successEl = document.getElementById('codeSuccess');
-
         if (!name || !password) {
             errorEl.textContent = 'Заполните имя и пароль';
             errorEl.classList.remove('hidden');
@@ -2418,10 +2176,8 @@
             errorEl.classList.remove('hidden');
             return;
         }
-
         errorEl.classList.add('hidden');
         state.pendingVerification = { name, email, phone, password };
-
         try {
             const response = await fetch('/api/send-code', {
                 method: 'POST',
@@ -2429,17 +2185,14 @@
                 body: JSON.stringify({ name, email, phone, password })
             });
             const result = await response.json();
-            
             if (result.error) {
                 errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
-
             const verifyCodeInput = document.getElementById('verifyCode');
             const displayCode = document.getElementById('displayCode');
             const codeDisplayBlock = document.getElementById('codeDisplayBlock');
-            
             if (result.code) {
                 verifyCodeInput.value = result.code;
                 if (displayCode) {
@@ -2448,7 +2201,6 @@
                 }
                 setTimeout(() => { verifyCode(); }, 1000);
             }
-            
             if (!result.code) {
                 const localCode = Math.floor(100000 + Math.random() * 900000).toString();
                 verifyCodeInput.value = localCode;
@@ -2459,22 +2211,17 @@
                 state._localCode = localCode;
                 setTimeout(() => { verifyCode(); }, 1000);
             }
-            
             let displayMessage = '✅ Код создан и показан ниже!';
-            
             if (result.emailConfigured && result.message.includes('отправлен')) {
                 displayMessage = '✅ Код отправлен на почту! Проверьте папку "Спам"';
                 codeDisplayBlock.style.display = 'block';
             }
-            
             successEl.textContent = displayMessage;
             successEl.classList.remove('hidden');
             document.getElementById('verifySection').style.display = 'block';
             document.getElementById('sendCodeBtn').disabled = true;
             document.getElementById('sendCodeBtn').textContent = '⏳ Код отправлен';
-            
             console.log('📧 Код:', result.code || state._localCode || 'сгенерирован');
-            
         } catch (e) {
             errorEl.textContent = 'Ошибка подключения к серверу';
             errorEl.classList.remove('hidden');
@@ -2482,22 +2229,17 @@
         }
     }
 
-    /** Проверить код и завершить регистрацию */
     async function verifyCode() {
         const code = document.getElementById('verifyCode').value.trim();
         const errorEl = document.getElementById('verifyError');
-        
         if (!code || code.length !== 6) {
             errorEl.textContent = 'Введите 6-значный код';
             errorEl.classList.remove('hidden');
             return;
         }
-
         errorEl.classList.add('hidden');
-
         try {
             const contact = state.pendingVerification?.email || state.pendingVerification?.phone;
-            
             if (contact) {
                 const response = await fetch('/api/verify-code', {
                     method: 'POST',
@@ -2505,7 +2247,6 @@
                     body: JSON.stringify({ contact, code })
                 });
                 const result = await response.json();
-                
                 if (result.error) {
                     errorEl.textContent = result.error;
                     errorEl.classList.remove('hidden');
@@ -2518,7 +2259,6 @@
                     return;
                 }
             }
-
             const loginResponse = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2528,7 +2268,6 @@
                 })
             });
             const loginResult = await loginResponse.json();
-            
             if (loginResult.error) {
                 const registerResponse = await fetch('/api/register', {
                     method: 'POST',
@@ -2536,13 +2275,11 @@
                     body: JSON.stringify(state.pendingVerification)
                 });
                 const registerResult = await registerResponse.json();
-                
                 if (registerResult.error) {
                     errorEl.textContent = registerResult.error;
                     errorEl.classList.remove('hidden');
                     return;
                 }
-                
                 const loginResponse2 = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2552,24 +2289,19 @@
                     })
                 });
                 const loginResult2 = await loginResponse2.json();
-                
                 if (loginResult2.error) {
                     errorEl.textContent = loginResult2.error;
                     errorEl.classList.remove('hidden');
                     return;
                 }
-                
                 state.user = loginResult2.user;
             } else {
                 state.user = loginResult.user;
             }
-
             state.bot = new SimpleBot();
             state.bot.setUserName(state.user.name);
-            
             await fetchAllUsers();
             await loadChatsFromServer();
-
             if (!state.chats.length) {
                 const botChat = {
                     id: generateId(),
@@ -2600,12 +2332,9 @@
                     body: JSON.stringify(botChat)
                 });
             }
-
             saveState();
-            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'flex';
-            
             document.getElementById('userNameDisplay').textContent = state.user.name;
             if (state.user.avatar) {
                 document.getElementById('avatarText').textContent = '';
@@ -2613,13 +2342,10 @@
             } else {
                 document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
             }
-            
             renderChatList();
             connectWebSocket();
             checkInviteCode();
-            
             console.log('✅ Регистрация и вход выполнены!');
-            
         } catch (e) {
             errorEl.textContent = 'Ошибка проверки кода';
             errorEl.classList.remove('hidden');
@@ -2627,21 +2353,17 @@
         }
     }
 
-    /** Отправить код повторно */
     async function resendCode() {
         const errorEl = document.getElementById('verifyError');
         const successEl = document.getElementById('codeSuccess');
-        
         if (!state.pendingVerification) {
             errorEl.textContent = 'Сначала заполните форму регистрации';
             errorEl.classList.remove('hidden');
             return;
         }
-        
         errorEl.classList.add('hidden');
         successEl.textContent = '⏳ Отправка нового кода...';
         successEl.classList.remove('hidden');
-        
         try {
             const response = await fetch('/api/send-code', {
                 method: 'POST',
@@ -2649,13 +2371,11 @@
                 body: JSON.stringify(state.pendingVerification)
             });
             const result = await response.json();
-            
             if (result.error) {
                 errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
-
             successEl.textContent = '✅ Новый код отправлен!';
             successEl.classList.remove('hidden');
         } catch (e) {
@@ -2671,16 +2391,13 @@
         const email = document.getElementById('resetEmail').value.trim();
         const errorEl = document.getElementById('resetError');
         const successEl = document.getElementById('resetSuccess');
-
         if (!name || !email) {
             errorEl.textContent = 'Введите имя и почту';
             errorEl.classList.remove('hidden');
             return;
         }
-
         errorEl.classList.add('hidden');
         state.resetPending = { name, email };
-
         try {
             const response = await fetch('/api/reset-password', {
                 method: 'POST',
@@ -2688,13 +2405,11 @@
                 body: JSON.stringify({ name, email })
             });
             const result = await response.json();
-            
             if (result.error) {
                 errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
-
             successEl.textContent = '✅ Код отправлен на почту!';
             successEl.classList.remove('hidden');
             document.getElementById('resetVerifySection').style.display = 'block';
@@ -2711,7 +2426,6 @@
         const code = document.getElementById('resetVerifyCode').value.trim();
         const newPassword = document.getElementById('resetNewPassword').value.trim();
         const errorEl = document.getElementById('resetVerifyError');
-
         if (!code || code.length !== 6) {
             errorEl.textContent = 'Введите 6-значный код';
             errorEl.classList.remove('hidden');
@@ -2722,9 +2436,7 @@
             errorEl.classList.remove('hidden');
             return;
         }
-
         errorEl.classList.add('hidden');
-
         try {
             const response = await fetch('/api/reset-password-verify', {
                 method: 'POST',
@@ -2736,13 +2448,11 @@
                 })
             });
             const result = await response.json();
-            
             if (result.error) {
                 errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
-
             alert('✅ Пароль успешно изменён! Войдите в аккаунт.');
             document.getElementById('resetForm').style.display = 'none';
             document.getElementById('passwordForm').style.display = 'block';
@@ -2764,17 +2474,14 @@
     async function resendResetCode() {
         const errorEl = document.getElementById('resetError');
         const successEl = document.getElementById('resetSuccess');
-        
         if (!state.resetPending) {
             errorEl.textContent = 'Сначала введите данные';
             errorEl.classList.remove('hidden');
             return;
         }
-        
         errorEl.classList.add('hidden');
         successEl.textContent = '⏳ Отправка нового кода...';
         successEl.classList.remove('hidden');
-        
         try {
             const response = await fetch('/api/reset-password', {
                 method: 'POST',
@@ -2782,13 +2489,11 @@
                 body: JSON.stringify(state.resetPending)
             });
             const result = await response.json();
-            
             if (result.error) {
                 errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
-
             successEl.textContent = '✅ Новый код отправлен!';
             successEl.classList.remove('hidden');
         } catch (e) {
@@ -2818,16 +2523,11 @@
             const password = document.getElementById('settingsPassword').value.trim();
             if (!name) { alert('Введите имя'); return; }
             if (!password) { alert('Введите пароль для подтверждения'); return; }
-            if (state.user && state.user.password !== password) { 
-                alert('❌ Неверный пароль'); 
-                return; 
-            }
-            
+            if (state.user && state.user.password !== password) { alert('❌ Неверный пароль'); return; }
             state.user.name = name;
             saveState();
             document.getElementById('userNameDisplay').textContent = name;
             document.getElementById('avatarText').textContent = name.charAt(0).toUpperCase();
-            
             closeModal();
             alert('✅ Имя изменено!');
             renderChatList();
@@ -2845,7 +2545,6 @@
         });
     }
 
-    /** Выход из аккаунта */
     function logout() {
         state.user = null;
         state.currentChatId = null;
@@ -2891,7 +2590,6 @@
         }
     }
 
-    /** Перерисовать всё */
     function renderAll() {
         renderChatList();
         if (state.currentChatId) {
@@ -2901,12 +2599,10 @@
         saveState();
     }
 
-    /** Обработчик загрузки аватарки чата */
     function handleChatAvatarUpload() {
         document.getElementById('chatAvatarInput').click();
     }
 
-    /** Обработчик отправки сообщения */
     function handleSend() {
         const input = document.getElementById('messageInput');
         let replyText = '';
@@ -2922,29 +2618,22 @@
         }
     }
 
-    // ======== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ========
+    // ======== ИНИЦИАЛИЗАЦИЯ ========
     document.addEventListener('DOMContentLoaded', async () => {
-        // Загружаем состояние
         const loaded = loadState();
-        
-        // Если пользователь уже авторизован
         if (loaded && state.user) {
             state.bot = new SimpleBot();
             state.bot.setUserName(state.user.name);
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'flex';
-            
             await fetchAllUsers();
             await loadChatsFromServer();
-            
             renderChatList();
             connectWebSocket();
             checkInviteCode();
             renderStickers();
         }
 
-        // ======== ОБРАБОТЧИКИ СОБЫТИЙ ========
-        
         // Переключение вкладок
         document.getElementById('tabPassword').addEventListener('click', () => {
             document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
@@ -2983,9 +2672,7 @@
 
         // Вход
         document.getElementById('loginPasswordBtn').addEventListener('click', loginWithPassword);
-        document.getElementById('loginPassword').addEventListener('keydown', (e) => { 
-            if (e.key === 'Enter') loginWithPassword(); 
-        });
+        document.getElementById('loginPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') loginWithPassword(); });
         document.getElementById('togglePassword').addEventListener('click', () => {
             const inp = document.getElementById('loginPassword');
             inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -2994,9 +2681,7 @@
         // Регистрация
         document.getElementById('sendCodeBtn').addEventListener('click', sendVerificationCode);
         document.getElementById('verifyBtn').addEventListener('click', verifyCode);
-        document.getElementById('verifyCode').addEventListener('keydown', (e) => { 
-            if (e.key === 'Enter') verifyCode(); 
-        });
+        document.getElementById('verifyCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyCode(); });
         document.getElementById('resendCodeBtn').addEventListener('click', resendCode);
         document.getElementById('backToPasswordLink').addEventListener('click', () => {
             document.getElementById('codeForm').style.display = 'none';
@@ -3015,9 +2700,7 @@
         // Восстановление пароля
         document.getElementById('resetSendBtn').addEventListener('click', sendResetCode);
         document.getElementById('resetVerifyBtn').addEventListener('click', resetPasswordVerify);
-        document.getElementById('resetVerifyCode').addEventListener('keydown', (e) => { 
-            if (e.key === 'Enter') resetPasswordVerify(); 
-        });
+        document.getElementById('resetVerifyCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') resetPasswordVerify(); });
         document.getElementById('resetResendBtn').addEventListener('click', resendResetCode);
 
         // Выход
@@ -3044,7 +2727,7 @@
             }
         });
 
-        // Создание канала/группы (через модальное окно)
+        // Создание канала/группы
         document.getElementById('createChannelBtn').addEventListener('click', () => {
             openModal('📢 Создание канала', `
                 <label class="modal-label">Название канала</label>
@@ -3084,13 +2767,11 @@
 
         // Действия чата
         document.getElementById('chatSettingsBtn').addEventListener('click', showChatSettings);
-        document.getElementById('chatInviteBtn').addEventListener('click', () => { 
-            if (state.currentChatId) showChatInvite(state.currentChatId); 
-        });
+        document.getElementById('chatInviteBtn').addEventListener('click', () => { if (state.currentChatId) showChatInvite(state.currentChatId); });
         document.getElementById('addUserBtn').addEventListener('click', showAddUserModal);
         document.getElementById('chatAvatarBtn').addEventListener('click', handleChatAvatarUpload);
 
-        // Кнопка "Ещё" в чате (мобильная)
+        // Кнопка "Ещё" в чате
         document.getElementById('chatMoreBtn').addEventListener('click', () => {
             const menu = document.getElementById('chatSettingsBtn');
             menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
@@ -3123,17 +2804,12 @@
 
         // Файлы
         document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
-        document.getElementById('fileInput').addEventListener('change', (e) => { 
-            if (e.target.files.length) handleFileSelect(e.target.files[0]); 
-        });
+        document.getElementById('fileInput').addEventListener('change', (e) => { if (e.target.files.length) handleFileSelect(e.target.files[0]); });
         document.getElementById('cameraBtn').addEventListener('click', handleCamera);
         document.getElementById('cameraInput').addEventListener('change', (e) => {
             if (e.target.files.length) {
                 const file = e.target.files[0];
-                if (!file.type.startsWith('image/')) { 
-                    alert('Выберите изображение'); 
-                    return; 
-                }
+                if (!file.type.startsWith('image/')) { alert('Выберите изображение'); return; }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const fileData = { name: file.name || 'photo.jpg', size: file.size, type: file.type, data: ev.target.result };
@@ -3180,7 +2856,7 @@
             e.target.value = '';
         });
 
-        // Кружок (удержание)
+        // Кружок
         const circleBtn = document.getElementById('circleBtn');
         circleBtn.addEventListener('mousedown', startCircleHold);
         circleBtn.addEventListener('mouseup', stopCircleHold);
@@ -3188,25 +2864,13 @@
         circleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startCircleHold(); });
         circleBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopCircleHold(); });
 
-        // Голосовое (удержание)
+        // Голосовое
         const voiceBtn = document.getElementById('voiceBtn');
-        voiceBtn.addEventListener('mousedown', () => {
-            setTimeout(startVoiceRecording, 300);
-        });
-        voiceBtn.addEventListener('mouseup', () => { 
-            if (state.isRecording) stopVoiceRecording(); 
-        });
-        voiceBtn.addEventListener('mouseleave', () => { 
-            if (state.isRecording) stopVoiceRecording(); 
-        });
-        voiceBtn.addEventListener('touchstart', (e) => { 
-            e.preventDefault(); 
-            setTimeout(startVoiceRecording, 300); 
-        });
-        voiceBtn.addEventListener('touchend', (e) => { 
-            e.preventDefault(); 
-            if (state.isRecording) stopVoiceRecording(); 
-        });
+        voiceBtn.addEventListener('mousedown', () => { setTimeout(startVoiceRecording, 300); });
+        voiceBtn.addEventListener('mouseup', () => { if (state.isRecording) stopVoiceRecording(); });
+        voiceBtn.addEventListener('mouseleave', () => { if (state.isRecording) stopVoiceRecording(); });
+        voiceBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setTimeout(startVoiceRecording, 300); });
+        voiceBtn.addEventListener('touchend', (e) => { e.preventDefault(); if (state.isRecording) stopVoiceRecording(); });
 
         document.getElementById('voiceCancelBtn').addEventListener('click', cancelVoiceRecording);
         document.getElementById('voiceSendBtn').addEventListener('click', stopVoiceRecording);
@@ -3247,15 +2911,12 @@
             handleVideoUpload();
         });
 
-        // Аватар пользователя
+        // Аватар
         document.getElementById('userAvatar').addEventListener('click', () => document.getElementById('avatarInput').click());
         document.getElementById('avatarInput').addEventListener('change', async (e) => {
             if (e.target.files.length) {
                 const file = e.target.files[0];
-                if (!file.type.startsWith('image/')) { 
-                    alert('Выберите изображение'); 
-                    return; 
-                }
+                if (!file.type.startsWith('image/')) { alert('Выберите изображение'); return; }
                 const reader = new FileReader();
                 reader.onload = async (ev) => {
                     const avatarData = ev.target.result;
@@ -3270,7 +2931,6 @@
             e.target.value = '';
         });
 
-        // Аватар чата
         document.getElementById('chatAvatarInput').addEventListener('change', async (e) => {
             if (e.target.files.length) {
                 const file = e.target.files[0];
@@ -3294,11 +2954,7 @@
                             });
                         } catch (e) { console.warn('Update avatar error:', e); }
                         if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                            ws.send(JSON.stringify({
-                                type: 'update_chat',
-                                chatId: chat.id,
-                                avatar: chat.avatar
-                            }));
+                            ws.send(JSON.stringify({ type: 'update_chat', chatId: chat.id, avatar: chat.avatar }));
                         }
                         alert('✅ Аватарка обновлена!');
                     }
@@ -3308,7 +2964,7 @@
             e.target.value = '';
         });
 
-        // Отправка сообщения
+        // Отправка
         document.getElementById('sendBtn').addEventListener('click', handleSend);
         document.getElementById('messageInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -3319,11 +2975,9 @@
 
         // Модальное окно
         document.getElementById('modalClose').addEventListener('click', closeModal);
-        document.getElementById('modalOverlay').addEventListener('click', (e) => { 
-            if (e.target === e.currentTarget) closeModal(); 
-        });
+        document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
 
-        // Закрытие по Escape
+        // Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
@@ -3336,7 +2990,7 @@
             }
         });
 
-        // Автообновление чатов
+        // Автообновление
         setInterval(() => {
             if (state.currentChatId) {
                 const chat = getChat(state.currentChatId);

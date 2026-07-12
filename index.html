@@ -559,6 +559,122 @@
     </div>
 
     <script>
+        // ======== ВЫХОД ИЗ ПАПКИ (ПОКАЗАТЬ ВСЕ ЧАТЫ) ========
+function showAllChats() {
+    state.currentFolderFilter = null;
+    renderChatList();
+    renderFolders();
+}
+
+// Обновляем renderChatList с кнопкой "Все чаты"
+function renderChatList() {
+    const container = document.getElementById('chatList');
+    let list = state.chats.filter(c => !c.isBlocked && !state.deletedChatIds.has(c.id));
+    
+    // Фильтр по папке
+    let isFiltered = false;
+    if (state.currentFolderFilter) {
+        const folderChatIds = state.folderChats[state.currentFolderFilter] || [];
+        list = list.filter(c => folderChatIds.includes(c.id));
+        isFiltered = true;
+    }
+    
+    list.sort((a,b) => {
+        const ta = a.messages && a.messages.length ? a.messages[a.messages.length-1].time : 0;
+        const tb = b.messages && b.messages.length ? b.messages[b.messages.length-1].time : 0;
+        return tb - ta;
+    });
+    
+    container.innerHTML = '';
+    
+    // Показываем кнопку "Все чаты", если включен фильтр
+    if (isFiltered) {
+        const folder = state.folders.find(f => f.id === state.currentFolderFilter);
+        const folderName = folder ? `${folder.icon} ${folder.name}` : 'Папка';
+        
+        const headerDiv = document.createElement('div');
+        headerDiv.style.cssText = 'padding:8px 12px;background:#1a2a3a;border-bottom:1px solid #2b3b4a;display:flex;align-items:center;justify-content:space-between;';
+        headerDiv.innerHTML = `
+            <span style="color:#8e9fb1;font-size:12px;">📂 ${folderName} (${list.length})</span>
+            <button onclick="showAllChats()" style="background:#2b5278;border:none;border-radius:8px;color:#fff;padding:4px 12px;cursor:pointer;font-size:11px;">✕ Показать все чаты</button>
+        `;
+        container.appendChild(headerDiv);
+    }
+    
+    if (!list.length) {
+        const msg = isFiltered ? 'В этой папке нет чатов' : 'Нет чатов';
+        const emptyDiv = document.createElement('div');
+        emptyDiv.style.cssText = 'color:#8e9fb1;text-align:center;padding:30px 15px;font-size:13px;';
+        emptyDiv.innerHTML = msg;
+        if (isFiltered) {
+            emptyDiv.innerHTML += `<br><button onclick="showAllChats()" style="background:#2b5278;border:none;border-radius:8px;color:#fff;padding:6px 12px;cursor:pointer;font-size:12px;margin-top:8px;">📂 Показать все чаты</button>`;
+        }
+        container.appendChild(emptyDiv);
+        return;
+    }
+    
+    list.forEach(chat => {
+        const div = document.createElement('div');
+        div.className = 'chat-item';
+        const lastMsg = chat.messages && chat.messages.length ? chat.messages[chat.messages.length-1] : null;
+        let lastText = 'Нет сообщений';
+        let lastTime = '';
+        if (lastMsg) {
+            if (lastMsg.isBot) lastText = '🤖 '+(lastMsg.text||'');
+            else if (lastMsg.text) lastText = lastMsg.text;
+            else if (lastMsg.video) lastText = '🎥 Видео';
+            else if (lastMsg.file) lastText = '📎 '+(lastMsg.file.name||'Файл');
+            else if (lastMsg.audio) lastText = '🎤 Голосовое';
+            else if (lastMsg.isSticker) lastText = '😊 Стикер';
+            else if (lastMsg.isSystem) lastText = '📌 '+lastMsg.text;
+            lastTime = formatTime(lastMsg.time);
+            if (lastText.length > 30) lastText = lastText.substring(0,30)+'...';
+        }
+        let avatarContent = chat.avatar || chat.name.charAt(0).toUpperCase() || '?';
+        if (chat.avatar && chat.avatar.startsWith('data:image')) {
+            avatarContent = `<img src="${chat.avatar}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+        }
+        const displayName = getChatName(chat);
+        div.innerHTML = `
+            <div class="chat-avatar" style="background:${chat.avatarColor||'#2b5278'}">
+                ${typeof avatarContent === 'string' && avatarContent.includes('<img') ? avatarContent : avatarContent}
+                ${chat.isPrivate ? '<span class="private-badge">🔒</span>' : ''}
+                ${chat.isBlocked ? '<span class="blocked-badge">🚫</span>' : ''}
+            </div>
+            <div class="chat-info">
+                <div class="chat-name">${displayName}</div>
+                <div class="chat-last">${lastText}</div>
+            </div>
+            ${lastTime ? `<div class="chat-time">${lastTime}</div>` : ''}
+            <div class="chat-actions">
+                <button class="folder-btn" data-id="${chat.id}" title="Добавить в папку">📂</button>
+                ${chat.type === 'channel' || chat.type === 'group' ? `<button class="invite-btn" data-id="${chat.id}" title="Ссылка-приглашение">🔗</button>` : ''}
+                ${chat.creator === state.user?.id ? `<button class="delete-chat-btn danger" data-id="${chat.id}" title="Удалить чат">🗑️</button>` : ''}
+                ${chat.type === 'group' ? `<button class="block-user-btn" data-id="${chat.id}" title="Заблокировать пользователя">🚫</button>` : ''}
+            </div>
+        `;
+        div.dataset.id = chat.id;
+        div.addEventListener('dblclick', () => { renameChat(chat.id); });
+        div.addEventListener('click', () => openChat(chat.id));
+        container.appendChild(div);
+    });
+    
+    container.querySelectorAll('.folder-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showAddToFolderMenu(btn.dataset.id);
+        });
+    });
+    container.querySelectorAll('.invite-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.stopPropagation(); showChatInvite(btn.dataset.id); });
+    });
+    container.querySelectorAll('.delete-chat-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.stopPropagation(); deleteChat(btn.dataset.id); });
+    });
+    container.querySelectorAll('.block-user-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.stopPropagation(); showBlockUserModal(btn.dataset.id); });
+    });
+}
         // ======== STATE ========
 let state = {
     user: null, chats: [], folders: [], folderChats: {}, currentFolderFilter: null,

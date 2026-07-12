@@ -623,6 +623,84 @@
         } catch(e) {}
     }
 
+    function renderStickers() {
+        const panel = document.getElementById('stickerPanel');
+        if (!state.stickers || state.stickers.length === 0) {
+            panel.innerHTML = `
+                <div style="color:#8e9fb1;font-size:12px;padding:8px;width:100%;text-align:center;">Нет стикеров. Нажмите + чтобы добавить</div>
+                <div class="sticker-add" id="addStickerBtn">➕</div>
+            `;
+            document.getElementById('addStickerBtn')?.addEventListener('click', () => {
+                document.getElementById('stickerInput').click();
+            });
+            return;
+        }
+        panel.innerHTML = state.stickers.map((s, i) => `
+            <div class="sticker" data-index="${i}" title="${s}">${s}</div>
+        `).join('') + `<div class="sticker-add" id="addStickerBtn">➕</div>`;
+        
+        panel.querySelectorAll('.sticker').forEach(el => {
+            el.addEventListener('click', () => {
+                const idx = parseInt(el.dataset.index);
+                const sticker = state.stickers[idx];
+                if (sticker) {
+                    const chat = getChat(state.currentChatId);
+                    if (chat) {
+                        const msg = {
+                            id: generateId(),
+                            sender: state.user.id,
+                            text: sticker,
+                            isSticker: true,
+                            stickerData: sticker,
+                            replyTo: state.replyToMsg || null,
+                            time: Date.now()
+                        };
+                        chat.messages.push(msg);
+                        renderMessages();
+                        renderChatList();
+                        saveState();
+                        clearReplyBar();
+                        if (wsConnected && ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({
+                                type: 'new_message',
+                                chatId: chat.id,
+                                sender: state.user.id,
+                                msgId: msg.id,
+                                text: sticker,
+                                isSticker: true,
+                                replyTo: state.replyToMsg || null
+                            }));
+                        }
+                    }
+                    document.getElementById('stickerPanel').classList.remove('show');
+                }
+            });
+        });
+        
+        document.getElementById('addStickerBtn')?.addEventListener('click', () => {
+            document.getElementById('stickerInput').click();
+        });
+    }
+
+    document.getElementById('stickerInput')?.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+            const file = e.target.files[0];
+            if (!file.type.startsWith('image/')) {
+                alert('Выберите изображение или введите эмодзи');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                state.stickers.push(ev.target.result);
+                saveStickers();
+                renderStickers();
+                alert('✅ Стикер добавлен!');
+            };
+            reader.readAsDataURL(file);
+        }
+        e.target.value = '';
+    });
+
     // ======== БОТ ========
     class SimpleBot {
         constructor() { this.hasGreeted = {}; }
@@ -1013,7 +1091,7 @@
         }
     }
 
-    // ======== ЗВОНКИ (УЛУЧШЕННЫЕ) ========
+    // ======== ЗВОНКИ ========
     const rtcConfig = {
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
@@ -1562,87 +1640,6 @@
         }, 30000);
     }
 
-    // ======== ОСТАЛЬНЫЕ ФУНКЦИИ (сокращены для экономии места, но все работают) ========
-    
-    // Стикеры
-    function renderStickers() {
-        const panel = document.getElementById('stickerPanel');
-        if (!state.stickers || state.stickers.length === 0) {
-            panel.innerHTML = `
-                <div style="color:#8e9fb1;font-size:12px;padding:8px;width:100%;text-align:center;">Нет стикеров. Нажмите + чтобы добавить</div>
-                <div class="sticker-add" id="addStickerBtn">➕</div>
-            `;
-            document.getElementById('addStickerBtn')?.addEventListener('click', () => {
-                document.getElementById('stickerInput').click();
-            });
-            return;
-        }
-        panel.innerHTML = state.stickers.map((s, i) => `
-            <div class="sticker" data-index="${i}" title="${s}">${s}</div>
-        `).join('') + `<div class="sticker-add" id="addStickerBtn">➕</div>`;
-        
-        panel.querySelectorAll('.sticker').forEach(el => {
-            el.addEventListener('click', () => {
-                const idx = parseInt(el.dataset.index);
-                const sticker = state.stickers[idx];
-                if (sticker) {
-                    const chat = getChat(state.currentChatId);
-                    if (chat) {
-                        const msg = {
-                            id: generateId(),
-                            sender: state.user.id,
-                            text: sticker,
-                            isSticker: true,
-                            stickerData: sticker,
-                            replyTo: state.replyToMsg || null,
-                            time: Date.now()
-                        };
-                        chat.messages.push(msg);
-                        renderMessages();
-                        renderChatList();
-                        saveState();
-                        clearReplyBar();
-                        if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                            ws.send(JSON.stringify({
-                                type: 'new_message',
-                                chatId: chat.id,
-                                sender: state.user.id,
-                                msgId: msg.id,
-                                text: sticker,
-                                isSticker: true,
-                                replyTo: state.replyToMsg || null
-                            }));
-                        }
-                    }
-                    document.getElementById('stickerPanel').classList.remove('show');
-                }
-            });
-        });
-        
-        document.getElementById('addStickerBtn')?.addEventListener('click', () => {
-            document.getElementById('stickerInput').click();
-        });
-    }
-
-    document.getElementById('stickerInput')?.addEventListener('change', (e) => {
-        if (e.target.files.length) {
-            const file = e.target.files[0];
-            if (!file.type.startsWith('image/')) {
-                alert('Выберите изображение или введите эмодзи');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                state.stickers.push(ev.target.result);
-                saveStickers();
-                renderStickers();
-                alert('✅ Стикер добавлен!');
-            };
-            reader.readAsDataURL(file);
-        }
-        e.target.value = '';
-    });
-
     // ======== ОТПРАВКА СООБЩЕНИЯ ========
     function sendMessage(text, videoData, isCircle, fileData, audioData, isSticker, replyTo) {
         const chat = getChat(state.currentChatId);
@@ -1719,7 +1716,7 @@
         }
     }
 
-    // ======== УДАЛЕНИЕ И ЗАКРЕПЛЕНИЕ ========
+    // ======== УДАЛЕНИЕ ========
     function deleteMessage(chatId, msgId) {
         const chat = getChat(chatId);
         if (chat) {
@@ -1740,6 +1737,7 @@
         }
     }
 
+    // ======== ЗАКРЕПЛЕНИЕ ========
     function togglePinMessage(chatId, msgId) {
         const chat = getChat(chatId);
         if (!chat) return;
@@ -1793,6 +1791,109 @@
     function clearReplyBar() {
         state.replyToMsg = null;
         document.getElementById('replyBar').classList.remove('show');
+    }
+
+    // ======== ПОИСК ========
+    async function performGlobalSearch(query) {
+        const container = document.getElementById('searchResults');
+        if (!query || query.length < 1) {
+            container.classList.remove('show');
+            container.innerHTML = '';
+            return;
+        }
+
+        const allUsers = await fetchAllUsers();
+        const q = query.toLowerCase();
+        const results = [];
+        const seen = new Set();
+
+        allUsers.forEach(user => {
+            if (user.id !== state.user?.id && user.name.toLowerCase().includes(q)) {
+                if (!seen.has(user.id)) {
+                    seen.add(user.id);
+                    results.push({
+                        id: user.id,
+                        name: user.name,
+                        type: 'user',
+                        avatar: user.avatar || user.name.charAt(0).toUpperCase(),
+                        avatarColor: '#2b5278'
+                    });
+                }
+            }
+        });
+
+        state.chats.forEach(chat => {
+            if (chat.name.toLowerCase().includes(q) && !chat.isBlocked) {
+                if (!seen.has(chat.id)) {
+                    seen.add(chat.id);
+                    results.push({
+                        id: chat.id,
+                        name: chat.name,
+                        type: chat.type || 'chat',
+                        avatar: chat.avatar || chat.name.charAt(0).toUpperCase(),
+                        avatarColor: chat.avatarColor || '#2b5278'
+                    });
+                }
+            }
+        });
+
+        container.innerHTML = '';
+
+        if (results.length === 0) {
+            container.innerHTML = `
+                <div style="padding:8px 12px;color:#8e9fb1;font-size:12px;">
+                    ❌ Ничего не найдено. Всего пользователей: ${allUsers.length}
+                </div>
+            `;
+        } else {
+            results.slice(0, 10).forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                const avatarContent = item.avatar || item.name.charAt(0).toUpperCase();
+                const typeLabel = item.type === 'user' ? '👤 Пользователь' : 
+                                 item.type === 'channel' ? '📢 Канал' : 
+                                 item.type === 'group' ? '👥 Группа' : '💬 Чат';
+
+                div.innerHTML = `
+                    <div class="r-avatar" style="background:${item.avatarColor || '#2b5278'}">${avatarContent}</div>
+                    <span class="r-name">${item.name}</span>
+                    <span class="r-type">${typeLabel}</span>
+                `;
+
+                div.addEventListener('click', async () => {
+                    if (item.type === 'user') {
+                        const user = allUsers.find(u => u.id === item.id);
+                        if (user) {
+                            const existing = state.chats.find(c =>
+                                c.type === 'chat' &&
+                                c.participants &&
+                                c.participants.includes(user.id) &&
+                                c.participants.includes(state.user.id)
+                            );
+                            if (existing) {
+                                openChat(existing.id);
+                            } else {
+                                const newChat = await createChat('chat', user.name, [state.user.id, user.id], state.user.id, false, 'Личный чат');
+                                if (newChat) {
+                                    state.chats.push(newChat);
+                                    openChat(newChat.id);
+                                    saveState();
+                                    renderAll();
+                                }
+                            }
+                        }
+                    } else if (item.type === 'chat' || item.type === 'channel' || item.type === 'group') {
+                        openChat(item.id);
+                    }
+                    container.classList.remove('show');
+                    container.innerHTML = '';
+                    document.getElementById('globalSearchInput').value = '';
+                });
+                container.appendChild(div);
+            });
+        }
+
+        container.classList.add('show');
     }
 
     // ======== RENDER ========
@@ -2060,7 +2161,7 @@
         updatePinnedBar();
     }
 
-    // ======== ОСТАЛЬНЫЕ ФУНКЦИИ (сокращены) ========
+    // ======== ПЕРЕИМЕНОВАНИЕ ========
     async function renameChat(chatId) {
         const chat = getChat(chatId);
         if (!chat) return;
@@ -2085,6 +2186,7 @@
         }
     }
 
+    // ======== CHAT ACTIONS ========
     function deleteChat(chatId) {
         const chat = getChat(chatId);
         if (!chat || chat.creator !== state.user?.id) { alert('❌ Только создатель может удалить'); return; }
@@ -2259,6 +2361,7 @@
         }
     }
 
+    // ======== АВАТАРКА ЧАТА ========
     function handleChatAvatarUpload() {
         document.getElementById('chatAvatarInput').click();
     }
@@ -2450,9 +2553,815 @@
         updatePinnedBar();
     }
 
-    // ======== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ========
-    function renderStickers() { /* уже выше */ }
-    
+    // ======== VOICE RECORDING ========
+    function startVoiceRecording() {
+        if (state.isRecording) return;
+        const voiceBar = document.getElementById('voiceRecordBar');
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            state.mediaRecorder = new MediaRecorder(stream);
+            state.audioChunks = [];
+            state.isRecording = true;
+            state.recordingSeconds = 0;
+            state.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) state.audioChunks.push(e.data); };
+            state.mediaRecorder.onstop = () => {
+                const blob = new Blob(state.audioChunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const audioData = { data: ev.target.result, duration: state.recordingSeconds };
+                    sendMessage(null, null, false, null, audioData, false, state.replyToMsg);
+                    state.audioChunks = [];
+                    state.isRecording = false;
+                    voiceBar.classList.remove('show');
+                    document.getElementById('voiceTimer').textContent = '0:00';
+                    clearInterval(state.recordingTimer);
+                    stream.getTracks().forEach(t => t.stop());
+                };
+                reader.readAsDataURL(blob);
+            };
+            state.mediaRecorder.start();
+            voiceBar.classList.add('show');
+            clearInterval(state.recordingTimer);
+            state.recordingTimer = setInterval(() => {
+                state.recordingSeconds++;
+                document.getElementById('voiceTimer').textContent = formatDuration(state.recordingSeconds);
+            }, 1000);
+        }).catch(err => alert('❌ Ошибка микрофона: ' + err.message));
+    }
+
+    function stopVoiceRecording() {
+        if (state.mediaRecorder && state.isRecording) state.mediaRecorder.stop();
+    }
+
+    function cancelVoiceRecording() {
+        if (state.mediaRecorder && state.isRecording) {
+            state.mediaRecorder.stop();
+            state.audioChunks = [];
+            state.isRecording = false;
+            document.getElementById('voiceRecordBar').classList.remove('show');
+            document.getElementById('voiceTimer').textContent = '0:00';
+            clearInterval(state.recordingTimer);
+        }
+    }
+
+    // ======== КРУЖКИ ========
+    let circleHoldTimer = null;
+
+    function startCircleHold() {
+        circleHoldTimer = setTimeout(() => {
+            startCircleRecording();
+        }, 300);
+    }
+
+    function stopCircleHold() {
+        clearTimeout(circleHoldTimer);
+        if (state.circleRecorder && state.isRecording) {
+            stopCircleRecording();
+        }
+    }
+
+    function startCircleRecording() {
+        const preview = document.getElementById('circlePreview');
+        const recorderDiv = document.getElementById('circleRecorder');
+        const startBtn = document.getElementById('circleStartBtn');
+        const stopBtn = document.getElementById('circleStopBtn');
+        const timerEl = document.getElementById('circleTimer');
+        recorderDiv.style.display = 'block';
+        document.getElementById('inputRow').style.display = 'none';
+
+        if (circleAudioContext) {
+            try { circleAudioContext.close(); } catch(e) {}
+            circleAudioContext = null;
+        }
+
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'user',
+                width: { ideal: 320 },
+                height: { ideal: 320 }
+            }, 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            }
+        })
+        .then(stream => {
+            state.circleStream = stream;
+            
+            try {
+                circleAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = circleAudioContext.createMediaStreamSource(stream);
+                
+                const filter = circleAudioContext.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 80;
+                
+                const compressor = circleAudioContext.createDynamicsCompressor();
+                compressor.threshold.value = -30;
+                compressor.knee.value = 20;
+                compressor.ratio.value = 8;
+                compressor.attack.value = 0.003;
+                compressor.release.value = 0.25;
+                
+                const gainNode = circleAudioContext.createGain();
+                gainNode.gain.value = 1.5;
+                
+                source.connect(filter);
+                filter.connect(compressor);
+                compressor.connect(gainNode);
+                gainNode.connect(circleAudioContext.destination);
+                
+                const destination = circleAudioContext.createMediaStreamDestination();
+                gainNode.connect(destination);
+                
+                const processedStream = new MediaStream([
+                    ...stream.getVideoTracks(),
+                    ...destination.stream.getAudioTracks()
+                ]);
+                
+                state.circleStream = processedStream;
+            } catch (e) {
+                console.warn('Аудиофильтры не применены:', e);
+                state.circleStream = stream;
+            }
+
+            preview.srcObject = state.circleStream;
+            preview.play();
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            timerEl.textContent = '0 сек';
+            state.circleSeconds = 0;
+            state.circleChunks = [];
+
+            startBtn.onclick = () => {
+                if (!state.circleStream) return;
+                
+                if (state.circleRecorder && state.circleRecorder.state !== 'inactive') {
+                    try { state.circleRecorder.stop(); } catch(e) {}
+                }
+                
+                state.circleChunks = [];
+                const recorder = new MediaRecorder(state.circleStream, { 
+                    mimeType: 'video/webm;codecs=vp9,opus',
+                    audioBitsPerSecond: 128000,
+                    videoBitsPerSecond: 2500000
+                });
+                state.circleRecorder = recorder;
+                state.isRecording = true;
+                
+                recorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) state.circleChunks.push(e.data);
+                };
+                
+                recorder.onstop = () => {
+                    const blob = new Blob(state.circleChunks, { type: 'video/webm' });
+                    if (blob.size > 0) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            sendMessage(null, ev.target.result, true, null, null, false, state.replyToMsg);
+                            closeCircleRecorder();
+                        };
+                        reader.readAsDataURL(blob);
+                    } else {
+                        alert('Запись не удалась');
+                        closeCircleRecorder();
+                    }
+                    state.circleChunks = [];
+                    state.isRecording = false;
+                };
+                
+                recorder.start(1000);
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                state.circleSeconds = 0;
+                clearInterval(state.circleTimer);
+                state.circleTimer = setInterval(() => {
+                    state.circleSeconds++;
+                    timerEl.textContent = state.circleSeconds + ' сек';
+                    if (state.circleSeconds >= 5) stopCircleRecording();
+                }, 1000);
+            };
+
+            stopBtn.onclick = stopCircleRecording;
+            document.getElementById('circleCancelBtn').onclick = closeCircleRecorder;
+        })
+        .catch(err => {
+            alert('❌ Ошибка камеры: ' + err.message);
+            closeCircleRecorder();
+        });
+    }
+
+    function stopCircleRecording() {
+        if (state.circleRecorder && state.circleRecorder.state !== 'inactive') {
+            try { state.circleRecorder.stop(); } catch(e) {}
+        }
+        clearInterval(state.circleTimer);
+        document.getElementById('circleTimer').textContent = '⏹';
+        state.isRecording = false;
+    }
+
+    function closeCircleRecorder() {
+        clearInterval(state.circleTimer);
+        
+        if (state.circleRecorder) {
+            try {
+                if (state.circleRecorder.state !== 'inactive') {
+                    state.circleRecorder.stop();
+                }
+            } catch (e) {}
+            state.circleRecorder = null;
+        }
+        
+        if (state.circleStream) {
+            state.circleStream.getTracks().forEach(track => {
+                try {
+                    track.stop();
+                    track.enabled = false;
+                } catch(e) {}
+            });
+            state.circleStream = null;
+        }
+        
+        if (circleAudioContext) {
+            try { circleAudioContext.close(); } catch(e) {}
+            circleAudioContext = null;
+        }
+        
+        const preview = document.getElementById('circlePreview');
+        if (preview) {
+            preview.srcObject = null;
+            preview.pause();
+            preview.load();
+        }
+        
+        document.getElementById('circleRecorder').style.display = 'none';
+        document.getElementById('inputRow').style.display = 'flex';
+        
+        state.circleChunks = [];
+        state.isRecording = false;
+        state.circleSeconds = 0;
+        
+        const startBtn = document.getElementById('circleStartBtn');
+        const stopBtn = document.getElementById('circleStopBtn');
+        if (startBtn) startBtn.disabled = false;
+        if (stopBtn) stopBtn.disabled = true;
+        document.getElementById('circleTimer').textContent = '0 сек';
+        
+        console.log('✅ Кружок закрыт, все ресурсы освобождены');
+    }
+
+    // ======== FILE HANDLING ========
+    function handleFileSelect(file) {
+        if (!file) return;
+        if (file.size > 50 * 1024 * 1024) { alert('Файл > 50MB'); return; }
+        state.pendingFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const fileData = { name: file.name, size: file.size, type: file.type, data: e.target.result };
+            sendMessage(null, null, false, fileData, null, false, state.replyToMsg);
+        };
+        reader.readAsDataURL(file);
+        document.getElementById('fileInput').value = '';
+    }
+
+    function handleCamera() { document.getElementById('cameraInput').click(); }
+    function handleVideoUpload() { document.getElementById('videoFileInput').click(); }
+
+    document.getElementById('videoFileInput').addEventListener('change', (e) => {
+        if (e.target.files.length) {
+            const file = e.target.files[0];
+            if (!file.type.startsWith('video/')) {
+                alert('Выберите видео');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                sendMessage(null, ev.target.result, false, null, null, false, state.replyToMsg);
+            };
+            reader.readAsDataURL(file);
+        }
+        e.target.value = '';
+    });
+
+    // ======== РЕГИСТРАЦИЯ ========
+    async function sendVerificationCode() {
+        const name = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const password = document.getElementById('regPassword').value.trim();
+        const errorEl = document.getElementById('codeError');
+        const successEl = document.getElementById('codeSuccess');
+
+        if (!name || !password) {
+            errorEl.textContent = 'Заполните имя и пароль';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (name.length < 3) {
+            errorEl.textContent = 'Имя минимум 3 символа';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (password.length < 4) {
+            errorEl.textContent = 'Пароль минимум 4 символа';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (!email && !phone) {
+            errorEl.textContent = 'Укажите почту или телефон';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        errorEl.classList.add('hidden');
+        state.pendingVerification = { name, email, phone, password };
+
+        try {
+            const response = await fetch('/api/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, password })
+            });
+            const result = await response.json();
+            
+            if (result.error) {
+                errorEl.textContent = result.error;
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const verifyCodeInput = document.getElementById('verifyCode');
+            const displayCode = document.getElementById('displayCode');
+            const codeDisplayBlock = document.getElementById('codeDisplayBlock');
+            
+            if (result.code) {
+                verifyCodeInput.value = result.code;
+                if (displayCode) {
+                    displayCode.textContent = result.code;
+                    codeDisplayBlock.style.display = 'block';
+                }
+                setTimeout(() => { verifyCode(); }, 1000);
+            }
+            
+            if (!result.code) {
+                const localCode = Math.floor(100000 + Math.random() * 900000).toString();
+                verifyCodeInput.value = localCode;
+                if (displayCode) {
+                    displayCode.textContent = localCode;
+                    codeDisplayBlock.style.display = 'block';
+                }
+                state._localCode = localCode;
+                setTimeout(() => { verifyCode(); }, 1000);
+            }
+            
+            let displayMessage = '✅ Код создан и показан ниже!';
+            
+            if (result.emailConfigured && result.message.includes('отправлен')) {
+                displayMessage = '✅ Код отправлен на почту! Проверьте папку "Спам"';
+                codeDisplayBlock.style.display = 'block';
+            }
+            
+            successEl.textContent = displayMessage;
+            successEl.classList.remove('hidden');
+            document.getElementById('verifySection').style.display = 'block';
+            document.getElementById('sendCodeBtn').disabled = true;
+            document.getElementById('sendCodeBtn').textContent = '⏳ Код отправлен';
+            
+            console.log('📧 Код:', result.code || state._localCode || 'сгенерирован');
+            
+        } catch (e) {
+            errorEl.textContent = 'Ошибка подключения к серверу';
+            errorEl.classList.remove('hidden');
+            console.error('Send code error:', e);
+        }
+    }
+
+    async function verifyCode() {
+        const code = document.getElementById('verifyCode').value.trim();
+        const errorEl = document.getElementById('verifyError');
+        
+        if (!code || code.length !== 6) {
+            errorEl.textContent = 'Введите 6-значный код';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        errorEl.classList.add('hidden');
+
+        try {
+            const contact = state.pendingVerification?.email || state.pendingVerification?.phone;
+            
+            if (contact) {
+                const response = await fetch('/api/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contact, code })
+                });
+                const result = await response.json();
+                
+                if (result.error) {
+                    errorEl.textContent = result.error;
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+            } else {
+                if (state._localCode && state._localCode !== code) {
+                    errorEl.textContent = 'Неверный код';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            const loginResponse = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    name: state.pendingVerification?.name, 
+                    password: state.pendingVerification?.password 
+                })
+            });
+            const loginResult = await loginResponse.json();
+            
+            if (loginResult.error) {
+                const registerResponse = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(state.pendingVerification)
+                });
+                const registerResult = await registerResponse.json();
+                
+                if (registerResult.error) {
+                    errorEl.textContent = registerResult.error;
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+                
+                const loginResponse2 = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        name: state.pendingVerification.name, 
+                        password: state.pendingVerification.password 
+                    })
+                });
+                const loginResult2 = await loginResponse2.json();
+                
+                if (loginResult2.error) {
+                    errorEl.textContent = loginResult2.error;
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+                
+                state.user = loginResult2.user;
+            } else {
+                state.user = loginResult.user;
+            }
+
+            state.bot = new SimpleBot();
+            state.bot.setUserName(state.user.name);
+            
+            await fetchAllUsers();
+            await loadChatsFromServer();
+
+            if (!state.chats.length) {
+                const botChat = {
+                    id: generateId(),
+                    type: 'chat',
+                    name: 'Utopia Bot',
+                    avatar: '🤖',
+                    avatarColor: '#1a5276',
+                    participants: [state.user.id, 'bot'],
+                    creator: 'bot',
+                    isBot: true,
+                    messages: [{
+                        id: 'bot_welcome',
+                        sender: 'bot',
+                        text: `👋 Привет, ${state.user.name}! Я бот Utopia. Приятно познакомиться!`,
+                        time: Date.now(),
+                        isBot: true
+                    }],
+                    pinnedMessages: [],
+                    description: 'Официальный бот Utopia',
+                    isPrivate: false,
+                    isBlocked: false,
+                    created: Date.now()
+                };
+                state.chats = [botChat];
+                await fetch('/api/chats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(botChat)
+                });
+                state.lastMessageCount[botChat.id] = 1;
+            }
+
+            saveState();
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'flex';
+            
+            document.getElementById('userNameDisplay').textContent = state.user.name;
+            if (state.user.avatar) {
+                document.getElementById('avatarText').textContent = '';
+                document.getElementById('userAvatar').innerHTML = '<img src="' + state.user.avatar + '" alt="avatar" />';
+            } else {
+                document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
+            }
+            
+            renderChatList();
+            connectWebSocket();
+            checkInviteCode();
+            
+            console.log('✅ Регистрация и вход выполнены!');
+            
+        } catch (e) {
+            errorEl.textContent = 'Ошибка проверки кода';
+            errorEl.classList.remove('hidden');
+            console.error('Verify code error:', e);
+        }
+    }
+
+    async function resendCode() {
+        const errorEl = document.getElementById('verifyError');
+        const successEl = document.getElementById('codeSuccess');
+        
+        if (!state.pendingVerification) {
+            errorEl.textContent = 'Сначала заполните форму регистрации';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        
+        errorEl.classList.add('hidden');
+        successEl.textContent = '⏳ Отправка нового кода...';
+        successEl.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('/api/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(state.pendingVerification)
+            });
+            const result = await response.json();
+            
+            if (result.error) {
+                errorEl.textContent = result.error;
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            successEl.textContent = '✅ Новый код отправлен!';
+            successEl.classList.remove('hidden');
+        } catch (e) {
+            errorEl.textContent = 'Ошибка отправки кода';
+            errorEl.classList.remove('hidden');
+            console.error('Resend code error:', e);
+        }
+    }
+
+    // ======== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ========
+    async function sendResetCode() {
+        const name = document.getElementById('resetName').value.trim();
+        const email = document.getElementById('resetEmail').value.trim();
+        const errorEl = document.getElementById('resetError');
+        const successEl = document.getElementById('resetSuccess');
+
+        if (!name || !email) {
+            errorEl.textContent = 'Введите имя и почту';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        errorEl.classList.add('hidden');
+        state.resetPending = { name, email };
+
+        try {
+            const response = await fetch('/api/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email })
+            });
+            const result = await response.json();
+            
+            if (result.error) {
+                errorEl.textContent = result.error;
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            successEl.textContent = '✅ Код отправлен на почту!';
+            successEl.classList.remove('hidden');
+            document.getElementById('resetVerifySection').style.display = 'block';
+            document.getElementById('resetSendBtn').disabled = true;
+            document.getElementById('resetSendBtn').textContent = '⏳ Код отправлен';
+        } catch (e) {
+            errorEl.textContent = 'Ошибка подключения к серверу';
+            errorEl.classList.remove('hidden');
+            console.error('Reset send error:', e);
+        }
+    }
+
+    async function resetPasswordVerify() {
+        const code = document.getElementById('resetVerifyCode').value.trim();
+        const newPassword = document.getElementById('resetNewPassword').value.trim();
+        const errorEl = document.getElementById('resetVerifyError');
+
+        if (!code || code.length !== 6) {
+            errorEl.textContent = 'Введите 6-значный код';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (!newPassword || newPassword.length < 4) {
+            errorEl.textContent = 'Пароль минимум 4 символа';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        errorEl.classList.add('hidden');
+
+        try {
+            const response = await fetch('/api/reset-password-verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: state.resetPending.email,
+                    code: code,
+                    newPassword: newPassword
+                })
+            });
+            const result = await response.json();
+            
+            if (result.error) {
+                errorEl.textContent = result.error;
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            alert('✅ Пароль успешно изменён! Войдите в аккаунт.');
+            document.getElementById('resetForm').style.display = 'none';
+            document.getElementById('passwordForm').style.display = 'block';
+            document.getElementById('tabPassword').classList.add('active');
+            document.getElementById('tabCode').classList.remove('active');
+            document.getElementById('resetVerifySection').style.display = 'none';
+            document.getElementById('resetSendBtn').disabled = false;
+            document.getElementById('resetSendBtn').textContent = '📧 Отправить код';
+            document.getElementById('resetError').classList.add('hidden');
+            document.getElementById('resetSuccess').classList.add('hidden');
+            document.getElementById('loginPassword').value = newPassword;
+        } catch (e) {
+            errorEl.textContent = 'Ошибка проверки кода';
+            errorEl.classList.remove('hidden');
+            console.error('Reset verify error:', e);
+        }
+    }
+
+    async function resendResetCode() {
+        const errorEl = document.getElementById('resetError');
+        const successEl = document.getElementById('resetSuccess');
+        
+        if (!state.resetPending) {
+            errorEl.textContent = 'Сначала введите данные';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        
+        errorEl.classList.add('hidden');
+        successEl.textContent = '⏳ Отправка нового кода...';
+        successEl.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('/api/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(state.resetPending)
+            });
+            const result = await response.json();
+            
+            if (result.error) {
+                errorEl.textContent = result.error;
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            successEl.textContent = '✅ Новый код отправлен!';
+            successEl.classList.remove('hidden');
+        } catch (e) {
+            errorEl.textContent = 'Ошибка отправки кода';
+            errorEl.classList.remove('hidden');
+            console.error('Resend reset error:', e);
+        }
+    }
+
+    // ======== ВХОД ========
+    async function loginWithPassword() {
+        const name = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const errorEl = document.getElementById('loginError');
+        if (!name || !password) {
+            errorEl.textContent = 'Введите имя и пароль';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (isUserBlocked(name)) {
+            errorEl.textContent = '❌ Пользователь заблокирован';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, password })
+            });
+            const result = await response.json();
+            
+            if (result.error) {
+                errorEl.textContent = result.error;
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            state.user = result.user;
+            state.bot = new SimpleBot();
+            state.bot.setUserName(name);
+            
+            await fetchAllUsers();
+            await loadChatsFromServer();
+
+            if (!state.chats.length) {
+                const botChat = {
+                    id: generateId(),
+                    type: 'chat',
+                    name: 'Utopia Bot',
+                    avatar: '🤖',
+                    avatarColor: '#1a5276',
+                    participants: [state.user.id, 'bot'],
+                    creator: 'bot',
+                    isBot: true,
+                    messages: [{
+                        id: 'bot_welcome',
+                        sender: 'bot',
+                        text: `👋 Привет, ${name}! Я бот Utopia. Приятно познакомиться!`,
+                        time: Date.now(),
+                        isBot: true
+                    }],
+                    pinnedMessages: [],
+                    description: 'Официальный бот Utopia',
+                    isPrivate: false,
+                    isBlocked: false,
+                    created: Date.now()
+                };
+                state.chats = [botChat];
+                await fetch('/api/chats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(botChat)
+                });
+                state.lastMessageCount[botChat.id] = 1;
+            }
+
+            saveState();
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'flex';
+            
+            document.getElementById('userNameDisplay').textContent = state.user.name;
+            if (state.user.avatar) {
+                document.getElementById('avatarText').textContent = '';
+                document.getElementById('userAvatar').innerHTML = '<img src="' + state.user.avatar + '" alt="avatar" />';
+            } else {
+                document.getElementById('avatarText').textContent = state.user.name.charAt(0).toUpperCase();
+            }
+            
+            renderChatList();
+            connectWebSocket();
+            checkInviteCode();
+            errorEl.classList.add('hidden');
+            
+            console.log('✅ Всего пользователей на сервере:', state.allUsers.length);
+            console.log('✅ Всего чатов:', state.chats.length);
+            
+        } catch (e) {
+            errorEl.textContent = 'Ошибка подключения к серверу';
+            errorEl.classList.remove('hidden');
+            console.error('Login error:', e);
+        }
+    }
+
+    function logout() {
+        state.user = null;
+        state.currentChatId = null;
+        state.chats = [];
+        state.deletedChatIds = new Set();
+        if (ws) { try { ws.close(); } catch (e) {} }
+        if (isInCall) endCall();
+        closeChat();
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('mainApp').style.display = 'none';
+        localStorage.removeItem('utopiaUser');
+        saveState();
+    }
+
     // ======== MODAL ========
     function openModal(title, bodyHTML) {
         document.getElementById('modalTitle').textContent = title;
@@ -2685,6 +3594,15 @@
             document.getElementById('resetSendBtn').disabled = false;
             document.getElementById('resetSendBtn').textContent = '📧 Отправить код';
         });
+        document.getElementById('backToPasswordLink').addEventListener('click', () => {
+            document.getElementById('codeForm').style.display = 'none';
+            document.getElementById('passwordForm').style.display = 'block';
+            document.getElementById('verifySection').style.display = 'none';
+            document.getElementById('sendCodeBtn').disabled = false;
+            document.getElementById('sendCodeBtn').textContent = '📧 Отправить код';
+            document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
+            document.getElementById('tabPassword').classList.add('active');
+        });
 
         // Login
         document.getElementById('loginPasswordBtn').addEventListener('click', loginWithPassword);
@@ -2699,15 +3617,6 @@
         document.getElementById('verifyBtn').addEventListener('click', verifyCode);
         document.getElementById('verifyCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyCode(); });
         document.getElementById('resendCodeBtn').addEventListener('click', resendCode);
-        document.getElementById('backToPasswordLink').addEventListener('click', () => {
-            document.getElementById('codeForm').style.display = 'none';
-            document.getElementById('passwordForm').style.display = 'block';
-            document.getElementById('verifySection').style.display = 'none';
-            document.getElementById('sendCodeBtn').disabled = false;
-            document.getElementById('sendCodeBtn').textContent = '📧 Отправить код';
-            document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
-            document.getElementById('tabPassword').classList.add('active');
-        });
         document.getElementById('toggleRegPassword').addEventListener('click', () => {
             const inp = document.getElementById('regPassword');
             inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -2896,14 +3805,11 @@
             }
         });
 
-        console.log('🚀 Utopia загружена! Звонки улучшены (TURN серверы, переподключение, таймауты)');
+        console.log('🚀 Utopia загружена! Все функции работают!');
         console.log('👥 Всего пользователей на сервере:', state.allUsers.length);
         console.log('💬 Всего чатов:', state.chats.length);
         console.log('👤 Текущий пользователь:', state.user?.name || 'не авторизован');
     });
-
-    // Остальные функции (регистрация, восстановление пароля, файлы и т.д.) остаются без изменений
-    // Они были в предыдущих версиях и продолжают работать
     </script>
 </body>
 </html>

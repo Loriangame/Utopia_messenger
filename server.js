@@ -683,3 +683,25 @@ wss.on('connection', (ws, req) => {
         console.error('WebSocket ошибка:', error);
     });
 });
+// Добавьте в server.js после остальных API
+
+// Подписка на push-уведомления
+app.post('/api/subscribe', (req, res) => {
+    const subscription = req.body;
+    console.log('📱 Новая подписка на push:', subscription);
+    
+    // Сохраняем подписку (в реальном проекте сохраняйте в БД)
+    // Здесь можно сохранить в файл или базу данных
+    
+    res.json({ success: true });
+});
+
+// Отправка push-уведомления (вызывается при звонке)
+app.post('/api/send-push', async (req, res) => {
+    const { userId, title, body, from, roomId, isVideo } = req.body;
+    
+    // Здесь нужно отправить push-уведомление через web-push
+    // Это упрощённая версия
+    
+    res.json({ success: true });
+});

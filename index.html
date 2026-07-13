@@ -583,7 +583,8 @@ async function loadChatsFromServer(){if(!state.user)return;try{const r=await fet
 
 // ======== WebSocket ========
 function connectWebSocket(){if(!state.user)return;if(wsReconnectAttempts>=MAX_RECONNECT_ATTEMPTS)return;try{const protocol=window.location.protocol==='https:'?'wss:':'ws:';const wsUrl=protocol+'//'+window.location.host+'/ws';ws=new WebSocket(wsUrl);ws.onopen=()=>{wsConnected=true;wsReconnectAttempts=0;ws.send(JSON.stringify({type:'auth',userId:state.user.id}));};ws.onmessage=(e)=>{try{const data=JSON.parse(e.data);switch(data.type){case'new_message':{const chat=getChat(data.chatId);if(chat){const exists=chat.messages.some(m=>m.id===data.message.id);if(!exists){data.message._isNew=true;chat.messages.push(data.message);if(state.currentChatId===data.chatId){renderMessages();document.getElementById('messagesContainer').scrollTop=document.getElementById('messagesContainer').scrollHeight;}renderChatList();saveState();}}break;}case'typing':{const chat=getChat(data.chatId);if(chat&&state.currentChatId===data.chatId){const status=document.getElementById('cvStatus');if(data.isTyping){status.textContent='✍️ печатает...';clearTimeout(chat._typingTimeout);chat._typingTimeout=setTimeout(()=>{status.textContent='онлайн';},2000);}else{status.textContent='онлайн';}}break;}case'message_deleted':{const chat=getChat(data.chatId);if(chat){chat.messages=chat.messages.filter(m=>m.id!==data.msgId);if(chat.pinnedMessages)chat.pinnedMessages=chat.pinnedMessages.filter(id=>id!==data.msgId);if(state.currentChatId===data.chatId)renderMessages();renderChatList();saveState();}break;}case'chat_updated':{const chat=getChat(data.chatId);if(chat){if(data.chat){chat.name=data.chat.name||chat.name;chat.description=data.chat.description||chat.description;chat.avatar=data.chat.avatar||chat.avatar;chat.participants=data.chat.participants||chat.participants;}if(state.currentChatId===data.chatId){updateChatHeader();renderMessages();}renderChatList();saveState();}break;}case'call_offer':state.pendingCallData=data;showCallModal(data);break;case'call_answer':if(peerConnection){peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));document.getElementById('callStatus').textContent='📞 Соединение установлено';document.getElementById('callStatus').classList.remove('call-ringing');}break;case'ice_candidate':if(peerConnection){try{peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));}catch(e){}}break;case'call_end':document.getElementById('callStatus').textContent='📞 Звонок завершён';document.getElementById('callStatus').classList.remove('call-ringing');setTimeout(()=>{endCall();document.getElementById('callContainer').style.display='none';},1000);break;case'call_user_joined':addCallParticipant(data.userId);break;case'call_user_left':removeCallParticipant(data.userId);break;case'auth_success':console.log('✅ WebSocket авторизация успешна');break;}}catch(e){}};ws.onclose=()=>{wsConnected=false;setTimeout(()=>{wsReconnectAttempts++;connectWebSocket();},3000);};ws.onerror=()=>{wsConnected=false;};}catch(e){wsConnected=false;}}
-        // ======== ЗВОНКИ ========
+
+// ======== ЗВОНКИ ========
 const rtcConfig={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun2.l.google.com:19302'},{urls:'stun:stun3.l.google.com:19302'},{urls:'stun:stun4.l.google.com:19302'},{urls:'stun:stun.voip.blackberry.com:3478'},{urls:'stun:stun.ekiga.net:3478'},{urls:'stun:stun.stunprotocol.org:3478'},{urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:5349',username:'openrelayproject',credential:'openrelayproject'}],iceTransportPolicy:'all',bundlePolicy:'max-bundle',rtcpMuxPolicy:'require',iceCandidatePoolSize:10};
 let peerConnection=null,localStream=null,remoteStream=null,isInCall=false,callTarget=null,isVideoCall=false,isMicOn=true,isVideoOn=true,callRoomId=null,callTimeout=null,reconnectAttempts=0;
 
@@ -661,7 +662,8 @@ function stopCircleHold(){clearTimeout(circleHoldTimer);if(state.circleRecorder&
 function startCircleRecording(){const preview=document.getElementById('circlePreview');const recorderDiv=document.getElementById('circleRecorder');const startBtn=document.getElementById('circleStartBtn');const stopBtn=document.getElementById('circleStopBtn');const timerEl=document.getElementById('circleTimer');recorderDiv.style.display='block';document.getElementById('inputRow').style.display='none';if(circleAudioContext){try{circleAudioContext.close();}catch(e){}circleAudioContext=null;}navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:320},height:{ideal:320}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}).then(stream=>{state.circleStream=stream;try{circleAudioContext=new(window.AudioContext||window.webkitAudioContext)();const source=circleAudioContext.createMediaStreamSource(stream);const filter=circleAudioContext.createBiquadFilter();filter.type='highpass';filter.frequency.value=80;const compressor=circleAudioContext.createDynamicsCompressor();compressor.threshold.value=-30;compressor.knee.value=20;compressor.ratio.value=8;compressor.attack.value=0.003;compressor.release.value=0.25;const gainNode=circleAudioContext.createGain();gainNode.gain.value=1.5;source.connect(filter);filter.connect(compressor);compressor.connect(gainNode);gainNode.connect(circleAudioContext.destination);const destination=circleAudioContext.createMediaStreamDestination();gainNode.connect(destination);const processedStream=new MediaStream([...stream.getVideoTracks(),...destination.stream.getAudioTracks()]);state.circleStream=processedStream;}catch(e){state.circleStream=stream;}preview.srcObject=state.circleStream;preview.play();startBtn.disabled=false;stopBtn.disabled=true;timerEl.textContent='0 сек';state.circleSeconds=0;state.circleChunks=[];startBtn.onclick=()=>{if(!state.circleStream)return;if(state.circleRecorder&&state.circleRecorder.state!=='inactive'){try{state.circleRecorder.stop();}catch(e){}}state.circleChunks=[];const recorder=new MediaRecorder(state.circleStream,{mimeType:'video/webm;codecs=vp9,opus',audioBitsPerSecond:128000,videoBitsPerSecond:2500000});state.circleRecorder=recorder;state.isRecording=true;recorder.ondataavailable=(e)=>{if(e.data.size>0)state.circleChunks.push(e.data);};recorder.onstop=()=>{const blob=new Blob(state.circleChunks,{type:'video/webm'});if(blob.size>0){const reader=new FileReader();reader.onload=(ev)=>{sendMessage(null,ev.target.result,true,null,null,false,state.replyToMsg);closeCircleRecorder();};reader.readAsDataURL(blob);}else{alert('Запись не удалась');closeCircleRecorder();}state.circleChunks=[];state.isRecording=false;};recorder.start(1000);startBtn.disabled=true;stopBtn.disabled=false;state.circleSeconds=0;clearInterval(state.circleTimer);state.circleTimer=setInterval(()=>{state.circleSeconds++;timerEl.textContent=state.circleSeconds+' сек';if(state.circleSeconds>=5)stopCircleRecording();},1000);};stopBtn.onclick=stopCircleRecording;document.getElementById('circleCancelBtn').onclick=closeCircleRecorder;}).catch(err=>{alert('❌ Ошибка камеры: '+err.message);closeCircleRecorder();});}
 function stopCircleRecording(){if(state.circleRecorder&&state.circleRecorder.state!=='inactive'){try{state.circleRecorder.stop();}catch(e){}}clearInterval(state.circleTimer);document.getElementById('circleTimer').textContent='⏹';state.isRecording=false;}
 function closeCircleRecorder(){clearInterval(state.circleTimer);if(state.circleRecorder){try{if(state.circleRecorder.state!=='inactive'){state.circleRecorder.stop();}}catch(e){}state.circleRecorder=null;}if(state.circleStream){state.circleStream.getTracks().forEach(track=>{try{track.stop();track.enabled=false;}catch(e){}});state.circleStream=null;}if(circleAudioContext){try{circleAudioContext.close();}catch(e){}circleAudioContext=null;}const preview=document.getElementById('circlePreview');if(preview){preview.srcObject=null;preview.pause();preview.load();}document.getElementById('circleRecorder').style.display='none';document.getElementById('inputRow').style.display='flex';state.circleChunks=[];state.isRecording=false;state.circleSeconds=0;const startBtn=document.getElementById('circleStartBtn');const stopBtn=document.getElementById('circleStopBtn');if(startBtn)startBtn.disabled=false;if(stopBtn)stopBtn.disabled=true;document.getElementById('circleTimer').textContent='0 сек';}
-        // ======== ФАЙЛЫ ========
+
+// ======== ФАЙЛЫ ========
 function handleFileSelect(file){if(!file)return;if(file.size>50*1024*1024){alert('Файл > 50MB');return;}state.pendingFile=file;const reader=new FileReader();reader.onload=(e)=>{const fileData={name:file.name,size:file.size,type:file.type,data:e.target.result};sendMessage(null,null,false,fileData,null,false,state.replyToMsg);};reader.readAsDataURL(file);document.getElementById('fileInput').value='';}
 function handleCamera(){document.getElementById('cameraInput').click();}
 function handleVideoUpload(){document.getElementById('videoFileInput').click();}
@@ -693,7 +695,7 @@ let moreMenuOpen=false;
 function toggleMoreMenu(){const menu=document.getElementById('moreMenu');moreMenuOpen=!moreMenuOpen;menu.classList.toggle('show',moreMenuOpen);}
 function toggleStickers(){const panel=document.getElementById('stickerPanel');panel.classList.toggle('show');if(panel.classList.contains('show')){renderStickers();}}
 
-async function autoRefreshMessages(){if(!state.user)return;try{const response=await fetch('/api/chats/'+state.user.id,{cache:'no-cache',headers:{'Cache-Control':'no-cache'}});const serverChats=await response.json();const existingIds=new Set(state.chats.map(c=>c.id));let newChatsAdded=false;for(const serverChat of serverChats){if(state.deletedChatIds.has(serverChat.id))continue;const localChat=state.chats.find(c=>c.id===serverChat.id);if(localChat){if(serverChat.name)localChat.name=serverChat.name;if(serverChat.description!==undefined)localChat.description=serverChat.description;if(serverChat.avatar)localChat.avatar=serverChat.avatar;if(serverChat.participants)localChat.participants=serverChat.participants;const msgsResponse=await fetch('/api/messages/'+serverChat.id,{cache:'no-cache',headers:{'Cache-Control':'no-cache'}});const serverMessages=await msgsResponse.json();const localMsgIds=new Set(localChat.messages.map(m=>m.id));let newMsgs=[];for(const sm of serverMessages){if(!localMsgIds.has(sm.id)){sm._isNew=true;newMsgs.push(sm);}}if(newMsgs.length>0){console.log(`📨 ${newMsgs.length} новых сообщений в чате ${localChat.name}`);localChat.messages=localChat.messages.concat(newMsgs);if(state.currentChatId===serverChat.id){renderMessages();document.getElementById('messagesContainer').scrollTop=document.getElementById('messagesContainer').scrollHeight;updateChatHeader();}}}else{if(!existingIds.has(serverChat.id)){const msgsResponse=await fetch('/api/messages/'+serverChat.id,{cache:'no-cache',headers:{'Cache-Control':'no-cache'}});serverChat.messages=await msgsResponse.json();serverChat.pinnedMessages=serverChat.pinnedMessages||[];state.chats.push(serverChat);newChatsAdded=true;console.log(`📨 Новый чат: ${serverChat.name}`);}}}if(newChatsAdded){saveState();}renderChatList();saveState();}catch(e){console.warn('Ошибка автообновления:',e);}}
+async function autoRefreshMessages(){if(!state.user)return;try{const response=await fetch('/api/chats/'+state.user.id,{cache:'no-cache',headers:{'Cache-Control':'no-cache'}});const serverChats=await response.json();const existingIds=new Set(state.chats.map(c=>c.id));let newChatsAdded=false;for(const serverChat of serverChats){if(state.deletedChatIds.has(serverChat.id))continue;const localChat=state.chats.find(c=>c.id===serverChat.id);if(localChat){if(serverChat.name)localChat.name=serverChat.name;if(serverChat.description!==undefined)localChat.description=serverChat.description;if(serverChat.avatar)localChat.avatar=serverChat.avatar;if(serverChat.participants)localChat.participants=serverChat.participants;const msgsResponse=await fetch('/api/messages/'+serverChat.id,{cache:'no-cache',headers:{'Cache-Control':'no-cache'}});const serverMessages=await msgsResponse.json();const localMsgIds=new Set(localChat.messages.map(m=>m.id));let newMsgs=[];for(const sm of serverMessages){if(!localMsgIds.has(sm.id)){sm._isNew=true;newMsgs.push(sm);}}if(newMsgs.length>0){localChat.messages=localChat.messages.concat(newMsgs);if(state.currentChatId===serverChat.id){renderMessages();document.getElementById('messagesContainer').scrollTop=document.getElementById('messagesContainer').scrollHeight;updateChatHeader();}}}else{if(!existingIds.has(serverChat.id)){const msgsResponse=await fetch('/api/messages/'+serverChat.id,{cache:'no-cache',headers:{'Cache-Control':'no-cache'}});serverChat.messages=await msgsResponse.json();serverChat.pinnedMessages=serverChat.pinnedMessages||[];state.chats.push(serverChat);newChatsAdded=true;}}}if(newChatsAdded){saveState();}renderChatList();saveState();}catch(e){console.warn('Ошибка автообновления:',e);}}
 
 async function checkInviteCode(){const urlParams=new URLSearchParams(window.location.search);const inviteCode=urlParams.get('invite');if(inviteCode&&state.user){try{const response=await fetch('/api/join-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inviteCode,userId:state.user.id})});const result=await response.json();if(result.success){alert('✅ Вы присоединились к чату "'+result.chat.name+'"!');state.chats.push(result.chat);renderChatList();openChat(result.chat.id);window.history.replaceState({},document.title,window.location.pathname);}else{alert('❌ '+result.error);}}catch(e){alert('❌ Не удалось присоединиться к чату');}}}
 
@@ -710,6 +712,23 @@ const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let ringtoneBuffer = null;
 let ringtoneSource = null;
 let isRingtonePlaying = false;
+
+function urlBase64ToUint8Array(base64String) {
+    base64String = base64String.trim();
+    while (base64String.length % 4 !== 0) { base64String += '='; }
+    base64String = base64String.replace(/-/g, '+').replace(/_/g, '/');
+    try {
+        const rawData = window.atob(base64String);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    } catch (e) {
+        console.error('❌ Ошибка декодирования VAPID ключа:', e);
+        return new Uint8Array(0);
+    }
+}
 
 async function loadRingtone() {
     try {
@@ -745,12 +764,7 @@ function createFallbackRingtone() {
 }
 
 function playRingtone() {
-    if (!ringtoneBuffer) {
-        loadRingtone().then(() => {
-            if (ringtoneBuffer) playRingtone();
-        });
-        return;
-    }
+    if (!ringtoneBuffer) { loadRingtone().then(() => { if (ringtoneBuffer) playRingtone(); }); return; }
     if (isRingtonePlaying) stopRingtone();
     try {
         ringtoneSource = audioContext.createBufferSource();
@@ -760,17 +774,12 @@ function playRingtone() {
         ringtoneSource.start(0);
         isRingtonePlaying = true;
         console.log('🔔 Звонок играет');
-    } catch (error) {
-        console.error('❌ Ошибка воспроизведения звонка:', error);
-    }
+    } catch (error) { console.error('❌ Ошибка воспроизведения звонка:', error); }
 }
 
 function stopRingtone() {
     if (ringtoneSource) {
-        try {
-            ringtoneSource.stop();
-            ringtoneSource.disconnect();
-        } catch (e) {}
+        try { ringtoneSource.stop(); ringtoneSource.disconnect(); } catch (e) {}
         ringtoneSource = null;
     }
     isRingtonePlaying = false;
@@ -779,36 +788,17 @@ function stopRingtone() {
 
 function playRingtoneInBackground() {
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-            type: 'play_sound'
-        });
+        navigator.serviceWorker.controller.postMessage({ type: 'play_sound' });
     }
 }
 
 // ======== PUSH-УВЕДОМЛЕНИЯ ========
 async function requestNotificationPermission() {
-    if (!('Notification' in window)) {
-        console.log('❌ Уведомления не поддерживаются');
-        return false;
-    }
+    if (!('Notification' in window)) { console.log('❌ Уведомления не поддерживаются'); return false; }
     if (Notification.permission === 'granted') return true;
-    if (Notification.permission === 'denied') {
-        console.log('❌ Уведомления запрещены');
-        return false;
-    }
+    if (Notification.permission === 'denied') { console.log('❌ Уведомления запрещены'); return false; }
     const permission = await Notification.requestPermission();
     return permission === 'granted';
-}
-
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
 }
 
 async function subscribeToPush() {
@@ -819,26 +809,32 @@ async function subscribeToPush() {
     try {
         const response = await fetch('/api/vapid-public-key');
         const data = await response.json();
-        if (!data.publicKey) {
-            console.log('❌ VAPID ключ не получен');
-            return;
-        }
+        if (!data.publicKey) { console.log('❌ VAPID ключ не получен'); return; }
         const permission = await requestNotificationPermission();
         if (!permission) return;
         const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(data.publicKey)
-        });
+        let subscription;
+        try {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(data.publicKey)
+            });
+        } catch (subError) {
+            console.error('❌ Ошибка подписки:', subError);
+            if (subError.message && subError.message.includes('key')) {
+                console.log('🔄 Пробуем без VAPID ключа...');
+                subscription = await registration.pushManager.subscribe({ userVisibleOnly: true });
+            } else {
+                throw subError;
+            }
+        }
         console.log('✅ Подписка на push:', subscription);
         const subResponse = await fetch('/api/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(subscription)
         });
-        if (subResponse.ok) {
-            console.log('✅ Подписка сохранена на сервере');
-        }
+        if (subResponse.ok) { console.log('✅ Подписка сохранена на сервере'); }
         return subscription;
     } catch (error) {
         console.error('❌ Ошибка подписки на push:', error);
@@ -905,11 +901,7 @@ window.showCallModal = function(data) {
         if (state.pendingCallData) {
             const d = state.pendingCallData;
             if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'call_end',
-                    targetUserId: d.from,
-                    roomId: d.roomId
-                }));
+                ws.send(JSON.stringify({ type: 'call_end', targetUserId: d.from, roomId: d.roomId }));
             }
             state.pendingCallData = null;
             document.getElementById('callContainer').style.display = 'none';
@@ -921,11 +913,7 @@ window.showCallModal = function(data) {
             closeModal();
             const d = state.pendingCallData;
             if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'call_end',
-                    targetUserId: d.from,
-                    roomId: d.roomId
-                }));
+                ws.send(JSON.stringify({ type: 'call_end', targetUserId: d.from, roomId: d.roomId }));
             }
             state.pendingCallData = null;
             document.getElementById('callContainer').style.display = 'none';
@@ -935,9 +923,7 @@ window.showCallModal = function(data) {
 
 window.endCall = function() {
     stopRingtone();
-    if (typeof _originalEndCall === 'function') {
-        _originalEndCall();
-    }
+    if (typeof _originalEndCall === 'function') { _originalEndCall(); }
 };
 
 // ======== ОБРАБОТКА СООБЩЕНИЙ ОТ SERVICE WORKER ========
@@ -957,11 +943,7 @@ if ('serviceWorker' in navigator) {
             if (state.pendingCallData && state.pendingCallData.roomId === data.roomId) {
                 const d = state.pendingCallData;
                 if (wsConnected && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({
-                        type: 'call_end',
-                        targetUserId: d.from,
-                        roomId: d.roomId
-                    }));
+                    ws.send(JSON.stringify({ type: 'call_end', targetUserId: d.from, roomId: d.roomId }));
                 }
                 state.pendingCallData = null;
                 document.getElementById('callContainer').style.display = 'none';
@@ -976,10 +958,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('✅ DOM загружен, инициализация...');
     const loaded = loadState();
     loadFolders();
-    
-    // Загружаем звук
     loadRingtone();
-    
     if (loaded && state.user) {
         state.bot = new SimpleBot();
         state.bot.setUserName(state.user.name);
@@ -996,41 +975,26 @@ document.addEventListener('DOMContentLoaded', async function() {
         autoRefreshInterval = setInterval(autoRefreshMessages, 3000);
         console.log('✅ Автообновление запущено (каждые 3 секунды)');
     }
-    
     console.log('✅ Подключаем кнопки...');
-    
-    // === ВХОД ===
     document.getElementById('loginPasswordBtn').addEventListener('click', loginWithPassword);
-    document.getElementById('loginPassword').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') loginWithPassword();
-    });
+    document.getElementById('loginPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') loginWithPassword(); });
     document.getElementById('togglePassword').addEventListener('click', () => {
         const inp = document.getElementById('loginPassword');
         inp.type = inp.type === 'password' ? 'text' : 'password';
     });
-    
-    // === РЕГИСТРАЦИЯ ===
     document.getElementById('sendCodeBtn').addEventListener('click', sendVerificationCode);
     document.getElementById('verifyBtn').addEventListener('click', verifyCode);
-    document.getElementById('verifyCode').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') verifyCode();
-    });
+    document.getElementById('verifyCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyCode(); });
     document.getElementById('resendCodeBtn').addEventListener('click', resendCode);
     document.getElementById('toggleRegPassword').addEventListener('click', () => {
         const inp = document.getElementById('regPassword');
         inp.type = inp.type === 'password' ? 'text' : 'password';
     });
-    
-    // === ВОССТАНОВЛЕНИЕ ===
     document.getElementById('resetSendBtn').addEventListener('click', sendResetCode);
     document.getElementById('resetVerifyBtn').addEventListener('click', resetPasswordVerify);
-    document.getElementById('resetVerifyCode').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') resetPasswordVerify();
-    });
+    document.getElementById('resetVerifyCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') resetPasswordVerify(); });
     document.getElementById('resetResendBtn').addEventListener('click', resendResetCode);
     document.getElementById('resetConfirmBtn').addEventListener('click', resetPasswordVerify);
-    
-    // === ВКЛАДКИ ===
     document.getElementById('tabPassword').addEventListener('click', () => {
         document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
         document.getElementById('tabPassword').classList.add('active');
@@ -1045,7 +1009,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('codeForm').style.display = 'block';
         document.getElementById('resetForm').style.display = 'none';
     });
-    
     document.getElementById('forgotPasswordLink').addEventListener('click', () => {
         document.getElementById('passwordForm').style.display = 'none';
         document.getElementById('resetForm').style.display = 'block';
@@ -1073,8 +1036,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
         document.getElementById('tabPassword').classList.add('active');
     });
-    
-    // === ОСНОВНЫЕ КНОПКИ ===
     document.getElementById('logoutBtn').addEventListener('click', logout);
     document.getElementById('backBtn').addEventListener('click', closeChat);
     document.getElementById('chatsBtn').addEventListener('click', () => {
@@ -1084,73 +1045,46 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('donateBtn').addEventListener('click', toggleDonate);
     document.getElementById('closeDonate').addEventListener('click', toggleDonate);
     document.getElementById('moreDonate').addEventListener('click', toggleDonate);
-    
-    // === ПОИСК ===
     const searchInput = document.getElementById('globalSearchInput');
     searchInput.addEventListener('input', (e) => performGlobalSearch(e.target.value.trim()));
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-wrap')) document.getElementById('searchResults').classList.remove('show');
     });
-    
-    // === СОЗДАНИЕ ЧАТОВ ===
     document.getElementById('createChannelBtn').addEventListener('click', () => showCreateChatModal('channel'));
     document.getElementById('createGroupBtn').addEventListener('click', () => showCreateChatModal('group'));
     document.getElementById('createFolderBtn').addEventListener('click', () => showCreateFolderModal());
     document.getElementById('settingsBtn').addEventListener('click', showSettings);
-    
-    // === НАСТРОЙКИ ЧАТА ===
     document.getElementById('chatSettingsBtn').addEventListener('click', showChatSettings);
-    document.getElementById('chatInviteBtn').addEventListener('click', () => {
-        if (state.currentChatId) showChatInvite(state.currentChatId);
-    });
+    document.getElementById('chatInviteBtn').addEventListener('click', () => { if (state.currentChatId) showChatInvite(state.currentChatId); });
     document.getElementById('addUserBtn').addEventListener('click', showAddUserModal);
     document.getElementById('chatAvatarBtn').addEventListener('click', handleChatAvatarUpload);
     document.getElementById('chatMoreBtn').addEventListener('click', () => {
         const menu = document.getElementById('chatSettingsBtn');
         menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
     });
-    
-    // === ЗВОНКИ ===
     document.getElementById('callBtn').addEventListener('click', () => {
         const chat = getChat(state.currentChatId);
         if (!chat) return;
         const otherId = chat.participants?.find(id => id !== state.user.id);
-        if (otherId) {
-            startCall(otherId, false);
-        } else {
-            alert('Не найден собеседник');
-        }
+        if (otherId) { startCall(otherId, false); } else { alert('Не найден собеседник'); }
     });
     document.getElementById('videoCallBtn').addEventListener('click', () => {
         const chat = getChat(state.currentChatId);
         if (!chat) return;
         const otherId = chat.participants?.find(id => id !== state.user.id);
-        if (otherId) {
-            startCall(otherId, true);
-        } else {
-            alert('Не найден собеседник');
-        }
+        if (otherId) { startCall(otherId, true); } else { alert('Не найден собеседник'); }
     });
     document.getElementById('endCallBtn').addEventListener('click', endCall);
     document.getElementById('toggleMicBtn').addEventListener('click', toggleMic);
     document.getElementById('toggleVideoBtn').addEventListener('click', toggleVideo);
-    
-    // === ОТВЕТ ===
     document.getElementById('replyCancelBtn').addEventListener('click', clearReplyBar);
-    
-    // === ФАЙЛЫ ===
     document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-        if (e.target.files.length) handleFileSelect(e.target.files[0]);
-    });
+    document.getElementById('fileInput').addEventListener('change', (e) => { if (e.target.files.length) handleFileSelect(e.target.files[0]); });
     document.getElementById('cameraBtn').addEventListener('click', handleCamera);
     document.getElementById('cameraInput').addEventListener('change', (e) => {
         if (e.target.files.length) {
             const file = e.target.files[0];
-            if (!file.type.startsWith('image/')) {
-                alert('Выберите изображение');
-                return;
-            }
+            if (!file.type.startsWith('image/')) { alert('Выберите изображение'); return; }
             const reader = new FileReader();
             reader.onload = (ev) => {
                 const fileData = { name: file.name || 'photo.jpg', size: file.size, type: file.type, data: ev.target.result };
@@ -1161,70 +1095,30 @@ document.addEventListener('DOMContentLoaded', async function() {
         e.target.value = '';
     });
     document.getElementById('videoBtn').addEventListener('click', handleVideoUpload);
-    
-    // === КРУЖКИ ===
     const circleBtn = document.getElementById('circleBtn');
     circleBtn.addEventListener('mousedown', startCircleHold);
     circleBtn.addEventListener('mouseup', stopCircleHold);
     circleBtn.addEventListener('mouseleave', stopCircleHold);
-    circleBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        startCircleHold();
-    });
-    circleBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        stopCircleHold();
-    });
-    
-    // === ГОЛОСОВЫЕ ===
+    circleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startCircleHold(); });
+    circleBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopCircleHold(); });
     const voiceBtn = document.getElementById('voiceBtn');
-    voiceBtn.addEventListener('mousedown', () => {
-        setTimeout(startVoiceRecording, 300);
-    });
-    voiceBtn.addEventListener('mouseup', () => {
-        if (state.isRecording) stopVoiceRecording();
-    });
-    voiceBtn.addEventListener('mouseleave', () => {
-        if (state.isRecording) stopVoiceRecording();
-    });
-    voiceBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        setTimeout(startVoiceRecording, 300);
-    });
-    voiceBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        if (state.isRecording) stopVoiceRecording();
-    });
+    voiceBtn.addEventListener('mousedown', () => { setTimeout(startVoiceRecording, 300); });
+    voiceBtn.addEventListener('mouseup', () => { if (state.isRecording) stopVoiceRecording(); });
+    voiceBtn.addEventListener('mouseleave', () => { if (state.isRecording) stopVoiceRecording(); });
+    voiceBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setTimeout(startVoiceRecording, 300); });
+    voiceBtn.addEventListener('touchend', (e) => { e.preventDefault(); if (state.isRecording) stopVoiceRecording(); });
     document.getElementById('voiceCancelBtn').addEventListener('click', cancelVoiceRecording);
     document.getElementById('voiceSendBtn').addEventListener('click', stopVoiceRecording);
-    
-    // === СТИКЕРЫ ===
     document.getElementById('stickerBtn').addEventListener('click', toggleStickers);
-    
-    // === MORE MENU ===
     document.getElementById('moreBtn').addEventListener('click', toggleMoreMenu);
-    document.getElementById('moreCamera').addEventListener('click', () => {
-        document.getElementById('moreMenu').classList.remove('show');
-        handleCamera();
-    });
-    document.getElementById('moreFile').addEventListener('click', () => {
-        document.getElementById('moreMenu').classList.remove('show');
-        document.getElementById('fileInput').click();
-    });
-    document.getElementById('moreVideo').addEventListener('click', () => {
-        document.getElementById('moreMenu').classList.remove('show');
-        handleVideoUpload();
-    });
-    
-    // === АВАТАРКА ===
+    document.getElementById('moreCamera').addEventListener('click', () => { document.getElementById('moreMenu').classList.remove('show'); handleCamera(); });
+    document.getElementById('moreFile').addEventListener('click', () => { document.getElementById('moreMenu').classList.remove('show'); document.getElementById('fileInput').click(); });
+    document.getElementById('moreVideo').addEventListener('click', () => { document.getElementById('moreMenu').classList.remove('show'); handleVideoUpload(); });
     document.getElementById('userAvatar').addEventListener('click', () => document.getElementById('avatarInput').click());
     document.getElementById('avatarInput').addEventListener('change', async (e) => {
         if (e.target.files.length) {
             const file = e.target.files[0];
-            if (!file.type.startsWith('image/')) {
-                alert('Выберите изображение');
-                return;
-            }
+            if (!file.type.startsWith('image/')) { alert('Выберите изображение'); return; }
             const reader = new FileReader();
             reader.onload = async (ev) => {
                 const avatarData = ev.target.result;
@@ -1239,8 +1133,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         e.target.value = '';
     });
-    
-    // === ОТПРАВКА ===
     function handleSend() {
         const input = document.getElementById('messageInput');
         if (input.value.trim()) {
@@ -1249,20 +1141,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     document.getElementById('sendBtn').addEventListener('click', handleSend);
-    document.getElementById('messageInput').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSend();
-        }
-    });
-    
-    // === MODAL ===
+    document.getElementById('messageInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); } });
     document.getElementById('modalClose').addEventListener('click', closeModal);
-    document.getElementById('modalOverlay').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) closeModal();
-    });
-    
-    // === ESCAPE ===
+    document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeModal();
@@ -1276,26 +1157,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (document.getElementById('chatView').classList.contains('open')) closeChat();
         }
     });
-    
-    // === PUSH УВЕДОМЛЕНИЯ ===
     setTimeout(() => {
         requestNotificationPermission();
-        if ('serviceWorker' in navigator) {
-            subscribeToPush();
-        }
+        if ('serviceWorker' in navigator) { subscribeToPush(); }
     }, 5000);
-    
-    // === ОБРАБОТКА ВИДИМОСТИ ===
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
             console.log('📱 Приложение в фоне');
         } else {
-            if (isRingtonePlaying && !state.pendingCallData) {
-                stopRingtone();
-            }
+            if (isRingtonePlaying && !state.pendingCallData) { stopRingtone(); }
         }
     });
-    
     console.log('✅ Все кнопки подключены!');
     console.log('🚀 Utopia загружена!');
 });

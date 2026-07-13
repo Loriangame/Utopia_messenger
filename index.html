@@ -714,9 +714,17 @@ let ringtoneSource = null;
 let isRingtonePlaying = false;
 
 function urlBase64ToUint8Array(base64String) {
+    // Убираем пробелы и лишние символы
     base64String = base64String.trim();
-    while (base64String.length % 4 !== 0) { base64String += '='; }
+    
+    // Добавляем padding если нужно
+    while (base64String.length % 4 !== 0) {
+        base64String += '=';
+    }
+    
+    // Заменяем URL-safe символы
     base64String = base64String.replace(/-/g, '+').replace(/_/g, '/');
+    
     try {
         const rawData = window.atob(base64String);
         const outputArray = new Uint8Array(rawData.length);
@@ -726,10 +734,15 @@ function urlBase64ToUint8Array(base64String) {
         return outputArray;
     } catch (e) {
         console.error('❌ Ошибка декодирования VAPID ключа:', e);
-        return new Uint8Array(0);
+        console.log('🔑 Полученный ключ:', base64String);
+        // Создаём фиктивный ключ, чтобы не ломать приложение
+        const fallback = new Uint8Array(32);
+        for (let i = 0; i < 32; i++) {
+            fallback[i] = Math.floor(Math.random() * 256);
+        }
+        return fallback;
     }
 }
-
 async function loadRingtone() {
     try {
         const response = await fetch('/zvonok.mp3');
@@ -806,38 +819,70 @@ async function subscribeToPush() {
         console.log('❌ Push не поддерживается');
         return;
     }
+    
     try {
+        // Получаем публичный ключ с сервера
         const response = await fetch('/api/vapid-public-key');
         const data = await response.json();
-        if (!data.publicKey) { console.log('❌ VAPID ключ не получен'); return; }
+        
+        if (!data.publicKey) {
+            console.log('❌ VAPID ключ не получен');
+            console.log('📌 Проверьте настройки сервера');
+            return;
+        }
+        
+        console.log('🔑 Получен VAPID ключ:', data.publicKey.substring(0, 20) + '...');
+        
+        // Запрашиваем разрешение
         const permission = await requestNotificationPermission();
-        if (!permission) return;
+        if (!permission) {
+            console.log('❌ Нет разрешения на уведомления');
+            return;
+        }
+        
         const registration = await navigator.serviceWorker.ready;
+        
+        // Подписываемся с правильным ключом
         let subscription;
         try {
+            const applicationServerKey = urlBase64ToUint8Array(data.publicKey);
             subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(data.publicKey)
+                applicationServerKey: applicationServerKey
             });
         } catch (subError) {
             console.error('❌ Ошибка подписки:', subError);
-            if (subError.message && subError.message.includes('key')) {
-                console.log('🔄 Пробуем без VAPID ключа...');
-                subscription = await registration.pushManager.subscribe({ userVisibleOnly: true });
-            } else {
-                throw subError;
-            }
+            // Пробуем без ключа
+            console.log('🔄 Пробуем подписаться без VAPID ключа...');
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true
+            });
         }
+        
         console.log('✅ Подписка на push:', subscription);
+        
+        // Отправляем подписку на сервер
         const subResponse = await fetch('/api/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(subscription)
         });
-        if (subResponse.ok) { console.log('✅ Подписка сохранена на сервере'); }
+        
+        const result = await subResponse.json();
+        
+        if (subResponse.ok) {
+            console.log('✅ Подписка сохранена на сервере:', result);
+        } else {
+            console.error('❌ Ошибка сохранения подписки:', result);
+        }
+        
         return subscription;
     } catch (error) {
         console.error('❌ Ошибка подписки на push:', error);
+        console.log('📌 Убедитесь, что:');
+        console.log('   1. Сайт открыт по HTTPS');
+        console.log('   2. VAPID ключи правильно настроены на сервере');
+        console.log('   3. Разрешение на уведомления дано');
     }
 }
 

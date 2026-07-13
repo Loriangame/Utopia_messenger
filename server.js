@@ -7,20 +7,33 @@ const WebSocket = require('ws');
 // ======== PUSH-УВЕДОМЛЕНИЯ ========
 const webpush = require('web-push');
 
-// Берём ключи из переменных окружения
+// Очистка ключей от лишних символов
+const cleanVapidKey = (key) => {
+    if (!key) return '';
+    return key.trim().replace(/\s/g, '');
+};
+
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
 
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-    webpush.setVapidDetails(
-        'mailto:utopia@example.com',
-        VAPID_PUBLIC_KEY,
-        VAPID_PRIVATE_KEY
-    );
-    console.log('✅ VAPID настроен для push-уведомлений');
+const cleanPublicKey = cleanVapidKey(VAPID_PUBLIC_KEY);
+const cleanPrivateKey = cleanVapidKey(VAPID_PRIVATE_KEY);
+
+if (cleanPublicKey && cleanPrivateKey) {
+    try {
+        webpush.setVapidDetails(
+            'mailto:utopia@example.com',
+            cleanPublicKey,
+            cleanPrivateKey
+        );
+        console.log('✅ VAPID настроен для push-уведомлений');
+        console.log(`📱 Публичный ключ: ${cleanPublicKey.substring(0, 20)}...`);
+    } catch (e) {
+        console.error('❌ Ошибка настройки VAPID:', e.message);
+    }
 } else {
-    console.log('⚠️ VAPID ключи не найдены, push-уведомления не будут работать');
-    console.log('📌 Добавьте VAPID_PUBLIC_KEY и VAPID_PRIVATE_KEY в переменные окружения');
+    console.log('⚠️ VAPID ключи не найдены');
+    console.log('📌 Сгенерируйте ключи: npx web-push generate-vapid-keys');
 }
 
 // ======== NODEMAILER ========
@@ -446,48 +459,45 @@ app.delete('/api/chats/:chatId', (req, res) => {
 
 // ======== API ДЛЯ PUSH-УВЕДОМЛЕНИЙ ========
 
-// Получить публичный VAPID ключ
 app.get('/api/vapid-public-key', (req, res) => {
-    if (!VAPID_PUBLIC_KEY) {
-        return res.status(500).json({ error: 'VAPID не настроен' });
+    if (!cleanPublicKey) {
+        return res.status(500).json({ 
+            error: 'VAPID не настроен',
+            message: 'Сгенерируйте ключи командой: npx web-push generate-vapid-keys'
+        });
     }
-    res.json({ publicKey: VAPID_PUBLIC_KEY });
+    res.json({ publicKey: cleanPublicKey });
 });
 
-// Подписка на push
 app.post('/api/subscribe', (req, res) => {
     try {
         const subscription = req.body;
-        console.log('📱 Новая подписка на push:', subscription);
-        
         if (!subscription || !subscription.endpoint) {
             return res.status(400).json({ error: 'Неверная подписка' });
         }
-        
+        if (!subscription.keys || !subscription.keys.p256dh || !subscription.keys.auth) {
+            return res.status(400).json({ error: 'Отсутствуют ключи шифрования' });
+        }
         const exists = pushSubscriptions.some(s => s.endpoint === subscription.endpoint);
         if (!exists) {
             pushSubscriptions.push(subscription);
+            console.log(`📱 Новая подписка (всего: ${pushSubscriptions.length})`);
         }
-        
-        console.log(`📱 Всего подписок: ${pushSubscriptions.length}`);
-        res.json({ success: true, message: 'Подписка сохранена' });
+        res.json({ success: true, count: pushSubscriptions.length });
     } catch (error) {
         console.error('❌ Ошибка подписки:', error);
         res.status(500).json({ error: 'Ошибка подписки' });
     }
 });
 
-// Отправка push-уведомления всем подписчикам
 app.post('/api/send-push', async (req, res) => {
     const { title, body, from, roomId, isVideo } = req.body;
     
-    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+    if (!cleanPublicKey || !cleanPrivateKey) {
         return res.status(500).json({ error: 'VAPID не настроен' });
     }
-    
     if (pushSubscriptions.length === 0) {
-        console.log('📱 Нет активных подписок');
-        return res.json({ success: true, message: 'Нет подписок' });
+        return res.json({ success: true, message: 'Нет подписок', count: 0 });
     }
     
     try {
@@ -506,31 +516,29 @@ app.post('/api/send-push', async (req, res) => {
         
         console.log(`📱 Отправка push ${pushSubscriptions.length} подписчикам...`);
         
-        const promises = pushSubscriptions.map(sub => {
-            return webpush.sendNotification(sub, payload, options).catch(err => {
-                console.error('❌ Ошибка отправки уведомления:', err.message);
-                // Если подписка недействительна — удаляем
-                if (err.statusCode === 410 || err.statusCode === 404) {
-                    const index = pushSubscriptions.indexOf(sub);
-                    if (index > -1) pushSubscriptions.splice(index, 1);
-                    console.log(`🗑️ Подписка удалена (${err.statusCode})`);
-                }
-                return null;
-            });
+        const promises = pushSubscriptions.map((sub) => {
+            return webpush.sendNotification(sub, payload, options)
+                .then(() => ({ success: true }))
+                .catch(err => {
+                    if (err.statusCode === 410 || err.statusCode === 404) {
+                        const index = pushSubscriptions.indexOf(sub);
+                        if (index > -1) pushSubscriptions.splice(index, 1);
+                        console.log(`🗑️ Подписка удалена (${err.statusCode})`);
+                    }
+                    return { success: false, error: err.message };
+                });
         });
         
         const results = await Promise.all(promises);
-        const successCount = results.filter(r => r !== null).length;
-        
-        console.log(`✅ Push-уведомления отправлены: ${successCount}/${promises.length}`);
-        res.json({ success: true, count: successCount, total: promises.length });
+        const successCount = results.filter(r => r.success).length;
+        console.log(`✅ Push отправлены: ${successCount}/${pushSubscriptions.length + results.filter(r => !r.success).length}`);
+        res.json({ success: true, count: successCount });
     } catch (error) {
         console.error('❌ Ошибка отправки push:', error);
         res.status(500).json({ error: 'Ошибка отправки push' });
     }
 });
 
-// Получить количество подписок
 app.get('/api/push-subscriptions-count', (req, res) => {
     res.json({ count: pushSubscriptions.length });
 });
@@ -539,15 +547,11 @@ app.get('/api/push-subscriptions-count', (req, res) => {
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
     console.log(`📧 Почта: ${emailConfigured ? '✅ настроена' : '❌ не настроена'}`);
-    console.log(`📱 Push: ${VAPID_PUBLIC_KEY ? '✅ настроен' : '❌ не настроен'}`);
-    console.log(`🔗 WebSocket доступен по адресу: ws://localhost:${PORT}/ws`);
+    console.log(`📱 Push: ${cleanPublicKey ? '✅ настроен' : '❌ не настроен'}`);
+    console.log(`🔗 WebSocket: ws://localhost:${PORT}/ws`);
 });
 
-const wss = new WebSocket.Server({ 
-    server,
-    path: '/ws'
-});
-
+const wss = new WebSocket.Server({ server, path: '/ws' });
 const clients = new Map();
 const groupCalls = new Map();
 
@@ -564,28 +568,19 @@ wss.on('connection', (ws, req) => {
                 case 'auth':
                     userId = data.userId;
                     clients.set(userId, ws);
-                    console.log(`✅ Пользователь ${userId} авторизован в WebSocket`);
+                    console.log(`✅ Пользователь ${userId} авторизован`);
                     ws.send(JSON.stringify({ type: 'auth_success', userId }));
                     break;
                     
                 case 'call_offer':
-                    console.log(`📞 Звонок от ${userId} к ${data.targetUserId}, видео: ${data.isVideo}`);
-                    
-                    if (data.roomId) {
-                        if (!groupCalls.has(data.roomId)) {
-                            groupCalls.set(data.roomId, {
-                                participants: [userId, data.targetUserId, ...(data.participants || [])],
-                                offer: data.offer,
-                                isVideo: data.isVideo
-                            });
-                        } else {
-                            const call = groupCalls.get(data.roomId);
-                            if (!call.participants.includes(userId)) {
-                                call.participants.push(userId);
-                            }
-                        }
+                    console.log(`📞 Звонок от ${userId} к ${data.targetUserId}`);
+                    if (data.roomId && !groupCalls.has(data.roomId)) {
+                        groupCalls.set(data.roomId, {
+                            participants: [userId, data.targetUserId, ...(data.participants || [])],
+                            offer: data.offer,
+                            isVideo: data.isVideo
+                        });
                     }
-                    
                     const targetWs = clients.get(data.targetUserId);
                     if (targetWs && targetWs.readyState === WebSocket.OPEN) {
                         targetWs.send(JSON.stringify({
@@ -599,13 +594,8 @@ wss.on('connection', (ws, req) => {
                         console.log(`📞 Оффер отправлен ${data.targetUserId}`);
                     } else {
                         console.log(`❌ Пользователь ${data.targetUserId} не в сети`);
-                        ws.send(JSON.stringify({
-                            type: 'call_error',
-                            message: 'Пользователь не в сети'
-                        }));
                     }
-                    
-                    if (data.participants && data.participants.length > 0) {
+                    if (data.participants) {
                         data.participants.forEach(pid => {
                             if (pid !== data.targetUserId && pid !== userId) {
                                 const pWs = clients.get(pid);
@@ -618,7 +608,6 @@ wss.on('connection', (ws, req) => {
                                         roomId: data.roomId || null,
                                         participants: [userId, data.targetUserId]
                                     }));
-                                    console.log(`📞 Оффер отправлен участнику ${pid}`);
                                 }
                             }
                         });
@@ -626,7 +615,7 @@ wss.on('connection', (ws, req) => {
                     break;
                     
                 case 'call_answer':
-                    console.log(`📞 Ответ на звонок от ${userId} к ${data.targetUserId}`);
+                    console.log(`📞 Ответ от ${userId} к ${data.targetUserId}`);
                     const answerTarget = clients.get(data.targetUserId);
                     if (answerTarget && answerTarget.readyState === WebSocket.OPEN) {
                         answerTarget.send(JSON.stringify({
@@ -635,12 +624,10 @@ wss.on('connection', (ws, req) => {
                             answer: data.answer,
                             roomId: data.roomId || null
                         }));
-                        console.log(`📞 Ответ отправлен ${data.targetUserId}`);
                     }
                     break;
                     
                 case 'ice_candidate':
-                    console.log(`🧊 ICE кандидат от ${userId} к ${data.targetUserId}`);
                     const iceTarget = clients.get(data.targetUserId);
                     if (iceTarget && iceTarget.readyState === WebSocket.OPEN) {
                         iceTarget.send(JSON.stringify({
@@ -669,7 +656,7 @@ wss.on('connection', (ws, req) => {
                     break;
                     
                 case 'call_end':
-                    console.log(`📞 Звонок завершён от ${userId} к ${data.targetUserId}`);
+                    console.log(`📞 Звонок завершён от ${userId}`);
                     const endTarget = clients.get(data.targetUserId);
                     if (endTarget && endTarget.readyState === WebSocket.OPEN) {
                         endTarget.send(JSON.stringify({
@@ -715,13 +702,11 @@ wss.on('connection', (ws, req) => {
                             replyTo: data.replyTo || null,
                             time: Date.now()
                         };
-                        
                         const exists = chat.messages.some(m => m.id === msg.id);
                         if (!exists) {
                             chat.messages.push(msg);
                             saveData(fileData);
                         }
-                        
                         chat.participants.forEach(pid => {
                             if (pid === data.sender) return;
                             const c = clients.get(pid);

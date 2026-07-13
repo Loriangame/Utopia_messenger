@@ -1496,6 +1496,74 @@ async function checkPushSubscription() {
         return false;
     }
 }
+        // ======== РЕГИСТРАЦИЯ SERVICE WORKER ========
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+            console.log('✅ Service Worker зарегистрирован');
+            // Проверка подписки на push
+            setTimeout(checkPushSubscription, 2000);
+        })
+        .catch(err => {
+            console.error('❌ Ошибка регистрации SW:', err);
+        });
+}
+
+// ======== ПРОВЕРКА ПОДПИСКИ НА PUSH ========
+async function checkPushSubscription() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.log('❌ Push не поддерживается');
+        return false;
+    }
+    
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+            console.log('✅ Есть активная подписка на push');
+            return true;
+        } else {
+            console.log('❌ Нет активной подписки');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Ошибка проверки подписки:', error);
+        return false;
+    }
+}
+
+// ======== ИСПРАВЛЕННАЯ ФУНКЦИЯ sendMessage ========
+const _originalSendMessage = window.sendMessage;
+
+window.sendMessage = function(text, videoData, isCircle, fileData, audioData, isSticker, replyTo) {
+    // Вызываем оригинальную функцию
+    if (typeof _originalSendMessage === 'function') {
+        _originalSendMessage(text, videoData, isCircle, fileData, audioData, isSticker, replyTo);
+    }
+    
+    // Отправляем push-уведомление о сообщении
+    const chat = getChat(state.currentChatId);
+    if (chat && text && state.user) {
+        const recipients = chat.participants.filter(id => id !== state.user.id);
+        recipients.forEach(recipientId => {
+            const user = state.allUsers.find(u => u.id === recipientId);
+            if (user) {
+                fetch('/api/send-push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'message',
+                        chatId: chat.id,
+                        from: state.user.name,
+                        text: text,
+                        chatName: getChatName(chat),
+                        userId: recipientId
+                    })
+                }).catch(e => console.warn('❌ Ошибка отправки push:', e));
+            }
+        });
+    }
+};
     </script>
 </body>
 </html>

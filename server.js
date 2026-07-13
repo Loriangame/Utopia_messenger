@@ -4,6 +4,26 @@ const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
 
+// ======== PUSH-УВЕДОМЛЕНИЯ ========
+const webpush = require('web-push');
+
+// Берём ключи из переменных окружения
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+        'mailto:utopia@example.com',
+        VAPID_PUBLIC_KEY,
+        VAPID_PRIVATE_KEY
+    );
+    console.log('✅ VAPID настроен для push-уведомлений');
+} else {
+    console.log('⚠️ VAPID ключи не найдены, push-уведомления не будут работать');
+    console.log('📌 Добавьте VAPID_PUBLIC_KEY и VAPID_PRIVATE_KEY в переменные окружения');
+}
+
+// ======== NODEMAILER ========
 let nodemailer;
 try {
     nodemailer = require('nodemailer');
@@ -57,6 +77,7 @@ if (!emailConfigured) {
 // ===== ДАННЫЕ =====
 const verificationCodes = {};
 const resetCodes = {};
+const pushSubscriptions = [];
 
 function loadData() {
     try {
@@ -423,10 +444,102 @@ app.delete('/api/chats/:chatId', (req, res) => {
     res.json({ success: true });
 });
 
+// ======== API ДЛЯ PUSH-УВЕДОМЛЕНИЙ ========
+
+// Получить публичный VAPID ключ
+app.get('/api/vapid-public-key', (req, res) => {
+    if (!VAPID_PUBLIC_KEY) {
+        return res.status(500).json({ error: 'VAPID не настроен' });
+    }
+    res.json({ publicKey: VAPID_PUBLIC_KEY });
+});
+
+// Подписка на push
+app.post('/api/subscribe', (req, res) => {
+    try {
+        const subscription = req.body;
+        console.log('📱 Новая подписка на push:', subscription);
+        
+        if (!subscription || !subscription.endpoint) {
+            return res.status(400).json({ error: 'Неверная подписка' });
+        }
+        
+        const exists = pushSubscriptions.some(s => s.endpoint === subscription.endpoint);
+        if (!exists) {
+            pushSubscriptions.push(subscription);
+        }
+        
+        console.log(`📱 Всего подписок: ${pushSubscriptions.length}`);
+        res.json({ success: true, message: 'Подписка сохранена' });
+    } catch (error) {
+        console.error('❌ Ошибка подписки:', error);
+        res.status(500).json({ error: 'Ошибка подписки' });
+    }
+});
+
+// Отправка push-уведомления всем подписчикам
+app.post('/api/send-push', async (req, res) => {
+    const { title, body, from, roomId, isVideo } = req.body;
+    
+    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+        return res.status(500).json({ error: 'VAPID не настроен' });
+    }
+    
+    if (pushSubscriptions.length === 0) {
+        console.log('📱 Нет активных подписок');
+        return res.json({ success: true, message: 'Нет подписок' });
+    }
+    
+    try {
+        const payload = JSON.stringify({
+            title: title || '📞 Входящий звонок',
+            body: body || 'Вам звонят!',
+            from: from || 'unknown',
+            roomId: roomId || 'unknown',
+            isVideo: isVideo || false
+        });
+        
+        const options = {
+            TTL: 60,
+            urgency: 'high'
+        };
+        
+        console.log(`📱 Отправка push ${pushSubscriptions.length} подписчикам...`);
+        
+        const promises = pushSubscriptions.map(sub => {
+            return webpush.sendNotification(sub, payload, options).catch(err => {
+                console.error('❌ Ошибка отправки уведомления:', err.message);
+                // Если подписка недействительна — удаляем
+                if (err.statusCode === 410 || err.statusCode === 404) {
+                    const index = pushSubscriptions.indexOf(sub);
+                    if (index > -1) pushSubscriptions.splice(index, 1);
+                    console.log(`🗑️ Подписка удалена (${err.statusCode})`);
+                }
+                return null;
+            });
+        });
+        
+        const results = await Promise.all(promises);
+        const successCount = results.filter(r => r !== null).length;
+        
+        console.log(`✅ Push-уведомления отправлены: ${successCount}/${promises.length}`);
+        res.json({ success: true, count: successCount, total: promises.length });
+    } catch (error) {
+        console.error('❌ Ошибка отправки push:', error);
+        res.status(500).json({ error: 'Ошибка отправки push' });
+    }
+});
+
+// Получить количество подписок
+app.get('/api/push-subscriptions-count', (req, res) => {
+    res.json({ count: pushSubscriptions.length });
+});
+
 // ===== WebSocket =====
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
     console.log(`📧 Почта: ${emailConfigured ? '✅ настроена' : '❌ не настроена'}`);
+    console.log(`📱 Push: ${VAPID_PUBLIC_KEY ? '✅ настроен' : '❌ не настроен'}`);
     console.log(`🔗 WebSocket доступен по адресу: ws://localhost:${PORT}/ws`);
 });
 
@@ -436,7 +549,7 @@ const wss = new WebSocket.Server({
 });
 
 const clients = new Map();
-const groupCalls = new Map(); // roomId -> { participants: [], offer: null }
+const groupCalls = new Map();
 
 wss.on('connection', (ws, req) => {
     let userId = null;
@@ -458,7 +571,6 @@ wss.on('connection', (ws, req) => {
                 case 'call_offer':
                     console.log(`📞 Звонок от ${userId} к ${data.targetUserId}, видео: ${data.isVideo}`);
                     
-                    // Сохраняем информацию о групповом звонке
                     if (data.roomId) {
                         if (!groupCalls.has(data.roomId)) {
                             groupCalls.set(data.roomId, {
@@ -474,7 +586,6 @@ wss.on('connection', (ws, req) => {
                         }
                     }
                     
-                    // Отправляем оффер целевым пользователям
                     const targetWs = clients.get(data.targetUserId);
                     if (targetWs && targetWs.readyState === WebSocket.OPEN) {
                         targetWs.send(JSON.stringify({
@@ -494,7 +605,6 @@ wss.on('connection', (ws, req) => {
                         }));
                     }
                     
-                    // Отправляем уведомление всем участникам группы
                     if (data.participants && data.participants.length > 0) {
                         data.participants.forEach(pid => {
                             if (pid !== data.targetUserId && pid !== userId) {
@@ -540,7 +650,6 @@ wss.on('connection', (ws, req) => {
                             roomId: data.roomId || null
                         }));
                     }
-                    // Отправляем ICE кандидаты всем участникам группы
                     if (data.roomId && groupCalls.has(data.roomId)) {
                         const call = groupCalls.get(data.roomId);
                         call.participants.forEach(pid => {
@@ -569,7 +678,6 @@ wss.on('connection', (ws, req) => {
                             roomId: data.roomId || null
                         }));
                     }
-                    // Удаляем групповой звонок
                     if (data.roomId && groupCalls.has(data.roomId)) {
                         const call = groupCalls.get(data.roomId);
                         call.participants.forEach(pid => {
@@ -682,26 +790,4 @@ wss.on('connection', (ws, req) => {
     ws.on('error', (error) => {
         console.error('WebSocket ошибка:', error);
     });
-});
-// Добавьте в server.js после остальных API
-
-// Подписка на push-уведомления
-app.post('/api/subscribe', (req, res) => {
-    const subscription = req.body;
-    console.log('📱 Новая подписка на push:', subscription);
-    
-    // Сохраняем подписку (в реальном проекте сохраняйте в БД)
-    // Здесь можно сохранить в файл или базу данных
-    
-    res.json({ success: true });
-});
-
-// Отправка push-уведомления (вызывается при звонке)
-app.post('/api/send-push', async (req, res) => {
-    const { userId, title, body, from, roomId, isVideo } = req.body;
-    
-    // Здесь нужно отправить push-уведомление через web-push
-    // Это упрощённая версия
-    
-    res.json({ success: true });
 });

@@ -1,11 +1,17 @@
 {
-  "name": "utopia",
+  "name": "utopia-messenger",
   "version": "1.0.0",
-  "description": "Utopia Messenger",
+  "description": "Utopia Messenger - современный мессенджер с звонками и чатами",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
+  },
+  "author": "Loriangame",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Loriangame/Utopia_messenger"
   },
   "dependencies": {
     "cors": "^2.8.5",

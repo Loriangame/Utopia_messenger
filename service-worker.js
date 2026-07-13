@@ -22,6 +22,8 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME).then(cache => {
             console.log('📦 Кэширование файлов...');
             return cache.addAll(STATIC_ASSETS);
+        }).catch(err => {
+            console.warn('⚠️ Некоторые файлы не закэшированы:', err);
         })
     );
     self.skipWaiting();
@@ -45,7 +47,6 @@ self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request).then(response => {
             return response || fetch(event.request).catch(() => {
-                // Если офлайн и файл не найден
                 return new Response('Вы офлайн', { status: 503 });
             });
         })
@@ -58,7 +59,6 @@ self.addEventListener('push', function(event) {
     
     console.log('📨 Получено push-уведомление:', data);
     
-    // Определяем тип уведомления
     const isCall = data.type === 'call';
     const isMessage = data.type === 'message';
     
@@ -74,7 +74,6 @@ self.addEventListener('push', function(event) {
     let renotify = false;
     
     if (isCall) {
-        // ======== УВЕДОМЛЕНИЕ О ЗВОНКЕ ========
         const from = data.from || 'неизвестный';
         const isVideo = data.isVideo || false;
         const roomId = data.roomId || 'unknown';
@@ -95,11 +94,9 @@ self.addEventListener('push', function(event) {
             isVideo: isVideo
         };
         
-        // Воспроизводим звук звонка
         playSound('/zvonok-push.mp3');
         
     } else if (isMessage) {
-        // ======== УВЕДОМЛЕНИЕ О СООБЩЕНИИ ========
         const from = data.from || 'неизвестный';
         const chatName = data.chatName || 'Чат';
         const messageText = data.text || 'Новое сообщение';
@@ -123,21 +120,18 @@ self.addEventListener('push', function(event) {
     }
     
     event.waitUntil(
-        Promise.all([
-            // Показываем уведомление
-            self.registration.showNotification(title, {
-                body: body,
-                icon: icon,
-                badge: badge,
-                vibrate: vibrate,
-                sound: sound,
-                actions: actions,
-                data: dataPayload,
-                tag: tag,
-                renotify: renotify,
-                requireInteraction: isCall // Звонок требует взаимодействия
-            })
-        ])
+        self.registration.showNotification(title, {
+            body: body,
+            icon: icon,
+            badge: badge,
+            vibrate: vibrate,
+            sound: sound,
+            actions: actions,
+            data: dataPayload,
+            tag: tag,
+            renotify: renotify,
+            requireInteraction: isCall
+        })
     );
 });
 
@@ -150,13 +144,10 @@ self.addEventListener('notificationclick', function(event) {
     
     console.log('🔔 Клик по уведомлению:', action, data);
     
-    // ======== ДЕЙСТВИЯ ДЛЯ ЗВОНКОВ ========
     if (data.type === 'call') {
         if (action === 'answer') {
-            // Принимаем звонок
             event.waitUntil(
                 clients.openWindow('/').then(() => {
-                    // Отправляем сообщение в основное приложение
                     const message = {
                         type: 'call_accept',
                         from: data.from,
@@ -170,7 +161,6 @@ self.addEventListener('notificationclick', function(event) {
                         });
                     });
                     
-                    // Показываем уведомление о начале звонка
                     self.registration.showNotification('📞 Соединение...', {
                         body: `Подключение к ${data.from}...`,
                         icon: '/icon-192.png',
@@ -180,7 +170,6 @@ self.addEventListener('notificationclick', function(event) {
                 })
             );
         } else if (action === 'reject' || action === '') {
-            // Отклоняем звонок
             event.waitUntil(
                 clients.matchAll({ type: 'window' }).then(clientList => {
                     clientList.forEach(client => {
@@ -196,13 +185,10 @@ self.addEventListener('notificationclick', function(event) {
         return;
     }
     
-    // ======== ДЕЙСТВИЯ ДЛЯ СООБЩЕНИЙ ========
     if (data.type === 'message') {
         if (action === 'open' || action === '') {
-            // Открываем чат
             event.waitUntil(
                 clients.openWindow('/').then(() => {
-                    // Отправляем сообщение в приложение
                     clients.matchAll({ type: 'window' }).then(clientList => {
                         clientList.forEach(client => {
                             client.postMessage({
@@ -214,7 +200,6 @@ self.addEventListener('notificationclick', function(event) {
                 })
             );
         } else if (action === 'reply') {
-            // Открываем чат с фокусом на ввод
             event.waitUntil(
                 clients.openWindow('/').then(() => {
                     clients.matchAll({ type: 'window' }).then(clientList => {
@@ -232,7 +217,6 @@ self.addEventListener('notificationclick', function(event) {
         return;
     }
     
-    // ======== ОБЫЧНЫЙ КЛИК ========
     event.waitUntil(
         clients.openWindow('/')
     );
@@ -258,7 +242,6 @@ let soundSource = null;
 
 function playSound(url) {
     try {
-        // Пытаемся воспроизвести через Web Audio
         caches.open(CACHE_NAME).then(cache => {
             cache.match(url).then(response => {
                 if (response) {

@@ -1,4 +1,9 @@
-// service-worker.js
+/*
+ * Utopia Messenger - Service Worker
+ * https://github.com/Loriangame/Utopia_messenger
+ * Лицензия MIT
+ */
+
 const CACHE_NAME = 'utopia-v1';
 const STATIC_ASSETS = [
     '/',
@@ -11,17 +16,18 @@ const STATIC_ASSETS = [
     '/zvonok-push.mp3'
 ];
 
-// Установка
+// ======== УСТАНОВКА ========
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
+            console.log('📦 Кэширование файлов...');
             return cache.addAll(STATIC_ASSETS);
         })
     );
     self.skipWaiting();
 });
 
-// Активация
+// ======== АКТИВАЦИЯ ========
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys => {
@@ -31,142 +37,261 @@ self.addEventListener('activate', event => {
         })
     );
     self.clients.claim();
+    console.log('✅ Service Worker активирован');
 });
 
-// Обработка fetch
+// ======== FETCH (Офлайн-режим) ========
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request).then(response => {
-            return response || fetch(event.request);
+            return response || fetch(event.request).catch(() => {
+                // Если офлайн и файл не найден
+                return new Response('Вы офлайн', { status: 503 });
+            });
         })
     );
 });
 
-// ======== ПУШ-УВЕДОМЛЕНИЯ ========
+// ======== ОБРАБОТКА PUSH-УВЕДОМЛЕНИЙ ========
 self.addEventListener('push', function(event) {
     const data = event.data ? event.data.json() : {};
     
-    // Воспроизводим звук через Web Audio API
-    const playSound = async () => {
-        try {
-            const cache = await caches.open(CACHE_NAME);
-            const response = await cache.match('/zvonok-push.mp3');
-            if (response) {
-                const audioData = await response.arrayBuffer();
-                const audioContext = new (self.AudioContext || self.webkitAudioContext)();
-                const source = audioContext.createBufferSource();
-                
-                audioContext.decodeAudioData(audioData, function(buffer) {
-                    source.buffer = buffer;
-                    source.connect(audioContext.destination);
-                    source.start(0);
-                });
-            }
-        } catch(e) {
-            console.error('Ошибка воспроизведения звука:', e);
-        }
-    };
+    console.log('📨 Получено push-уведомление:', data);
+    
+    // Определяем тип уведомления
+    const isCall = data.type === 'call';
+    const isMessage = data.type === 'message';
+    
+    let title = 'Utopia';
+    let body = 'Новое уведомление';
+    let icon = '/icon-192.png';
+    let badge = '/icon-192.png';
+    let actions = [];
+    let dataPayload = {};
+    let vibrate = [200, 100, 200];
+    let sound = '/zvonok-push.mp3';
+    let tag = 'utopia-notification';
+    let renotify = false;
+    
+    if (isCall) {
+        // ======== УВЕДОМЛЕНИЕ О ЗВОНКЕ ========
+        const from = data.from || 'неизвестный';
+        const isVideo = data.isVideo || false;
+        const roomId = data.roomId || 'unknown';
+        
+        title = `📞 Входящий звонок`;
+        body = `${from} ${isVideo ? '🎥' : '📞'} звонит вам!`;
+        vibrate = [200, 100, 200, 100, 200, 100, 300, 200, 300];
+        tag = `call-${roomId}`;
+        renotify = true;
+        actions = [
+            { action: 'answer', title: '📞 Ответить' },
+            { action: 'reject', title: '❌ Отклонить' }
+        ];
+        dataPayload = {
+            type: 'call',
+            from: from,
+            roomId: roomId,
+            isVideo: isVideo
+        };
+        
+        // Воспроизводим звук звонка
+        playSound('/zvonok-push.mp3');
+        
+    } else if (isMessage) {
+        // ======== УВЕДОМЛЕНИЕ О СООБЩЕНИИ ========
+        const from = data.from || 'неизвестный';
+        const chatName = data.chatName || 'Чат';
+        const messageText = data.text || 'Новое сообщение';
+        const chatId = data.chatId || 'unknown';
+        
+        title = `💬 ${from} в ${chatName}`;
+        body = messageText.length > 100 ? messageText.substring(0, 100) + '...' : messageText;
+        vibrate = [100, 50, 100];
+        tag = `message-${chatId}-${Date.now()}`;
+        renotify = true;
+        actions = [
+            { action: 'open', title: '📨 Открыть чат' },
+            { action: 'reply', title: '✏️ Ответить' }
+        ];
+        dataPayload = {
+            type: 'message',
+            chatId: chatId,
+            from: from,
+            text: messageText
+        };
+    }
     
     event.waitUntil(
         Promise.all([
-            playSound(),
-            self.registration.showNotification('📞 Входящий звонок', {
-                body: data.body || 'Вам звонят!',
-                icon: '/icon-192.png',
-                badge: '/icon-192.png',
-                vibrate: [200, 100, 200],
-                sound: '/zvonok-push.mp3',
-                actions: [
-                    { action: 'answer', title: '📞 Ответить' },
-                    { action: 'reject', title: '❌ Отклонить' }
-                ],
-                data: {
-                    from: data.from,
-                    roomId: data.roomId,
-                    isVideo: data.isVideo || false
-                }
+            // Показываем уведомление
+            self.registration.showNotification(title, {
+                body: body,
+                icon: icon,
+                badge: badge,
+                vibrate: vibrate,
+                sound: sound,
+                actions: actions,
+                data: dataPayload,
+                tag: tag,
+                renotify: renotify,
+                requireInteraction: isCall // Звонок требует взаимодействия
             })
         ])
     );
 });
 
-// Обработка клика по уведомлению
+// ======== ОБРАБОТКА КЛИКА ПО УВЕДОМЛЕНИЮ ========
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     
     const data = event.notification.data;
+    const action = event.action;
     
-    if (event.action === 'answer') {
-        // Открываем приложение и принимаем звонок
-        event.waitUntil(
-            clients.openWindow('/').then(() => {
-                // Отправляем сообщение в основное приложение
-                const message = {
-                    type: 'call_accept',
-                    from: data.from,
-                    roomId: data.roomId,
-                    isVideo: data.isVideo || false
-                };
-                
-                // Отправляем всем клиентам
-                clients.matchAll().then(clientList => {
-                    clientList.forEach(client => {
-                        client.postMessage(message);
-                    });
-                });
-            })
-        );
-    } else if (event.action === 'reject') {
-        // Отклоняем звонок
-        event.waitUntil(
-            clients.matchAll().then(clientList => {
-                clientList.forEach(client => {
-                    client.postMessage({
-                        type: 'call_reject',
+    console.log('🔔 Клик по уведомлению:', action, data);
+    
+    // ======== ДЕЙСТВИЯ ДЛЯ ЗВОНКОВ ========
+    if (data.type === 'call') {
+        if (action === 'answer') {
+            // Принимаем звонок
+            event.waitUntil(
+                clients.openWindow('/').then(() => {
+                    // Отправляем сообщение в основное приложение
+                    const message = {
+                        type: 'call_accept',
                         from: data.from,
-                        roomId: data.roomId
+                        roomId: data.roomId,
+                        isVideo: data.isVideo || false
+                    };
+                    
+                    clients.matchAll({ type: 'window' }).then(clientList => {
+                        clientList.forEach(client => {
+                            client.postMessage(message);
+                        });
                     });
-                });
-            })
-        );
-    } else {
-        // Просто открываем приложение
-        event.waitUntil(
-            clients.openWindow('/')
-        );
+                    
+                    // Показываем уведомление о начале звонка
+                    self.registration.showNotification('📞 Соединение...', {
+                        body: `Подключение к ${data.from}...`,
+                        icon: '/icon-192.png',
+                        badge: '/icon-192.png',
+                        silent: true
+                    });
+                })
+            );
+        } else if (action === 'reject' || action === '') {
+            // Отклоняем звонок
+            event.waitUntil(
+                clients.matchAll({ type: 'window' }).then(clientList => {
+                    clientList.forEach(client => {
+                        client.postMessage({
+                            type: 'call_reject',
+                            from: data.from,
+                            roomId: data.roomId
+                        });
+                    });
+                })
+            );
+        }
+        return;
+    }
+    
+    // ======== ДЕЙСТВИЯ ДЛЯ СООБЩЕНИЙ ========
+    if (data.type === 'message') {
+        if (action === 'open' || action === '') {
+            // Открываем чат
+            event.waitUntil(
+                clients.openWindow('/').then(() => {
+                    // Отправляем сообщение в приложение
+                    clients.matchAll({ type: 'window' }).then(clientList => {
+                        clientList.forEach(client => {
+                            client.postMessage({
+                                type: 'open_chat',
+                                chatId: data.chatId
+                            });
+                        });
+                    });
+                })
+            );
+        } else if (action === 'reply') {
+            // Открываем чат с фокусом на ввод
+            event.waitUntil(
+                clients.openWindow('/').then(() => {
+                    clients.matchAll({ type: 'window' }).then(clientList => {
+                        clientList.forEach(client => {
+                            client.postMessage({
+                                type: 'reply_to_chat',
+                                chatId: data.chatId,
+                                replyTo: data.from
+                            });
+                        });
+                    });
+                })
+            );
+        }
+        return;
+    }
+    
+    // ======== ОБЫЧНЫЙ КЛИК ========
+    event.waitUntil(
+        clients.openWindow('/')
+    );
+});
+
+// ======== ОБРАБОТКА СООБЩЕНИЙ ОТ КЛИЕНТА ========
+self.addEventListener('message', function(event) {
+    const data = event.data;
+    console.log('📨 Сообщение от клиента:', data);
+    
+    if (data.type === 'play_sound') {
+        playSound('/zvonok.mp3');
+    }
+    
+    if (data.type === 'stop_sound') {
+        stopSound();
     }
 });
 
-// Обработка сообщений от клиента
-self.addEventListener('message', function(event) {
-    const data = event.data;
-    
-    if (data.type === 'play_sound') {
-        // Воспроизводим звук из Service Worker
-        const playSoundFromSW = async () => {
-            try {
-                const cache = await caches.open(CACHE_NAME);
-                const response = await cache.match('/zvonok.mp3');
+// ======== ВОСПРОИЗВЕДЕНИЕ ЗВУКА ========
+let audioContext = null;
+let soundSource = null;
+
+function playSound(url) {
+    try {
+        // Пытаемся воспроизвести через Web Audio
+        caches.open(CACHE_NAME).then(cache => {
+            cache.match(url).then(response => {
                 if (response) {
-                    const audioData = await response.arrayBuffer();
-                    const audioContext = new (self.AudioContext || self.webkitAudioContext)();
-                    const source = audioContext.createBufferSource();
-                    
-                    audioContext.decodeAudioData(audioData, function(buffer) {
-                        source.buffer = buffer;
-                        source.connect(audioContext.destination);
-                        source.start(0);
-                        // Повторяем звук
-                        source.onended = function() {
-                            // Звук закончился
-                        };
+                    response.arrayBuffer().then(arrayBuffer => {
+                        if (!audioContext) {
+                            audioContext = new (self.AudioContext || self.webkitAudioContext)();
+                        }
+                        audioContext.decodeAudioData(arrayBuffer, function(buffer) {
+                            if (soundSource) {
+                                try { soundSource.stop(); } catch(e) {}
+                                soundSource = null;
+                            }
+                            soundSource = audioContext.createBufferSource();
+                            soundSource.buffer = buffer;
+                            soundSource.connect(audioContext.destination);
+                            soundSource.start(0);
+                            console.log('🔔 Звук воспроизводится');
+                        });
                     });
                 }
-            } catch(e) {
-                console.error('Ошибка воспроизведения звука из SW:', e);
-            }
-        };
-        
-        event.waitUntil(playSoundFromSW());
+            });
+        });
+    } catch(e) {
+        console.error('❌ Ошибка воспроизведения звука:', e);
     }
-});
+}
+
+function stopSound() {
+    if (soundSource) {
+        try {
+            soundSource.stop();
+            soundSource = null;
+            console.log('🔕 Звук остановлен');
+        } catch(e) {}
+    }
+}
